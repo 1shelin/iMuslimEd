@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>iMuslimEd</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+  <!-- Кнопка для открытия чата -->
+  <button id="openChatBtn" class="chat-btn">💬</button>
+
+  <!-- Окно чата -->
+  <div id="chatWidget" class="chat-widget">
+    <div class="chat-header">
+      <span>iMuslimEd</span>
+      <button id="closeChatBtn" class="close-btn">✕</button>
+    </div>
+
+    <div class="chat-body" id="chatBody">
+      <div class="bot-msg"></div>
+    </div>
+
+    <div class="chat-footer">
+      <input id="userInput" type="text" placeholder="Введите сообщение..." />
+      <button id="sendBtn">➤</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f4ee;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  
+  h1 {
+    color: #3a5333;
+    margin-top: 50px;
+  }
+  
+  /* кнопка открытия чата */
+  .chat-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background-color: #3a5333;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  
+  /* само окно чата */
+  .chat-widget {
+    display: none;
+    position: fixed;
+    bottom: 90px;
+    right: 25px;
+    width: 360px;
+    height: 500px;
+    background-color: #ffffff;
+    border: 2px solid #3a5333;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    flex-direction: column;
+  }
+  
+  /* шапка */
+  .chat-header {
+    background-color: #3a5333;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  /* тело чата */
+  .chat-body {
+    flex: 1;
+    padding: 10px;
+    background-color: #f4f4ee;
+    overflow-y: auto;
+  }
+  
+  /* низ */
+  .chat-footer {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background: white;
+  }
+  
+  .chat-footer input {
+    flex: 1;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+  }
+  
+  .chat-footer button {
+    background: #3a5333;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    margin-left: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  /* кнопка закрытия */
+  .close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  
+  
