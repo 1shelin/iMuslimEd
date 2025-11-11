@@ -5,24 +5,27 @@
   <title>iMuslimEd</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+<body>
+  <!-- Плавающая кнопка -->
+  <button id="openIslamBtn" class="islam-btn">
+    <img src="{{ url_for('static', filename='moonstar_white.png') }}" alt="Islam" class="moon-icon">
+  </button>
 
-  <!-- Кнопка для открытия чата -->
-  <button id="openChatBtn" class="chat-btn">💬</button>
-
-  <!-- Окно чата -->
-  <div id="chatWidget" class="chat-widget">
-    <div class="chat-header">
-      <span>iMuslimEd</span>
-      <button id="closeChatBtn" class="close-btn">✕</button>
+  <!-- Всплывающее окно -->
+  <div id="islamPopup" class="islam-popup">
+    <div class="popup-header">
+      <span>Московский Университет им. С.Ю. Витте</span>
+      <button id="closePopup" class="close-btn">✕</button>
     </div>
 
-    <div class="chat-body" id="chatBody">
-      <div class="bot-msg"></div>
-    </div>
+    <div class="popup-body">
+      <img src="{{ url_for('static', filename='moonstar_red.png') }}" alt="Islam" class="popup-icon">
+      <p class="popup-question">Ваша религия Ислам?</p>
 
-    <div class="chat-footer">
-      <input id="userInput" type="text" placeholder="Введите сообщение..." />
-      <button id="sendBtn">➤</button>
+      <label class="switch">
+        <input type="checkbox" id="religionToggle">
+        <span class="slider round"></span>
+      </label>
     </div>
   </div>
 

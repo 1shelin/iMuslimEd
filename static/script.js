@@ -1,8 +1,11 @@
-document.getElementById("openChatBtn").addEventListener("click", () => {
-    document.getElementById("chatWidget").style.display = "flex";
-  });
-  
-  document.getElementById("closeChatBtn").addEventListener("click", () => {
-    document.getElementById("chatWidget").style.display = "none";
-  });
-  
+const openIslamBtn = document.getElementById("openIslamBtn");
+const islamPopup = document.getElementById("islamPopup");
+const closePopup = document.getElementById("closePopup");
+
+openIslamBtn.addEventListener("click", () => {
+  islamPopup.style.display = "block";
+});
+
+closePopup.addEventListener("click", () => {
+  islamPopup.style.display = "none";
+});
