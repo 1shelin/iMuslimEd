@@ -6,22 +6,22 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <!-- Плавающая кнопка -->
+  <!-- плавающая кнопка -->
   <button id="openIslamBtn" class="islam-btn">
     <img src="{{ url_for('static', filename='moonstar_white.png') }}" alt="Islam" class="moon-icon">
   </button>
 
-  <!-- Всплывающее окно -->
+  <!-- всплывающее окно -->
   <div id="islamPopup" class="islam-popup">
     <div class="popup-header">
       <span>Московский Университет им. С.Ю. Витте</span>
       <button id="closePopup" class="close-btn">✕</button>
-    </div>
+    </div>      
 
     <div class="popup-body">
+      <img src="{{ url_for('static', filename='mosque_dome_red.png') }}" alt="Купол мечети" class="popup-dome">
       <img src="{{ url_for('static', filename='moonstar_red.png') }}" alt="Islam" class="popup-icon">
       <p class="popup-question">Ваша религия Ислам?</p>
-
       <label class="switch">
         <input type="checkbox" id="religionToggle">
         <span class="slider round"></span>
