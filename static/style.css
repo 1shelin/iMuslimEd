@@ -4,22 +4,23 @@ body {
     margin: 0;
   }
   
-  /* кнопка с луной */
   .islam-btn {
     position: fixed;
-    bottom: 120px;
-    right: 25px;
+    bottom: 130px;
+    right: 57px;
     background-color: #09481E;
-    border: 4px solid white;
+    border: 4px solid #09481E;
     border-radius: 50%;
-    width: 75px;
-    height: 75px;
+    width: 60px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
     cursor: pointer;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 
+      0 0 0 7px rgba(9, 72, 30, 0.4), 
+      0 6px 18px rgba(0, 0, 0, 0.25);
   }
   
   .islam-btn:hover {
@@ -28,9 +29,17 @@ body {
   }
   
   .moon-icon {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     object-fit: contain;
+    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+    transition: filter 0.6s ease, transform 0.3s ease;
+  }
+  
+  .moon-icon:hover {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9))
+            drop-shadow(0 0 20px rgba(9, 72, 30, 0.6));
+    transform: scale(1.07);
   }
   
   /* всплывающее окно */
@@ -38,12 +47,12 @@ body {
     display: none;
     position: fixed;
     bottom: 210px;
-    right: 25px;
+    right: 48px;
     width: 380px;
-    height: 500px;
+    height: 580px;
     background-color: #F4F4EE;
     border: 2px solid #B40037;
-    border-radius: 20px;
+    border-radius: 30px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     animation: fadeIn 0.3s ease;
@@ -52,48 +61,89 @@ body {
   /* шапка окна */
   .popup-header {
     background-color: #B40037;
-    color: #fff;
-    font-weight: bold;
-    font-size: 14px;
-    padding: 12px;
+    color: #F4F4EE;
+    font-weight: normal;
+    font-size: 11px;
+    padding: 6px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-radius: 40px; 
+    margin: 10px;
   }
-  
+    
   .close-btn {
     background: none;
     border: none;
-    color: white;
+    color: rgba(244, 244, 238, 0.7);
     font-size: 18px;
     cursor: pointer;
   }
   
   /* тело окна */
   .popup-body {
-    text-align: center;
-    padding: 40px 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding-top: 0;
   }
   
+  /* купол мечети */
+  .popup-dome {
+    position: absolute;
+    top: -125px;
+    left: 0;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+  }
+  
+  /* луна */
   .popup-icon {
-    width: 70px;
-    height: 70px;
-    object-fit: contain;
+    width: 150px;
+    height: 225px;
+    margin-top: 70px;
     margin-bottom: 25px;
+    z-index: 2;
   }
   
+  /* вопрос */
   .popup-question {
-    font-size: 20px;
-    color: #B40037;
-    margin-bottom: 25px;
+    position: absolute;
+    top: 280px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px;
+    color: #F4F4EE;
+    margin: 0;
+    font-weight: 800;
+    -webkit-text-stroke: 0.9px #B40037;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    z-index: 3;
+    white-space: nowrap;
   }
   
   /* переключатель */
   .switch {
-    position: relative;
+    position: absolute;
+    top: 350px;
+    left: 50%;
+    transform: translateX(-50%);
     display: inline-block;
-    width: 64px;
+    width: 66px;
     height: 36px;
+    border: 2px solid #B40037;
+    border-radius: 50px;
+    padding: 3px;
+    box-shadow: 0 0 6px rgba(180, 0, 55, 0.3);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
+    margin: 0;
+    z-index: 3;
   }
   
   .switch input {
@@ -105,34 +155,46 @@ body {
   .slider {
     position: absolute;
     cursor: pointer;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc;
-    border-radius: 34px;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    background-color: #B40037;
+    border-radius: 50px;
     transition: 0.4s;
   }
   
   .slider:before {
     position: absolute;
     content: "";
-    height: 28px;
-    width: 28px;
+    height: 22px;
+    width: 22px;
     left: 4px;
     bottom: 4px;
-    background-color: white;
+    background-color: #F4F4EE;
     border-radius: 50%;
     transition: 0.4s;
   }
   
+  /* активное состояние */
   input:checked + .slider {
+    background-color: #09481E;
   }
   
+  /* активный ободок */
+  .switch:has(input:checked) {
+    border-color: #09481E;
+    box-shadow: 0 0 6px rgba(9, 72, 30, 0.3);
+  }
+  
+  /* движение ползунка */
   input:checked + .slider:before {
     transform: translateX(28px);
   }
   
   /* анимация появления */
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
   }
   
