@@ -70,13 +70,16 @@ body {
     align-items: center;
     border-radius: 40px; 
     margin: 10px;
+    font-weight: 200;
   }
     
   .close-btn {
     background: none;
     border: none;
     color: rgba(244, 244, 238, 0.7);
-    font-size: 18px;
+    font-size: 14px;
+    position: relative;
+    z-index: 20;
     cursor: pointer;
   }
   
@@ -112,20 +115,23 @@ body {
     z-index: 2;
   }
   
-  /* вопрос */
   .popup-question {
     position: absolute;
     top: 280px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
     font-size: 28px;
-    color: #F4F4EE;
-    margin: 0;
-    font-weight: 800;
-    -webkit-text-stroke: 0.9px #B40037;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    color: #F4F4EE; 
+    margin: 0 auto;
+    font-weight: 900;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); 
+    -webkit-text-stroke: 2px #B40037;
+    paint-order: stroke fill; 
     z-index: 3;
     white-space: nowrap;
+    text-align: center; 
+    width: fit-content; 
+    max-width: 90%; 
   }
   
   /* переключатель */
@@ -161,7 +167,7 @@ body {
     bottom: 4px;
     background-color: #B40037;
     border-radius: 50px;
-    transition: 0.4s;
+    transition: 1s ease;
   }
   
   .slider:before {
@@ -173,7 +179,7 @@ body {
     bottom: 4px;
     background-color: #F4F4EE;
     border-radius: 50%;
-    transition: 0.4s;
+    transition: 1s ease;
   }
   
   /* активное состояние */
@@ -198,3 +204,265 @@ body {
     to { opacity: 1; transform: translateY(0); }
   }
   
+  /* 2 окно */
+  .auth-popup {
+    display: none;
+    position: fixed;
+    bottom: 210;
+    right: 48px;
+    width: 380px;
+    height: 580px;
+    background-color: #F4F4EE;
+    border: 2px solid #09481E;
+    border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  
+  /* шапка */
+  .auth-header {
+    background-color: #09481E;
+    color: #F4F4EE;
+    font-weight: normal;
+    font-size: 11px;
+    position: relative;
+    z-index: 10;
+    padding: 6px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 40px;
+    font-weight: 200;
+    margin: 10px;
+  }
+  
+  .auth-body {
+    text-align: center;
+  }
+  
+  /* купол */
+  .auth-dome {
+    position: absolute;
+    top: -75px;
+    left: 0;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+  }
+  
+  /* луна */
+  .auth-icon {
+    width: 150px;
+    height: 225px;
+    margin-top: 70px;
+    margin-bottom: 25px;
+    z-index: 2;
+  }
+  
+  .auth-title {
+    position: absolute;
+    top: 310px;
+    left: 0;
+    right: 0; 
+    font-size: 28px;
+    color: #F4F4EE;
+    margin: 0 auto; 
+    font-weight: 800;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); 
+    -webkit-text-stroke: 2px #09481E;
+    paint-order: stroke fill; 
+    z-index: 3;
+    white-space: nowrap;
+    text-align: center;
+    width: fit-content; 
+    max-width: 90%;
+  }
+  
+  
+  /* поля */
+  .auth-input {
+    width: 68%;
+    padding: 12px 20px;
+    margin-bottom: 18px;
+    border-radius: 25px;
+    margin-top: -15px;
+    border: 1.4px solid #09481E;
+    background: #E8E8E2;
+    font-size: 16px;
+    outline: none;
+    font-weight: 200;
+  }
+  
+  /* кнопка */
+  .auth-btn {
+    width: 50%;
+    padding: 10px;
+    background-color: #09481E;
+    color: #F4F4EE;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: 200;
+  }
+  
+  /* 2 окно */
+  .auth-popup {
+    display: none;
+    position: fixed;
+    bottom: 210px;
+    right: 48px;
+    width: 380px;
+    height: 580px;
+    background-color: #F4F4EE;
+    border: 2px solid #09481E;
+    border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+  }
+  
+  /* анимации для окон */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes slideOutDown {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+  }
+  
+  @keyframes pulseIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.8) rotate(-5deg);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.05) rotate(2deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+  
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3) translateY(100px);
+    }
+    50% {
+      opacity: 0.9;
+      transform: scale(1.05) translateY(-10px);
+    }
+    70% {
+      transform: scale(0.95) translateY(5px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.8) translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+  
+  /* Классы для анимаций */
+  .popup-visible {
+    display: block !important;
+    animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  
+  .popup-hidden {
+    animation: slideOutDown 0.3s ease-out forwards;
+  }
+  
+  .popup-pulse {
+    display: block !important;
+    animation: pulseIn 0.6s ease-out;
+  }
+  
+  .popup-bounce {
+    display: block !important;
+    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+  
+  .popup-fade-scale {
+    display: block !important;
+    animation: fadeInScale 0.4s ease-out;
+  }
+  
+  /* Анимация для кнопки при открытии */
+  .btn-pulse {
+    animation: pulseIn 0.4s ease-out;
+  }
+  
+  /* Анимация для переключателя */
+  .switch-animated {
+    animation: pulseIn 0.3s ease-out;
+  }
+  
+  /* Анимация для купола мечети */
+  .popup-dome {
+    animation: fadeInScale 0.8s ease-out;
+  }
+  
+  .auth-dome {
+    animation: fadeInScale 0.8s ease-out;
+  }
+  
+  /* Анимация для луны */
+  .popup-icon {
+    animation: bounceIn 0.6s ease-out 0.1s both;
+  }
+  
+  .auth-icon {
+    animation: bounceIn 0.6s ease-out 0.1s both;
+  }
+  
+  /* Анимация для текста */
+  .popup-question {
+    animation: fadeInScale 0.5s ease-out 0.2s both;
+  }
+  
+  .auth-title {
+    animation: fadeInScale 0.5s ease-out 0.2s both;
+  }
+  
+  /* Анимация для полей ввода */
+  .auth-input {
+    animation: slideInUp 0.5s ease-out 0.3s both;
+  }
+  
+  .auth-input:nth-child(2) {
+    animation-delay: 0.4s;
+  }
+  
+  .auth-btn {
+    animation: slideInUp 0.5s ease-out 0.5s both;
+  }

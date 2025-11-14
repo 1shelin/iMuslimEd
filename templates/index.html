@@ -28,7 +28,25 @@
       </label>
     </div>
   </div>
+  <!-- зелёное окно (авторизация) -->
+<div id="authPopup" class="auth-popup">
+  <div class="auth-header">
+    <span>Московский Университет им. С.Ю. Витте</span>
+    <button id="closeAuth" class="close-btn">✕</button>
+  </div>
 
+  <div class="auth-body">
+    <img src="{{ url_for('static', filename='mosque_dome_green.png') }}" class="auth-dome">
+    <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="auth-icon">
+
+    <p class="auth-title">Авторизуйтесь</p>
+
+    <input type="text" placeholder="Логин" class="auth-input">
+    <input type="password" placeholder="Пароль" class="auth-input">
+
+    <button class="auth-btn">Войти</button>
+  </div>
+</div>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
