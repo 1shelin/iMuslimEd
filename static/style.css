@@ -198,17 +198,11 @@ body {
     transform: translateX(28px);
   }
   
-  /* анимация появления */
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  /* 2 окно */
+  /* 2 окно - АВТОРИЗАЦИЯ */
   .auth-popup {
     display: none;
     position: fixed;
-    bottom: 210;
+    bottom: 210px;
     right: 48px;
     width: 380px;
     height: 580px;
@@ -219,7 +213,6 @@ body {
     overflow: hidden;
     animation: fadeIn 0.3s ease;
   }
-  
   
   /* шапка */
   .auth-header {
@@ -240,12 +233,14 @@ body {
   
   .auth-body {
     text-align: center;
+    position: relative;
+    height: 100%;
   }
   
   /* купол */
   .auth-dome {
     position: absolute;
-    top: -75px;
+    top: -125px;
     left: 0;
     width: 100%;
     height: auto;
@@ -264,7 +259,7 @@ body {
   
   .auth-title {
     position: absolute;
-    top: 310px;
+    top: 260px; 
     left: 0;
     right: 0; 
     font-size: 28px;
@@ -281,22 +276,65 @@ body {
     max-width: 90%;
   }
   
+  .auth-inputs-container {
+    position: absolute;
+    top: 315px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px; 
+    z-index: 4;
+  }
   
-  /* поля */
+  /* поля ввода */
   .auth-input {
-    width: 68%;
+    width: 100%;
     padding: 12px 20px;
-    margin-bottom: 18px;
     border-radius: 25px;
-    margin-top: -15px;
     border: 1.4px solid #09481E;
     background: #E8E8E2;
     font-size: 16px;
     outline: none;
     font-weight: 200;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
   }
   
-  /* кнопка */
+  .auth-input:focus {
+    border-color: #09481E;
+    box-shadow: 0 0 5px rgba(9, 72, 30, 0.3);
+  }
+  
+  /* для пароля с глазом */
+  .password-wrapper {
+    position: relative;
+    width: 100%;
+    margin-top: 2px; 
+  }
+  
+  .toggle-password {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 5;
+  }
+  
+  .password-icon {
+    width: 20px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+  }
+  
+  .toggle-password:hover .password-icon {
+    opacity: 1;
+  }
+  
+  /* кнопка ВОЙТИ */
   .auth-btn {
     width: 50%;
     padding: 10px;
@@ -307,10 +345,21 @@ body {
     font-size: 16px;
     cursor: pointer;
     font-weight: 200;
+    margin-top: 20px; 
+    transition: background-color 0.3s ease, transform 0.2s ease;
   }
   
-  /* 2 окно */
-  .auth-popup {
+  .auth-btn:hover {
+    background-color: #073317;
+    transform: translateY(-2px);
+  }
+  
+  .auth-btn:active {
+    transform: translateY(0);
+  }
+  
+  /* окно загрузки (авторизация) */
+  .loading-popup {
     display: none;
     position: fixed;
     bottom: 210px;
@@ -320,12 +369,64 @@ body {
     background-color: #F4F4EE;
     border: 2px solid #09481E;
     border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     animation: fadeIn 0.3s ease;
   }
   
+  
+  .loading-box {
+    background-color: #E6E6DF; 
+    border-radius: 25px;
+    border: 1px solid #09481E;
+    width: 330px;
+    height: 450px;
+    margin: 40px auto 0 auto;
+    text-align: center;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* IMuslimEd */
+  .loading-title {
+    font-family: 'Inknut Antiqua', serif;
+    font-size: 26px;
+    font-weight: 600;
+    color: #F4F4EE;
+    -webkit-text-stroke: 2px #09481E;
+    paint-order: stroke fill;
+    margin-bottom: -60px; 
+    z-index: 3;
+    position: relative;
+  }
+  
+  /* луна */
+  .loading-moon {
+    width: 170px;
+    height: auto;
+    display: block;
+    margin: -10px 0; 
+    z-index: 2;
+  }
+  
+  .loading-text {
+    font-size: 12px;
+    font-weight: 100;
+    color: #09481E;
+    margin-top: -50px; 
+    z-index: 3;
+    position: relative;
+  }
+  
   /* анимации для окон */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
   @keyframes slideInUp {
     from {
       opacity: 0;
@@ -417,17 +518,17 @@ body {
     animation: fadeInScale 0.4s ease-out;
   }
   
-  /* Анимация для кнопки при открытии */
+  /* анимация для кнопки при открытии */
   .btn-pulse {
     animation: pulseIn 0.4s ease-out;
   }
   
-  /* Анимация для переключателя */
+  /* анимация для переключателя */
   .switch-animated {
     animation: pulseIn 0.3s ease-out;
   }
   
-  /* Анимация для купола мечети */
+  /* анимация для купола мечети */
   .popup-dome {
     animation: fadeInScale 0.8s ease-out;
   }
@@ -436,7 +537,7 @@ body {
     animation: fadeInScale 0.8s ease-out;
   }
   
-  /* Анимация для луны */
+  /* анимация для луны */
   .popup-icon {
     animation: bounceIn 0.6s ease-out 0.1s both;
   }
@@ -445,7 +546,11 @@ body {
     animation: bounceIn 0.6s ease-out 0.1s both;
   }
   
-  /* Анимация для текста */
+  .loading-moon {
+    animation: bounceIn 0.6s ease-out 0.1s both;
+  }
+  
+  /* анимация для текста */
   .popup-question {
     animation: fadeInScale 0.5s ease-out 0.2s both;
   }
@@ -454,15 +559,25 @@ body {
     animation: fadeInScale 0.5s ease-out 0.2s both;
   }
   
-  /* Анимация для полей ввода */
+  .loading-title {
+    animation: fadeInScale 0.5s ease-out 0.2s both;
+  }
+  
+  .loading-text {
+    animation: fadeInScale 0.5s ease-out 0.3s both;
+  }
+  
+  /* анимация для полей ввода */
   .auth-input {
     animation: slideInUp 0.5s ease-out 0.3s both;
   }
   
-  .auth-input:nth-child(2) {
-    animation-delay: 0.4s;
+  .password-wrapper {
+    animation: slideInUp 0.5s ease-out 0.4s both;
   }
   
   .auth-btn {
     animation: slideInUp 0.5s ease-out 0.5s both;
   }
+  
+  

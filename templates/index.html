@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>iMuslimEd</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- плавающая кнопка -->
@@ -11,42 +12,64 @@
     <img src="{{ url_for('static', filename='moonstar_white.png') }}" alt="Islam" class="moon-icon">
   </button>
 
-  <!-- всплывающее окно -->
+  <!-- красное окно -->
   <div id="islamPopup" class="islam-popup">
     <div class="popup-header">
       <span>Московский Университет им. С.Ю. Витте</span>
       <button id="closePopup" class="close-btn">✕</button>
-    </div>      
-
+    </div>
     <div class="popup-body">
-      <img src="{{ url_for('static', filename='mosque_dome_red.png') }}" alt="Купол мечети" class="popup-dome">
-      <img src="{{ url_for('static', filename='moonstar_red.png') }}" alt="Islam" class="popup-icon">
-      <p class="popup-question">Ваша религия Ислам?</p>
+      <img src="{{ url_for('static', filename='mosque_dome_red.png') }}" class="popup-dome">
+      <img src="{{ url_for('static', filename='moonstar_red.png') }}" class="popup-icon">
+      <p class="popup-question">Ваша религия ислам?</p>
       <label class="switch">
         <input type="checkbox" id="religionToggle">
         <span class="slider round"></span>
       </label>
     </div>
   </div>
-  <!-- зелёное окно (авторизация) -->
-<div id="authPopup" class="auth-popup">
-  <div class="auth-header">
-    <span>Московский Университет им. С.Ю. Витте</span>
-    <button id="closeAuth" class="close-btn">✕</button>
+
+  <!-- зелёное окно авторизации -->
+  <div id="authPopup" class="auth-popup">
+    <div class="auth-header">
+      <span>Московский Университет им. С.Ю. Витте</span>
+      <button id="closeAuth" class="close-btn">✕</button>
+    </div>
+    <div class="auth-body">
+      <img src="{{ url_for('static', filename='mosque_dome_green.png') }}" class="auth-dome">
+      <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="auth-icon">
+      <p class="auth-title">Авторизуйтесь</p>
+
+      <div class="auth-inputs-container">
+        <input type="text" id="loginInput" placeholder="Логин" class="auth-input">
+
+        <div class="password-wrapper">
+          <input type="password" id="passwordInput" placeholder="Пароль" class="auth-input">
+          <span id="togglePassword" class="toggle-password">
+            <img src="{{ url_for('static', filename='eye_closed.png') }}" class="password-icon">
+          </span>
+        </div>           
+
+        <button class="auth-btn" id="loginBtn">Войти</button>
+      </div>
+    </div>
   </div>
 
-  <div class="auth-body">
-    <img src="{{ url_for('static', filename='mosque_dome_green.png') }}" class="auth-dome">
-    <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="auth-icon">
+  <!-- окно загрузки (авторизация) -->
+  <div id="authLoading" class="loading-popup">
+    <div class="auth-header">
+      <span>Московский Университет им. С.Ю. Витте</span>
+      <button id="closeLoading" class="close-btn">✕</button>
+    </div>
+  
+    <div class="loading-body">
+      <div class="loading-box">
+        <p class="loading-title">IMuslimEd</p>
+        <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="loading-moon">
+        <p class="loading-text">авторизация...</p>
+      </div>
+    </div>    
 
-    <p class="auth-title">Авторизуйтесь</p>
-
-    <input type="text" placeholder="Логин" class="auth-input">
-    <input type="password" placeholder="Пароль" class="auth-input">
-
-    <button class="auth-btn">Войти</button>
-  </div>
-</div>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

@@ -4,19 +4,28 @@ const closePopup = document.getElementById("closePopup");
 const authPopup = document.getElementById("authPopup");
 const closeAuth = document.getElementById("closeAuth");
 const toggle = document.getElementById("religionToggle");
+
+const loginBtn = document.getElementById("loginBtn");
+const loginInput = document.getElementById("loginInput");
+const passwordInput = document.getElementById("passwordInput");
+const togglePassword = document.getElementById("togglePassword");
+const passwordIcon = togglePassword.querySelector("img");
+
+const authLoading = document.getElementById("authLoading");
+const closeLoading = document.getElementById("closeLoading");
+
 let islamAccepted = false;
 
-// для показа попапа с анимацией
+// показ окна
 function showPopup(popupElement) {
   hideAllPopups();
-  
   popupElement.style.display = 'block';
   setTimeout(() => {
     popupElement.classList.add('popup-visible');
   }, 50);
 }
 
-// для скрытия попапа с анимацией
+// скрытие окна
 function hidePopup(popupElement) {
   popupElement.classList.remove('popup-visible');
   popupElement.classList.add('popup-hidden');
@@ -26,43 +35,27 @@ function hidePopup(popupElement) {
   }, 300);
 }
 
-// для скрытия всех попапов
+// убрать оба
 function hideAllPopups() {
-  [islamPopup, authPopup].forEach(popup => {
-    if (popup.style.display === 'block') {
-      hidePopup(popup);
-    }
+  [islamPopup, authPopup, authLoading].forEach(popup => {
+    if (popup.style.display === 'block') hidePopup(popup);
   });
 }
 
-// кнопка с луной 
+// кнопка луна
 openIslamBtn.addEventListener("click", (e) => {
   e.stopPropagation();
-  
   if (islamAccepted) {
-    if (authPopup.style.display === "block") {
-      hidePopup(authPopup);
-    } else {
-      showPopup(authPopup);
-    }
+    authPopup.style.display === "block" ? hidePopup(authPopup) : showPopup(authPopup);
   } else {
-    if (islamPopup.style.display === "block") {
-      hidePopup(islamPopup);
-    } else {
-      showPopup(islamPopup);
-    }
+    islamPopup.style.display === "block" ? hidePopup(islamPopup) : showPopup(islamPopup);
   }
 });
 
-// - красное окно
-closePopup.addEventListener("click", () => {
-  hidePopup(islamPopup);
-});
-
-// - зелёное окно
-closeAuth.addEventListener("click", () => {
-  hidePopup(authPopup);
-});
+// крестики
+closePopup.addEventListener("click", () => hidePopup(islamPopup));
+closeAuth.addEventListener("click", () => hidePopup(authPopup));
+closeLoading.addEventListener("click", () => hidePopup(authLoading));
 
 // переключатель
 toggle.addEventListener("change", () => {
@@ -70,21 +63,72 @@ toggle.addEventListener("change", () => {
     islamAccepted = true;
     setTimeout(() => {
       hidePopup(islamPopup);
-      setTimeout(() => {
-        showPopup(authPopup);
-      }, 200);
+      setTimeout(() => showPopup(authPopup), 200);
     }, 400);
-  } else {
-    islamAccepted = false;
+  } else islamAccepted = false;
+});
+
+// клик вне окна
+document.addEventListener('click', (e) => {
+  if (!islamPopup.contains(e.target) && !openIslamBtn.contains(e.target)) hidePopup(islamPopup);
+  if (!authPopup.contains(e.target) && !openIslamBtn.contains(e.target)) hidePopup(authPopup);
+  if (!authLoading.contains(e.target) && !openIslamBtn.contains(e.target)) hidePopup(authLoading);
+});
+
+// нажимаем "войти"
+loginBtn.addEventListener("click", async () => {
+  const login = loginInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!login || !password) {
+    alert("Введите логин и пароль!");
+    return;
+  }
+
+  hidePopup(authPopup);
+  setTimeout(() => showPopup(authLoading), 200);
+
+  try {
+    const response = await fetch("/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ login, password })
+    });
+
+    const result = await response.json();
+    console.log(result);
+
+    setTimeout(() => {
+      hidePopup(authLoading);
+      // здесь откроем следующее окно (потом сделать)
+      alert("Авторизация успешна! Можно переходить к следующему окну.");
+    }, 2000);
+  } catch (error) {
+    console.error("Ошибка авторизации:", error);
+    hidePopup(authLoading);
+    alert("Ошибка авторизации. Попробуйте снова.");
   }
 });
 
-// закрытие по клику вне окна
-document.addEventListener('click', (e) => {
-  if (!islamPopup.contains(e.target) && !openIslamBtn.contains(e.target)) {
-    hidePopup(islamPopup);
+// переключение видимости пароля
+togglePassword.addEventListener("click", () => {
+  const type = passwordInput.type === "password" ? "text" : "password";
+  passwordInput.type = type;
+
+  passwordIcon.src = type === "password" 
+    ? "/static/eye_closed.png"
+    : "/static/eye_open.png";
+});
+
+// Обработка нажатия Enter в полях ввода
+loginInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    loginBtn.click();
   }
-  if (!authPopup.contains(e.target) && !openIslamBtn.contains(e.target)) {
-    hidePopup(authPopup);
+});
+
+passwordInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    loginBtn.click();
   }
 });
