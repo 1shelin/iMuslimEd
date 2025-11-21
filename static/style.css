@@ -63,14 +63,14 @@ body {
     background-color: #B40037;
     color: #F4F4EE;
     font-weight: normal;
-    font-size: 11px;
+    font-size: 12px;
     padding: 6px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-radius: 40px; 
     margin: 10px;
-    font-weight: 200;
+    font-weight: 100;
   }
     
   .close-btn {
@@ -152,10 +152,20 @@ body {
     z-index: 3;
   }
   
-  .switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
+  .switch input:disabled + .slider {
+    background-color: #09481E;
+    cursor: not-allowed;
+    opacity: 0.8;
+  }
+  
+  .switch input:disabled + .slider:before {
+    background-color: #F4F4EE;
+  }
+  
+  .switch:has(input:disabled) {
+    border-color: #09481E;
+    box-shadow: 0 0 6px rgba(9, 72, 30, 0.3);
+    cursor: not-allowed;
   }
   
   .slider {
@@ -218,8 +228,8 @@ body {
   .auth-header {
     background-color: #09481E;
     color: #F4F4EE;
-    font-weight: normal;
-    font-size: 11px;
+    font-size: 12px;
+    font-weight: 100;
     position: relative;
     z-index: 10;
     padding: 6px 18px;
@@ -227,7 +237,6 @@ body {
     justify-content: space-between;
     align-items: center;
     border-radius: 40px;
-    font-weight: 200;
     margin: 10px;
   }
   
@@ -372,6 +381,8 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     overflow: hidden;
     animation: fadeIn 0.3s ease;
+    font-size: 12px;
+    font-weight: 100;
   }
   
   
@@ -493,7 +504,7 @@ body {
     }
   }
   
-  /* Классы для анимаций */
+  /* классы для анимаций */
   .popup-visible {
     display: block !important;
     animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -578,6 +589,4 @@ body {
   
   .auth-btn {
     animation: slideInUp 0.5s ease-out 0.5s both;
-  }
-  
-  
+  }  

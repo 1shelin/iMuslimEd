@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import hashlib
 import os
 import json
+from datetime import datetime
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
@@ -12,23 +13,39 @@ def hash_value(value):
 
 def load_users():
     if not os.path.exists(USERS_FILE):
-        return []
-    with open(USERS_FILE, "r") as f:
-        return json.load(f)
+        return {}
+    try:
+        with open(USERS_FILE, "r") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, FileNotFoundError):
+        return {}
 
 def save_user(login, password):
     users = load_users()
-    users.append({
-        "login": hash_value(login),
+    hashed_login = hash_value(login)
+
+    users[hashed_login] = {
         "password": hash_value(password),
-    })
+        "created_at": datetime.now().isoformat()
+    }
+    
     with open(USERS_FILE, "w") as f:
         json.dump(users, f, indent=2)
 
 def check_user(login, password):
+    users = load_users()
     hashed_login = hash_value(login)
     hashed_password = hash_value(password)
-    return any(u["login"] == hashed_login and u["password"] == hashed_password for u in load_users())
+    
+    user = users.get(hashed_login)
+    if user and user["password"] == hashed_password:
+        return True
+    return False
+
+def is_user_exists(login):
+    users = load_users()
+    hashed_login = hash_value(login)
+    return hashed_login in users
 
 @app.route('/')
 def home():
@@ -40,11 +57,19 @@ def auth():
     login = data.get("login")
     password = data.get("password")
 
-    if check_user(login, password):
-        return jsonify({"success": True})
+    if not login or not password:
+        return jsonify({"success": False, "error": "Логин и пароль обязательны"})
+
+    user_exists = is_user_exists(login)
+    
+    if user_exists:
+        if check_user(login, password):
+            return jsonify({"success": True, "new": False})
+        else:
+            return jsonify({"success": False, "error": "Неверный пароль"})
     else:
         save_user(login, password)
         return jsonify({"success": True, "new": True})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
