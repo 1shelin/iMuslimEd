@@ -55,20 +55,39 @@
     </div>
   </div>
 
-  <!-- окно загрузки (авторизация) -->
-  <div id="authLoading" class="loading-popup">
-    <div class="auth-header">
-      <span>Московский Университет им. С.Ю. Витте</span>
-      <button id="closeLoading" class="close-btn">✕</button>
+<!-- окно загрузки (авторизация) -->
+<div id="authLoading" class="loading-popup">
+  <div class="auth-header">
+    <span>Московский Университет им. С.Ю. Витте</span>
+    <button id="closeLoading" class="close-btn">✕</button>
+  </div>
+
+  <div class="loading-body">
+    <div class="loading-box">
+      <p class="loading-title">IMuslimEd</p>
+      <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="loading-moon">
+      <p class="loading-text">авторизация...</p>
     </div>
-  
-    <div class="loading-body">
-      <div class="loading-box">
-        <p class="loading-title">IMuslimEd</p>
-        <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="loading-moon">
-        <p class="loading-text">авторизация...</p>
-      </div>
-    </div>    
+  </div>    
+</div>
+
+<!-- главное окно после авторизации -->
+<div id="mainWindow" class="main-popup">
+  <div class="main-header">
+    <span>Московский Университет им. С.Ю. Витте</span>
+    <button id="closeMain" class="close-btn">✕</button>
+  </div>
+
+  <div class="main-body">
+    <p class="main-title">iMuslimEd</p>
+    <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="main-moon">
+    <div class="main-welcome">
+      • Ас-саляму ʿАлейкум!<br>
+      Добро пожаловать в <b>iMuslimEd.</b>
+    </div>
+    <button class="main-btn">Задать вопрос</button>
+  </div>
+</div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

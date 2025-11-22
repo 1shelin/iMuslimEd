@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
-USERS_FILE = "users.json"
+USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
 
 def hash_value(value):
     return hashlib.sha256(value.encode()).hexdigest()
@@ -23,7 +23,7 @@ def load_users():
 def save_user(login, password):
     users = load_users()
     hashed_login = hash_value(login)
-
+    
     users[hashed_login] = {
         "password": hash_value(password),
         "created_at": datetime.now().isoformat()
@@ -66,10 +66,12 @@ def auth():
         if check_user(login, password):
             return jsonify({"success": True, "new": False})
         else:
-            return jsonify({"success": False, "error": "Неверный пароль"})
+            return jsonify({"success": False, "error": "Неверный логин или пароль"})
     else:
+       
         save_user(login, password)
         return jsonify({"success": True, "new": True})
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
