@@ -18,6 +18,15 @@ const closeLoading = document.getElementById("closeLoading");
 const mainWindow = document.getElementById("mainWindow");
 const closeMain = document.getElementById("closeMain");
 
+
+const chatWindow = document.getElementById("chatWindow");
+const chatBtn = document.querySelector(".main-btn");
+const closeChat = document.getElementById("closeChat");
+const sendBtn = document.getElementById("sendBtn");
+const chatInput = document.getElementById("chatInput");
+const messageContainer = document.getElementById("messageContainer");
+
+
 let islamAccepted = false;     
 let authFinished = false; 
 
@@ -159,6 +168,24 @@ if (togglePassword) {
   });
 }
 
+chatBtn.addEventListener("click", () => {
+  hidePopup(mainWindow);
+  showPopup(chatWindow);
+});
+
+closeChat.addEventListener("click", () => hidePopup(chatWindow));
+
+sendBtn.addEventListener("click", () => {
+  let msg = chatInput.value.trim();
+  if (!msg) return;
+  let div = document.createElement("div");
+  div.classList.add("message-user");
+  div.textContent = msg;
+  messageContainer.appendChild(div);
+  chatInput.value = "";
+});
+
+
 // Enter 
 loginInput && loginInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") loginBtn.click();
@@ -167,6 +194,20 @@ loginInput && loginInput.addEventListener("keypress", (e) => {
 passwordInput && passwordInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") loginBtn.click();
 });
+// отправка сообщения по Enter
+chatInput && chatInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") sendBtn.click();
+});
+
+
+function hideAllPopups() {
+  const popups = [islamPopup, authPopup, authLoading, mainWindow, chatWindow];
+  popups.forEach(popup => {
+    if (popup && popup.style.display === 'block') {
+      hidePopup(popup);
+    }
+  });
+}
 
 // клик вне окон закрывает их
 document.addEventListener('click', (e) => {
@@ -174,7 +215,8 @@ document.addEventListener('click', (e) => {
     { popup: islamPopup, btn: openIslamBtn },
     { popup: authPopup, btn: openIslamBtn },
     { popup: authLoading, btn: openIslamBtn },
-    { popup: mainWindow, btn: openIslamBtn }
+    { popup: mainWindow, btn: openIslamBtn },
+    { popup: chatWindow, btn: openIslamBtn }
   ];
   
   popups.forEach(({ popup, btn }) => {
