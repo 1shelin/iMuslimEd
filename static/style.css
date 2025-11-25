@@ -567,7 +567,7 @@ body {
     position: absolute;
     inset: 0;
     background: url("/static/chat.png") center/cover no-repeat;
-    opacity: 0.1;
+    opacity: 0.07;
     z-index: 0;
   }
   .chat-popup * {
@@ -597,32 +597,27 @@ body {
     width: 28px;           
     height: 28px;
     border-radius: 50%;
-    border: 1.5px solid #F4F4EE;
+    border: 0.2px solid #F4F4EE;
     display: flex;
     justify-content: center;
     align-items: center;
     background: none;
     overflow: hidden;
-    margin-right: 4px;      
+    margin-right: 11px;      
   }
   
   .chat-icon-container img {
-    width: 85%;            
-    height: 85%;
-    object-fit: contain;
-  }
-  
-  .chat-icon-container img {
-    width: 24px;
-    height: 24px;
+    width: 170%;       
+    height: 170%;
+    object-fit: cover;
   }
   
   .chat-title {
     font-family: 'Inknut Antiqua', serif;
-    font-size: 15px; 
+    font-size: 16px; 
     font-weight: 600;
-    margin-left: 2px;      
-    margin-top: 2px; 
+    margin-left: 1px;      
+    margin-top: 3px; 
     color: #09481E;
     -webkit-text-stroke: 1.5px #F4F4EE;
     paint-order: stroke fill;
@@ -630,19 +625,47 @@ body {
   
   .chat-menu {
     font-size: 25px;
-    color: white;
+    color: #F4F4EE;
     opacity: 0.5;
     margin-right: -3px;
     cursor: pointer;
+    margin-top: 7px;
   }
   
-  /* крестик */
+  /* (луна + текст) */
+  .chat-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    margin-left: -8px; 
+  }
+  
+  .chat-date {
+    text-align: center;
+    font-size: 13px;
+    color: #09481E;
+    margin: 2px 0; 
+    background-color: #F4F4EE;
+    border: 1px solid #09481E;
+    border-radius: 12px;
+    padding: 2px 12px;
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.2;
+    font-family: 'Inknut Antiqua', serif;
+    font-weight: 100;
+  
+  }
+  
   .chat-close {
     background: none;
     border: none;
     font-size: 15px;
     color: #F4F4EE;
     opacity: 0.5;
+    margin-top: -7px; 
+    transform: translateY(-10%);
     cursor: pointer;
   }
   
@@ -654,11 +677,17 @@ body {
     right: 10px;
     display: flex;
     align-items: center;
-    background: rgba(244,244,238,0.9);
+    background: #FFFFFE;
     border: 1px solid #09481E;
     border-radius: 22px;
     padding: 10px 15px;
     height: 70px;
+  }
+  
+  .chat-input::placeholder {
+    color: #09481E;
+    opacity: 0.7;
+    font-weight: 300;
   }
   
   .chat-input {
@@ -666,7 +695,7 @@ body {
     border: none !important;
     background: none;
     outline: none;
-    font-size: 15px;
+    font-size: 12px;
     font-weight: 100;
     margin-bottom: 40px;
   }
