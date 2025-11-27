@@ -26,6 +26,9 @@ const sendBtn = document.getElementById("sendBtn");
 const chatInput = document.getElementById("chatInput");
 const messageContainer = document.getElementById("messageContainer");
 
+const chatMenu = document.querySelector(".chat-menu");
+const menuPopup = document.querySelector(".menu-popup"); // это белый купол
+const menuClose = document.querySelector(".menu-close"); // крестик в меню
 
 let islamAccepted = false;     
 let authFinished = false; 
@@ -209,6 +212,44 @@ function hideAllPopups() {
   });
 }
 
+// открытие меню по клику на три полоски
+chatMenu.addEventListener("click", (e) => {
+  e.stopPropagation();
+  showPopup(menuWindow);
+});
+
+// закрытие меню
+closeMenu.addEventListener("click", () => hidePopup(menuWindow));
+
+// навигация по меню
+menuHome.addEventListener("click", (e) => {
+  e.preventDefault();
+  hidePopup(menuWindow);
+  showPopup(mainWindow);
+});
+
+menuChat.addEventListener("click", (e) => {
+  e.preventDefault();
+  hidePopup(menuWindow);
+  showPopup(chatWindow);
+});
+
+menuSettings.addEventListener("click", (e) => {
+  e.preventDefault();
+  hidePopup(menuWindow);
+  // добавить открытие окна настроек
+  alert("Настройки в разработке");
+});
+
+function hideAllPopups() {
+  const popups = [islamPopup, authPopup, authLoading, mainWindow, chatWindow, menuWindow];
+  popups.forEach(popup => {
+    if (popup && popup.style.display === 'block') {
+      hidePopup(popup);
+    }
+  });
+}
+
 // клик вне окон закрывает их
 document.addEventListener('click', (e) => {
   const popups = [
@@ -216,7 +257,8 @@ document.addEventListener('click', (e) => {
     { popup: authPopup, btn: openIslamBtn },
     { popup: authLoading, btn: openIslamBtn },
     { popup: mainWindow, btn: openIslamBtn },
-    { popup: chatWindow, btn: openIslamBtn }
+    { popup: chatWindow, btn: openIslamBtn },
+    { popup: menuWindow, btn: chatMenu }
   ];
   
   popups.forEach(({ popup, btn }) => {

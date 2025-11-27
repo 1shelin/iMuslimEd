@@ -119,6 +119,46 @@
   </div>
 </div>
 
+<!-- Окно меню -->
+<div id="menuWindow" class="menu-popup">
+  <div class="menu-header">
+    <div class="menu-left">
+      <div class="menu-icon-container">
+        <img src="{{ url_for('static', filename='moonstar_white.png') }}">
+      </div>
+      <span class="menu-title">IMuslimEd</span>
+    </div>
+
+    <div class="chat-right-icons">
+      <span class="chat-menu">≡</span>
+      <button id="closeMenu" class="menu-close">✕</button>
+    </div>
+  </div>
+
+  <div class="menu-body">
+    <img src="{{ url_for('static', filename='mosque_dome_white.png') }}" class="menu-dome">
+    <img src="{{ url_for('static', filename='mosque_dome_white.png') }}" class="menu-dome2">
+    <img src="{{ url_for('static', filename='muiv_white.png') }}" class="menu-university">
+    
+    <div class="menu-items">
+      <a href="#" class="menu-item" id="menuHome">
+        <span class="menu-text">Главная</span>
+        <img src="{{ url_for('static', filename='house.png') }}" class="menu-icon">
+      </a>
+      
+      <a href="#" class="menu-item" id="menuChat">
+        <span class="menu-text">Чат</span>
+        <img src="{{ url_for('static', filename='message.png') }}" class="menu-icon">
+      </a>
+      
+      <a href="#" class="menu-item" id="menuSettings">
+        <span class="menu-text">Настройки</span>
+        <img src="{{ url_for('static', filename='settings.png') }}" class="menu-icon">
+      </a>
+    </div>
+  </div>
+</div>
+
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

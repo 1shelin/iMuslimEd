@@ -513,7 +513,7 @@ body {
     line-height: 1.4;
     background-color: #F4F4EE;
     z-index: 3;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px #09481E;
     position: absolute;
     top: 320px; 
     left: 50%;
@@ -534,7 +534,7 @@ body {
     transition: background-color 0.3s ease, transform 0.2s ease;
     z-index: 3;
     position: absolute;
-    top: 400px; 
+    top: 420px; 
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
@@ -567,7 +567,7 @@ body {
     position: absolute;
     inset: 0;
     background: url("/static/chat.png") center/cover no-repeat;
-    opacity: 0.07;
+    opacity: 0.09;
     z-index: 0;
   }
   .chat-popup * {
@@ -729,6 +729,218 @@ body {
     margin-left: auto;
   }
   
+  /* меню */
+  .menu-popup {
+    display: none;
+    position: fixed;
+    bottom: 210px;
+    right: 48px;
+    width: 380px;
+    height: 580px;
+    background-color: #09481E;
+    border: 2px solid #09481E;
+    border-radius: 30px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    overflow: hidden;
+    animation: fadeIn 0.3s ease;
+    z-index: 1001;
+  }
+  
+  .menu-header {
+    background-color: #09481E;
+    height: 22px; 
+    padding: 6px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 35px;
+    margin: 10px;
+    position: relative;
+    z-index: 2;
+    border: 1px solid #F4F4EE;
+  }
+  
+  /* (луна + текст) */
+  .menu-left {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    margin-left: -8px; 
+  }
+  
+  .menu-icon-container {
+    width: 28px;           
+    height: 28px;
+    border-radius: 50%;
+    border: 0.2px solid #F4F4EE;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: none;
+    overflow: hidden;
+    margin-right: 11px;      
+  }
+  
+  .menu-icon-container img {
+    width: 170%;       
+    height: 170%;
+    object-fit: cover;
+  }
+  
+  .menu-title {
+    font-family: 'Inknut Antiqua', serif;
+    font-size: 16px; 
+    font-weight: 600;
+    margin-left: 1px;      
+    margin-top: 3px; 
+    color: #09481E;
+    -webkit-text-stroke: 1.5px #F4F4EE;
+    paint-order: stroke fill;
+  }
+  
+  .menu-close {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: #F4F4EE;
+    opacity: 0.5;
+    margin-top: -7px; 
+    transform: translateY(-10%);
+    cursor: pointer;
+  }
+  
+  .menu-body {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-top: 0;
+  }
+  
+  .menu-body::before,
+  .menu-body::after {
+    content: '';
+    position: absolute;
+    top: 31%;    
+    bottom: 41%; 
+    width: 6px; 
+    background-color: rgba(244, 244, 238, 0.97);
+    z-index: 1;
+    border-radius: 3px;
+  }
+  
+  .menu-body::before {
+    left: 0%;    
+  }
+  
+  .menu-body::after {
+    right: 0%; 
+  }
+  
+  .menu-dome {
+    position: absolute;
+    bottom: 130px; 
+    left: 0;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+  }
+  
+  .menu-dome2 {
+    position: absolute;
+    bottom: -60px; 
+    left: 0;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+    transform: rotate(180deg); 
+  }
+  
+  /* лого */
+  .menu-university {
+    width: 140px;
+    z-index: 2;
+    filter: brightness(0) invert(1);
+    position: absolute;
+    bottom: 130px; 
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* пункты меню */
+  .menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 55%;
+    z-index: 3;
+    position: absolute;
+    top: 43%; 
+    left: 50%;
+    transform: translate(-50%, -50%); 
+  }
+  
+  .menu-item {
+    font-family: 'Inknut Antiqua', serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 12px;
+    background-color: #09481E;
+    border: 1px solid rgba(244, 244, 238, 0.8);
+    border-radius: 18px; 
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: #F4F4EE;
+    height: 30px; 
+    position: relative;
+    width: 85%; 
+    max-width: 180px;
+    margin: 0 auto; 
+  }
+  
+  .menu-item:hover {
+    background-color: #F4F4EE;
+    color: #09481E;
+    transform: translateY(-2px);
+  }
+  
+  .menu-item:hover .menu-icon {
+    filter: none; 
+  }
+  
+  .menu-text {
+    font-family: 'Inknut Antiqua', serif;
+    font-size: 16px;
+    font-weight: 100;
+    order: 2; 
+    letter-spacing: 1.2px; 
+    text-align: center;
+    flex: 1; 
+    margin: 0 30px; 
+    opacity: 0.95;
+  }
+  
+  .menu-icon {
+    width: 16px;
+    height: 16px;
+    transition: all 0.3s ease;
+    filter: brightness(0) invert(1);
+    position: absolute;
+    right: 12px;
+  }
+  
+  .menu-item:hover .menu-icon {
+    filter: brightness(0) invert(1) drop-shadow(0 0 8px #09481E); /* Зеленая тень */
+    transform: scale(1.1); /* Легкое увеличение */
+  }
+  
   /* анимации для окон */
   @keyframes fadeIn {
     from { opacity: 0; }
@@ -886,4 +1098,4 @@ body {
   
   .auth-btn {
     animation: slideInUp 0.5s ease-out 0.5s both;
-  }  
+  }
