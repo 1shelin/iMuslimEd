@@ -119,7 +119,7 @@
   </div>
 </div>
 
-<!-- Окно меню -->
+<!-- окно меню -->
 <div id="menuWindow" class="menu-popup">
   <div class="menu-header">
     <div class="menu-left">
@@ -159,6 +159,70 @@
   </div>
 </div>
 
+<!-- окно настроек -->
+<div id="settingsWindow" class="settings-popup">
+  <div class="settings-header">
+    <div class="settings-left">
+      <div class="settings-icon-container">
+        <img src="{{ url_for('static', filename='moonstar_white.png') }}">
+      </div>
+      <span class="settings-title">IMuslimEd</span>
+    </div>
+
+    <div class="chat-right-icons">
+      <span class="chat-menu">≡</span>
+      <button id="closeSettings" class="settings-close">✕</button>
+    </div>
+  </div>
+
+  <div class="settings-body">
+    <div class="settings-content">
+      <!-- заголовок  -->
+      <h1 class="settings-main-title">Настройки</h1>
+      
+      <!-- очистить историю чата -->
+      <div class="settings-checkbox-item">
+        <div class="settings-checkbox-content">
+          <span class="settings-checkbox-text">Очистить историю чата</span>
+        </div>
+        <div>
+          <input type="checkbox" id="clearChatHistory" class="settings-checkbox">
+          <label for="clearChatHistory" class="settings-checkbox-circle"></label>
+        </div>
+      </div>
+
+      <!-- о сервисе -->
+      <div class="settings-item" id="aboutService">
+        <div class="settings-item-content">
+          <span class="settings-item-text">О сервисе</span>
+        </div>
+        <img src="{{ url_for('static', filename='info.png') }}" class="settings-item-icon-right" alt="О сервисе">
+      </div>
+
+      <!-- обратная связь -->
+      <div class="settings-item" id="feedback">
+        <div class="settings-item-content">
+          <span class="settings-item-text">Обратная связь</span>
+        </div>
+        <img src="{{ url_for('static', filename='connection.png') }}" class="settings-item-icon-right" alt="Обратная связь">
+      </div>
+
+      <!-- разделительная линия -->
+      <div class="settings-divider"></div>
+
+      <!-- выйти -->
+      <div class="settings-logout" id="logoutBtn">
+        <span class="settings-logout-text">Выйти</span>
+      </div>
+    </div>
+
+    <!-- нижняя черточка -->
+    <div class="settings-bottom-line"></div>
+
+    <!-- логотип МУИВ внизу -->
+    <img src="{{ url_for('static', filename='muiv_green.png') }}" class="settings-university">
+  </div>
+</div>
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

@@ -197,7 +197,7 @@ loginInput && loginInput.addEventListener("keypress", (e) => {
 passwordInput && passwordInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") loginBtn.click();
 });
-// отправка сообщения по Enter
+// Отправка сообщения по Enter
 chatInput && chatInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendBtn.click();
 });
@@ -237,12 +237,11 @@ menuChat.addEventListener("click", (e) => {
 menuSettings.addEventListener("click", (e) => {
   e.preventDefault();
   hidePopup(menuWindow);
-  // добавить открытие окна настроек
-  alert("Настройки в разработке");
+  showPopup(settingsWindow); 
 });
 
 function hideAllPopups() {
-  const popups = [islamPopup, authPopup, authLoading, mainWindow, chatWindow, menuWindow];
+  const popups = [islamPopup, authPopup, authLoading, mainWindow, chatWindow, menuWindow, settingsWindow];
   popups.forEach(popup => {
     if (popup && popup.style.display === 'block') {
       hidePopup(popup);
@@ -250,7 +249,57 @@ function hideAllPopups() {
   });
 }
 
-// клик вне окон закрывает их
+document.getElementById('clearChatHistory')?.addEventListener('change', function(e) {
+  if (this.checked) {
+    if (confirm("Вы уверены, что хотите очистить историю чата?")) {
+      messageContainer.innerHTML = '';
+      localStorage.removeItem('chatHistory');
+      setTimeout(() => {
+        this.checked = false;
+      }, 500);
+    } else {
+      this.checked = false;
+    }
+  }
+});
+
+
+document.getElementById('aboutService')?.addEventListener('click', function() {
+  alert("iMuslimEd - сервис для мусульманских студентов Московского Университета им. С.Ю. Витте\n\nВерсия 1.0");
+});
+
+
+document.getElementById('feedback')?.addEventListener('click', function() {
+  alert("Для обратной связи напишите на email: support@imuslimed.ru\n\nМы ценим ваше мнение!");
+});
+
+
+document.getElementById('logoutBtn')?.addEventListener('click', function() {
+  if (confirm("Вы уверены, что хотите выйти?")) {
+  
+    authFinished = false;
+    islamAccepted = false;
+  
+    hideAllPopups();
+    
+    setTimeout(() => {
+      showPopup(islamPopup);
+    }, 300);
+  }
+});
+
+closeSettings && closeSettings.addEventListener("click", () => hidePopup(settingsWindow));
+
+function hideAllPopups() {
+  const popups = [islamPopup, authPopup, authLoading, mainWindow, chatWindow, menuWindow, settingsWindow];
+  popups.forEach(popup => {
+    if (popup && popup.style.display === 'block') {
+      hidePopup(popup);
+    }
+  });
+}
+
+// обработчик клика вне окон
 document.addEventListener('click', (e) => {
   const popups = [
     { popup: islamPopup, btn: openIslamBtn },
@@ -258,7 +307,8 @@ document.addEventListener('click', (e) => {
     { popup: authLoading, btn: openIslamBtn },
     { popup: mainWindow, btn: openIslamBtn },
     { popup: chatWindow, btn: openIslamBtn },
-    { popup: menuWindow, btn: chatMenu }
+    { popup: menuWindow, btn: chatMenu },
+    { popup: settingsWindow, btn: menuSettings }
   ];
   
   popups.forEach(({ popup, btn }) => {
@@ -270,7 +320,6 @@ document.addEventListener('click', (e) => {
     }
   });
 });
-
 // скрыть все попапы при загрузке
 document.addEventListener('DOMContentLoaded', () => {
   hideAllPopups();

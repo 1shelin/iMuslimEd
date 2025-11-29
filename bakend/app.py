@@ -72,6 +72,5 @@ def auth():
         save_user(login, password)
         return jsonify({"success": True, "new": True})
 
-
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
