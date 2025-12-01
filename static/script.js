@@ -225,7 +225,7 @@ closeMenu.addEventListener("click", () => hidePopup(menuWindow));
 menuHome.addEventListener("click", (e) => {
   e.preventDefault();
   hidePopup(menuWindow);
-  showPopup(mainWindow);
+  showPopup(majorWindow);
 });
 
 menuChat.addEventListener("click", (e) => {
@@ -290,8 +290,26 @@ document.getElementById('logoutBtn')?.addEventListener('click', function() {
 
 closeSettings && closeSettings.addEventListener("click", () => hidePopup(settingsWindow));
 
+// обработчики для функций
+document.getElementById('prayerTime')?.addEventListener('click', function() {
+  alert("Функция 'Время намаза' в разработке");
+});
+
+document.getElementById('halalNearby')?.addEventListener('click', function() {
+  alert("Функция 'Халяль рядом' в разработке");
+});
+
+document.getElementById('mosque')?.addEventListener('click', function() {
+  alert("Функция 'Мечеть/Молельная' в разработке");
+});
+
+document.getElementById('faq')?.addEventListener('click', function() {
+  alert("Функция 'Часто задаваемые вопросы' в разработке");
+});
+
+
 function hideAllPopups() {
-  const popups = [islamPopup, authPopup, authLoading, mainWindow, chatWindow, menuWindow, settingsWindow];
+  const popups = [islamPopup, authPopup, authLoading, mainWindow, chatWindow, menuWindow, settingsWindow, majorWindow];
   popups.forEach(popup => {
     if (popup && popup.style.display === 'block') {
       hidePopup(popup);
@@ -299,7 +317,10 @@ function hideAllPopups() {
   });
 }
 
-// обработчик клика вне окон
+const closeMajor = document.getElementById('closeMajor');
+closeMajor && closeMajor.addEventListener("click", () => hidePopup(majorWindow));
+
+// клик вне окон:
 document.addEventListener('click', (e) => {
   const popups = [
     { popup: islamPopup, btn: openIslamBtn },
@@ -308,7 +329,8 @@ document.addEventListener('click', (e) => {
     { popup: mainWindow, btn: openIslamBtn },
     { popup: chatWindow, btn: openIslamBtn },
     { popup: menuWindow, btn: chatMenu },
-    { popup: settingsWindow, btn: menuSettings }
+    { popup: settingsWindow, btn: menuSettings },
+    { popup: majorWindow, btn: menuHome }  // Добавлено
   ];
   
   popups.forEach(({ popup, btn }) => {
@@ -320,6 +342,7 @@ document.addEventListener('click', (e) => {
     }
   });
 });
+
 // скрыть все попапы при загрузке
 document.addEventListener('DOMContentLoaded', () => {
   hideAllPopups();

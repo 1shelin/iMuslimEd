@@ -223,6 +223,67 @@
     <img src="{{ url_for('static', filename='muiv_green.png') }}" class="settings-university">
   </div>
 </div>
+
+<!-- главное окно (major) -->
+<div id="majorWindow" class="major-popup">
+  <div class="major-header">
+    <div class="major-left">
+      <div class="major-icon-container">
+        <img src="{{ url_for('static', filename='moonstar_white.png') }}">
+      </div>
+      <span class="major-title">IMuslimEd</span>
+    </div>
+
+    <div class="chat-right-icons">
+      <span class="chat-menu">≡</span>
+      <button id="closeMajor" class="major-close">✕</button>
+    </div>
+  </div>
+
+  <div class="major-body">
+    <div class="major-content">
+      <!-- заголовок -->
+      <h1 class="major-main-title">Главная</h1>
+      
+      <!-- профиль -->
+      <div class="major-user-info">
+        <h2 class="major-name">Сафина Элина Ильмировна</h2>
+        <p class="major-quote">«Пусть знания ведут к взаимопониманию»</p>
+      </div>
+      
+      <!-- список функций -->
+      <div class="major-features">
+        <!-- Время намаза -->
+        <div class="major-feature" id="prayerTime">
+          <span class="major-feature-text">Время намаза</span>
+          <img src="{{ url_for('static', filename='time.png') }}" class="major-feature-icon" alt="Время">
+        </div>
+        
+        <!-- Халяль рядом -->
+        <div class="major-feature" id="halalNearby">
+          <span class="major-feature-text">Халяль рядом</span>
+          <img src="{{ url_for('static', filename='food.png') }}" class="major-feature-icon" alt="Халяль">
+        </div>
+        
+        <!-- Мечеть/Молельная -->
+        <div class="major-feature" id="mosque">
+          <span class="major-feature-text">Мечеть/Молельная</span>
+          <img src="{{ url_for('static', filename='place.png') }}" class="major-feature-icon" alt="Мечеть">
+        </div>
+        
+        <!-- Часто задаваемые вопросы -->
+        <div class="major-feature" id="faq">
+          <span class="major-feature-text">Часто задаваемые вопросы</span>
+          <img src="{{ url_for('static', filename='question.png') }}" class="major-feature-icon" alt="Вопрос">
+        </div>
+      </div>
+    </div>
+    <div class="major-bottom-line"></div>
+    <!-- лого-->
+    <img src="{{ url_for('static', filename='muiv_green.png') }}" class="major-university">
+  </div>
+</div>
+
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
