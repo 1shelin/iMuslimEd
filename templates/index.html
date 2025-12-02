@@ -245,43 +245,49 @@
       <!-- заголовок -->
       <h1 class="major-main-title">Главная</h1>
       
-      <!-- профиль -->
-      <div class="major-user-info">
-        <h2 class="major-name">Сафина Элина Ильмировна</h2>
-        <p class="major-quote">«Пусть знания ведут к взаимопониманию»</p>
-      </div>
-      
-      <!-- список функций -->
-      <div class="major-features">
-        <!-- Время намаза -->
-        <div class="major-feature" id="prayerTime">
-          <span class="major-feature-text">Время намаза</span>
-          <img src="{{ url_for('static', filename='time.png') }}" class="major-feature-icon" alt="Время">
+      <div class="major-container">
+        <div class="profile-row-container">
+          <div class="profile-row">
+            <img src="{{ url_for('static', filename='user.png') }}" class="user-icon">
+            <div class="profile-name">Сафина Элина Ильмировна</div>
+          </div>
+        </div>
+
+        <div class="major-quote">«Пусть знания ведут к взаимопониманию»</div>
+        
+        <div class="circle-menu">
+            <div class="sector top">
+                <img src="static/time.png" class="sector-icon">
+                <span>Время намаза</span>
+            </div>
+    
+            <div class="sector right">
+                <img src="static/place.png" class="sector-icon">
+                <span>Мечеть/молельная</span>
+            </div>
+    
+            <div class="sector bottom">
+                <img src="static/question.png" class="sector-icon">
+                <span>Часто задаваемые<br>вопросы</span>
+            </div>
+    
+            <div class="sector left">
+                <img src="static/food.png" class="sector-icon">
+                <span>Халяль рядом</span>
+            </div>
+    
+            <div class="center-circle"></div>
+        </div>
+        <div class="social-icons">
+          <a href="https://vk.com/mosvitte?from=groups" target="_blank">
+            <img src="/static/vk.png" alt="VK" class="vk-icon">
+          </a>
+          <a href="https://t.me/mosvitte" target="_blank">
+            <img src="/static/telegram.png" alt="Telegram" class="tg-icon">
+          </a>
         </div>
         
-        <!-- Халяль рядом -->
-        <div class="major-feature" id="halalNearby">
-          <span class="major-feature-text">Халяль рядом</span>
-          <img src="{{ url_for('static', filename='food.png') }}" class="major-feature-icon" alt="Халяль">
-        </div>
-        
-        <!-- Мечеть/Молельная -->
-        <div class="major-feature" id="mosque">
-          <span class="major-feature-text">Мечеть/Молельная</span>
-          <img src="{{ url_for('static', filename='place.png') }}" class="major-feature-icon" alt="Мечеть">
-        </div>
-        
-        <!-- Часто задаваемые вопросы -->
-        <div class="major-feature" id="faq">
-          <span class="major-feature-text">Часто задаваемые вопросы</span>
-          <img src="{{ url_for('static', filename='question.png') }}" class="major-feature-icon" alt="Вопрос">
-        </div>
-      </div>
     </div>
-    <div class="major-bottom-line"></div>
-    <!-- лого-->
-    <img src="{{ url_for('static', filename='muiv_green.png') }}" class="major-university">
-  </div>
 </div>
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
