@@ -292,9 +292,22 @@
             <img src="/static/telegram.png" alt="Telegram" class="tg-icon">
           </a>
         </div>
-        
     </div>
-</div>
+      <!-- окно времени намаза -->
+  <div id="prayerPopup" class="prayer-popup">
+    <div class="prayer-header">
+      <span class="prayer-title">Время намаза</span>
+      <button class="prayer-close" id="closePrayer">✕</button>
+    </div>
+    
+    <div class="prayer-body">
+      <div class="prayer-times" id="prayerTimes">
+        Загрузка…
+      </div>
+      <img src="/static/muiv_green.png" class="prayer-muiv">
+    </div>
+  </div>
+
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

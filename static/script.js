@@ -30,6 +30,16 @@ const chatMenu = document.querySelector(".chat-menu");
 const menuPopup = document.querySelector(".menu-popup"); // это белый купол
 const menuClose = document.querySelector(".menu-close"); // крестик в меню
 
+const prayerPopupEl = document.getElementById("prayerPopup");
+const closePrayerBtn = document.getElementById("closePrayer");
+const prayerTimesContainer = document.getElementById("prayerTimes");
+
+const halalPopup = document.getElementById("halalPopup");
+const mosquePopup = document.getElementById("mosquePopup");
+const closeHalal = document.getElementById("closeHalal");
+const closeMosque = document.getElementById("closeMosque");
+
+
 let islamAccepted = false;     
 let authFinished = false; 
 
@@ -290,18 +300,96 @@ document.getElementById('logoutBtn')?.addEventListener('click', function() {
 
 closeSettings && closeSettings.addEventListener("click", () => hidePopup(settingsWindow));
 
-// обработчики для функций
-document.getElementById('prayerTime')?.addEventListener('click', function() {
-  alert("Функция 'Время намаза' в разработке");
+document.getElementById('prayerTime')?.addEventListener('click', () => {
+  showPrayerPopup(prayerPopup);
+  loadPrayerTimes();
 });
 
-document.getElementById('halalNearby')?.addEventListener('click', function() {
-  alert("Функция 'Халяль рядом' в разработке");
+document.getElementById('closePrayerTimes')?.addEventListener('click', () => {
+  hidePrayerPopup(prayerPopup);
 });
 
-document.getElementById('mosque')?.addEventListener('click', function() {
-  alert("Функция 'Мечеть/Молельная' в разработке");
+// Открытие при клике на сектор
+document.getElementById("prayerTime")?.addEventListener("click", () => {
+  // Показываем окно поверх большого
+  prayerPopupEl.style.display = "block";
+  prayerPopupEl.classList.remove("popup-hidden");
+  prayerPopupEl.classList.add("popup-visible");
+
+  // Загружаем намаз
+  loadPrayerTimes();
 });
+
+// Закрытие по кресту
+closePrayerBtn?.addEventListener("click", () => {
+  prayerPopupEl.classList.remove("popup-visible");
+  prayerPopupEl.classList.add("popup-hidden");
+  setTimeout(() => {
+    prayerPopupEl.style.display = "none";
+  }, 300);
+});
+
+// Функция загрузки намаза
+async function loadPrayerTimes() {
+  if (!prayerTimesContainer) return;
+
+  prayerTimesContainer.textContent = "Загрузка…";
+
+  const lat = 55.700283;
+  const lon = 37.654942;
+
+  try {
+    const url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`;
+    const res = await fetch(url);
+    const json = await res.json();
+
+    if (!json || !json.data || !json.data.timings) {
+      throw new Error("Неверный ответ API");
+    }
+
+    const timings = json.data.timings;
+
+    const now = new Date();
+
+function toMinutes(t) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+const prayers = [
+  { name: "Фаджр", time: timings.Fajr },
+  { name: "Зухр", time: timings.Dhuhr },
+  { name: "Аср", time: timings.Asr },
+  { name: "Магриб", time: timings.Maghrib },
+  { name: "Иша", time: timings.Isha }
+];
+
+let activeIndex = 0;
+
+for (let i = 0; i < prayers.length; i++) {
+  const cur = toMinutes(prayers[i].time);
+  const next = prayers[i + 1] ? toMinutes(prayers[i + 1].time) : 24 * 60;
+
+  if (currentMinutes >= cur && currentMinutes < next) {
+    activeIndex = i;
+    break;
+  }
+}
+
+prayerTimesContainer.innerHTML = prayers.map((p, i) => `
+  <div class="prayer-row ${i === activeIndex ? 'active-prayer' : ''}">
+    <span>${p.name}</span>
+    <span>${p.time}</span>
+  </div>
+`).join("");
+
+  } catch (err) {
+    console.error(err);
+    prayerTimesContainer.textContent = "Ошибка при загрузке времени намаза";
+  }
+}
 
 document.getElementById('faq')?.addEventListener('click', function() {
   alert("Функция 'Часто задаваемые вопросы' в разработке");
@@ -319,6 +407,7 @@ function hideAllPopups() {
 
 const closeMajor = document.getElementById('closeMajor');
 closeMajor && closeMajor.addEventListener("click", () => hidePopup(majorWindow));
+
 
 // клик вне окон:
 document.addEventListener('click', (e) => {
