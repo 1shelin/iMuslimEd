@@ -1,1787 +1,1901 @@
 body {
-    background-color: #F4F4EE;
-    font-family: 'Inter', sans-serif;
-    margin: 0;
-  }
+  background-color: #F4F4EE;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+}
+
+.islam-btn {
+  position: fixed;
+  bottom: 130px;
+  right: 57px;
+  background-color: #09481E;
+  border: 4px solid #09481E;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 
+    0 0 0 7px rgba(9, 72, 30, 0.4), 
+    0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.islam-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.moon-icon {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
+  transition: filter 0.6s ease, transform 0.3s ease;
+}
+
+.moon-icon:hover {
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9))
+          drop-shadow(0 0 20px rgba(9, 72, 30, 0.6));
+  transform: scale(1.07);
+}
+
+/* всплывающее окно */
+.islam-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background-color: #F4F4EE;
+  border: 2px solid #B40037;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+}
+
+/* шапка окна */
+.popup-header {
+  background-color: #B40037;
+  color: #F4F4EE;
+  font-weight: normal;
+  font-size: 12px;
+  padding: 6px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 40px; 
+  margin: 10px;
+  font-weight: 100;
+}
   
-  .islam-btn {
-    position: fixed;
-    bottom: 130px;
-    right: 57px;
+.close-btn {
+  background: none;
+  border: none;
+  color: rgba(244, 244, 238, 0.7);
+  font-size: 14px;
+  position: relative;
+  z-index: 20;
+  cursor: pointer;
+}
+
+/* тело окна */
+.popup-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-top: 0;
+}
+
+/* купол мечети */
+.popup-dome {
+  position: absolute;
+  top: -125px;
+  left: 0;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* луна */
+.popup-icon {
+  width: 150px;
+  height: 225px;
+  margin-top: 70px;
+  margin-bottom: 25px;
+  z-index: 2;
+}
+
+.popup-question {
+  position: absolute;
+  top: 280px;
+  left: 0;
+  right: 0;
+  font-size: 28px;
+  color: #F4F4EE; 
+  margin: 0 auto;
+  font-weight: 900;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); 
+  -webkit-text-stroke: 2px #B40037;
+  paint-order: stroke fill; 
+  z-index: 3;
+  white-space: nowrap;
+  text-align: center; 
+  width: fit-content; 
+  max-width: 90%; 
+}
+
+/* переключатель */
+.switch {
+  position: absolute;
+  top: 350px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-block;
+  width: 66px;
+  height: 36px;
+  border: 2px solid #B40037;
+  border-radius: 50px;
+  padding: 3px;
+  box-shadow: 0 0 6px rgba(180, 0, 55, 0.3);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease;
+  margin: 0;
+  z-index: 3;
+}
+
+.switch input:disabled + .slider {
+  background-color: #09481E;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.switch input:disabled + .slider:before {
+  background-color: #F4F4EE;
+}
+
+.switch:has(input:disabled) {
+  border-color: #09481E;
+  box-shadow: 0 0 6px rgba(9, 72, 30, 0.3);
+  cursor: not-allowed;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  background-color: #B40037;
+  border-radius: 50px;
+  transition: 1s ease;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 4px;
+  background-color: #F4F4EE;
+  border-radius: 50%;
+  transition: 1s ease;
+}
+
+/* активное состояние */
+input:checked + .slider {
+  background-color: #09481E;
+}
+
+/* активный ободок */
+.switch:has(input:checked) {
+  border-color: #09481E;
+  box-shadow: 0 0 6px rgba(9, 72, 30, 0.3);
+}
+
+/* движение ползунка */
+input:checked + .slider:before {
+  transform: translateX(28px);
+}
+
+/* 2 окно - АВТОРИЗАЦИЯ */
+.auth-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background-color: #F4F4EE;
+  border: 2px solid #09481E;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+}
+
+/* шапка */
+.auth-header {
+  background-color: #09481E;
+  color: #F4F4EE;
+  font-size: 12px;
+  font-weight: 100;
+  position: relative;
+  z-index: 10;
+  padding: 6px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 40px;
+  margin: 10px;
+}
+
+.auth-body {
+  text-align: center;
+  position: relative;
+  height: 100%;
+}
+
+/* купол */
+.auth-dome {
+  position: absolute;
+  top: -125px;
+  left: 0;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* луна */
+.auth-icon {
+  width: 150px;
+  height: 225px;
+  margin-top: 70px;
+  margin-bottom: 25px;
+  z-index: 2;
+}
+
+.auth-title {
+  position: absolute;
+  top: 260px; 
+  left: 0;
+  right: 0; 
+  font-size: 28px;
+  color: #F4F4EE;
+  margin: 0 auto; 
+  font-weight: 800;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); 
+  -webkit-text-stroke: 2px #09481E;
+  paint-order: stroke fill; 
+  z-index: 3;
+  white-space: nowrap;
+  text-align: center;
+  width: fit-content; 
+  max-width: 90%;
+}
+
+.auth-inputs-container {
+  position: absolute;
+  top: 315px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px; 
+  z-index: 4;
+}
+
+/* поля ввода */
+.auth-input {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: 1.4px solid #09481E;
+  background: #E8E8E2;
+  font-size: 16px;
+  outline: none;
+  font-weight: 200;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+}
+
+.auth-input:focus {
+  border-color: #09481E;
+  box-shadow: 0 0 5px rgba(9, 72, 30, 0.3);
+}
+
+/* для пароля с глазом */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 2px; 
+}
+
+.toggle-password {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 5;
+}
+
+.password-icon {
+  width: 20px;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.toggle-password:hover .password-icon {
+  opacity: 1;
+}
+
+/* кнопка ВОЙТИ */
+.auth-btn {
+  width: 50%;
+  padding: 10px;
+  background-color: #09481E;
+  color: #F4F4EE;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 200;
+  margin-top: 20px; 
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.auth-btn:hover {
+  background-color: #073317;
+  transform: translateY(-2px);
+}
+
+.auth-btn:active {
+  transform: translateY(0);
+}
+
+/* окно загрузки (авторизация) */
+.loading-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background-color: #F4F4EE;
+  border: 2px solid #09481E;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+  font-size: 12px;
+  font-weight: 100;
+}
+
+
+.loading-box {
+  background-color: #E6E6DF; 
+  border-radius: 25px;
+  border: 1px solid #09481E;
+  width: 330px;
+  height: 450px;
+  margin: 40px auto 0 auto;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* IMuslimEd */
+.loading-title {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: #F4F4EE;
+  -webkit-text-stroke: 2px #09481E;
+  paint-order: stroke fill;
+  margin-bottom: -60px; 
+  z-index: 1;
+  position: relative;
+}
+
+/* луна */
+.loading-moon {
+  width: 170px;
+  height: auto;
+  display: block;
+  margin: -10px 0; 
+  z-index: 2;
+}
+
+.loading-text {
+  font-size: 12px;
+  font-weight: 100;
+  color: #09481E;
+  margin-top: -50px; 
+  z-index: 3;
+  position: relative;
+}
+
+
+/* приветствие */
+.main-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background-color: #F4F4EE;
+  border: 2px solid #09481E;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.4s ease-out;
+  z-index: 1000;
+}
+
+.main-header {
+  background-color: #09481E;
+  color: #F4F4EE;
+  font-size: 12px;
+  font-weight: 100;
+  padding: 6px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 40px;
+  margin: 10px;
+  position: relative;
+  z-index: 10;
+}
+
+.main-body {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.main-title {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #F4F4EE;
+  -webkit-text-stroke: 2px #09481E;
+  paint-order: stroke fill;
+  text-align: center;
+  z-index: 3;
+  position: absolute;
+  top: 100px; 
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  margin: 0;
+}
+
+.main-moon {
+  width: 160px;
+  height: auto;
+  z-index: 3;
+  position: absolute;
+  top: 95px; 
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* рамка */
+.main-welcome {
+  text-align: center;
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 15px;
+  font-weight: 100;
+  color: #09481E;
+  border: 0.5px solid #09481E;
+  border-radius: 25px;
+  padding: 12px 18px;
+  width: 65%; 
+  line-height: 1.4;
+  background-color: #F4F4EE;
+  z-index: 3;
+  box-shadow: 0 2px 8px #09481E;
+  position: absolute;
+  top: 320px; 
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+
+/* кнопка */
+.main-btn {
+  background-color: #09481E;
+  color: #F4F4EE;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 100;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  z-index: 3;
+  position: absolute;
+  top: 420px; 
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+
+.main-btn:hover {
+  background-color: #073317;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.main-btn:active {
+  transform: translateX(-50%) translateY(0);
+}
+
+.chat-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background: #F4F4EE;
+  border: 2px solid #09481E;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.chat-popup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/static/chat.png") center/cover no-repeat;
+  opacity: 0.09;
+  z-index: 0;
+}
+.chat-popup * {
+  position: relative;
+  z-index: 2;
+}
+
+.chat-body, .chat-input-container {
+  position: relative;
+  z-index: 2;
+}
+
+.chat-header {
+  background-color: #09481E;
+  height: 22px; 
+  padding: 6px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 35px;
+  margin: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.chat-icon-container {
+  width: 28px;           
+  height: 28px;
+  border-radius: 50%;
+  border: 0.2px solid #F4F4EE;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  overflow: hidden;
+  margin-right: 11px;      
+}
+
+.chat-icon-container img {
+  width: 170%;       
+  height: 170%;
+  object-fit: cover;
+}
+
+.chat-title {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 16px; 
+  font-weight: 600;
+  margin-left: 1px;      
+  margin-top: 3px; 
+  color: #09481E;
+  -webkit-text-stroke: 1.5px #F4F4EE;
+  paint-order: stroke fill;
+}
+
+.chat-menu {
+  font-size: 25px;
+  color: #F4F4EE;
+  opacity: 0.5;
+  margin-right: -3px;
+  cursor: pointer;
+  margin-top: 7px;
+}
+
+/* (луна + текст) */
+.chat-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-left: -8px; 
+}
+
+.chat-date {
+  text-align: center;
+  font-size: 13px;
+  color: #09481E;
+  margin: 2px 0; 
+  background-color: #F4F4EE;
+  border: 1px solid #09481E;
+  border-radius: 12px;
+  padding: 2px 12px;
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.2;
+  font-family: 'Inknut Antiqua', serif;
+  font-weight: 100;
+
+}
+
+.chat-close {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #F4F4EE;
+  opacity: 0.5;
+  margin-top: -7px; 
+  transform: translateY(-10%);
+  cursor: pointer;
+}
+
+/* поле для соо */
+.chat-input-container {
+  position: absolute;
+  bottom: 14px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  background: #FFFFFE;
+  border: 1px solid #09481E;
+  border-radius: 22px;
+  padding: 10px 15px;
+  height: 70px;
+}
+
+.chat-input::placeholder {
+  color: #09481E;
+  opacity: 0.7;
+  font-weight: 300;
+}
+
+.chat-input {
+  flex: 1;
+  border: none !important;
+  background: none;
+  outline: none;
+  font-size: 12px;
+  font-weight: 100;
+  margin-bottom: 40px;
+}
+
+.chat-send {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+}
+
+.chat-send img {
+  width: 18px;
+  height: 18px;
+}
+
+.message-user {
+  background: #F4F4EE;
+  border: 1px solid #09481E;
+  border-radius: 15px;
+  padding: 8px 12px;
+  margin: 6px 0;
+  font-size: 14px;
+  text-align: right;
+  max-width: 75%;
+  margin-left: auto;
+}
+
+/* меню */
+.menu-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background-color: #09481E;
+  border: 2px solid #09481E;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+  z-index: 1001;
+}
+
+.menu-header {
+  background-color: #09481E;
+  height: 22px; 
+  padding: 6px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 35px;
+  margin: 10px;
+  position: relative;
+  z-index: 2;
+  border: 1px solid #F4F4EE;
+}
+
+/* (луна + текст) */
+.menu-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-left: -8px; 
+}
+
+.menu-icon-container {
+  width: 28px;           
+  height: 28px;
+  border-radius: 50%;
+  border: 0.2px solid #F4F4EE;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  overflow: hidden;
+  margin-right: 11px;      
+}
+
+.menu-icon-container img {
+  width: 170%;       
+  height: 170%;
+  object-fit: cover;
+}
+
+.menu-title {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 16px; 
+  font-weight: 600;
+  margin-left: 1px;      
+  margin-top: 3px; 
+  color: #09481E;
+  -webkit-text-stroke: 1.5px #F4F4EE;
+  paint-order: stroke fill;
+}
+
+.menu-close {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #F4F4EE;
+  opacity: 0.5;
+  margin-top: -7px; 
+  transform: translateY(-10%);
+  cursor: pointer;
+}
+
+.menu-body {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 0;
+}
+
+.menu-body::before,
+.menu-body::after {
+  content: '';
+  position: absolute;
+  top: 31%;    
+  bottom: 41%; 
+  width: 6px; 
+  background-color: rgba(244, 244, 238, 0.97);
+  z-index: 1;
+  border-radius: 3px;
+}
+
+.menu-body::before {
+  left: 0%;    
+}
+
+.menu-body::after {
+  right: 0%; 
+}
+
+.menu-dome {
+  position: absolute;
+  bottom: 130px; 
+  left: 0;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.menu-dome2 {
+  position: absolute;
+  bottom: -60px; 
+  left: 0;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  z-index: 1;
+  transform: rotate(180deg); 
+}
+
+/* лого */
+.menu-university {
+  width: 140px;
+  z-index: 2;
+  filter: brightness(0) invert(1);
+  position: absolute;
+  bottom: 130px; 
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* пункты меню */
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 55%;
+  z-index: 3;
+  position: absolute;
+  top: 43%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
+}
+
+.menu-item {
+  font-family: 'Inknut Antiqua', serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 12px;
+  background-color: #09481E;
+  border: 1px solid rgba(244, 244, 238, 0.8);
+  border-radius: 18px; 
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: #F4F4EE;
+  height: 30px; 
+  position: relative;
+  width: 85%; 
+  max-width: 180px;
+  margin: 0 auto; 
+}
+
+.menu-item:hover {
+  background-color: #F4F4EE;
+  color: #09481E;
+  transform: translateY(-2px);
+}
+
+.menu-item:hover .menu-icon {
+  filter: none; 
+}
+
+.menu-text {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 16px;
+  font-weight: 100;
+  order: 2; 
+  letter-spacing: 1.2px; 
+  text-align: center;
+  flex: 1; 
+  margin: 0 30px; 
+  opacity: 0.95;
+}
+
+.menu-icon {
+  width: 16px;
+  height: 16px;
+  transition: all 0.3s ease;
+  filter: brightness(0) invert(1);
+  position: absolute;
+  right: 12px;
+}
+
+.menu-item:hover .menu-icon {
+  filter: brightness(0) invert(1) drop-shadow(0 0 8px #09481E); /* Зеленая тень */
+  transform: scale(1.1); /* Легкое увеличение */
+}
+
+/* окно настроек */
+.settings-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background-color: #F4F4EE;
+  border: 2px solid #09481E;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+  z-index: 1002;
+}
+
+.settings-header {
+  background-color: #09481E;
+  height: 22px;
+  padding: 6px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 35px;
+  margin: 10px;
+  position: relative;
+  z-index: 2;
+}
+
+.settings-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-left: -8px;
+}
+
+.settings-icon-container {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0.2px solid #F4F4EE;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: none;
+  overflow: hidden;
+  margin-right: 11px;
+}
+
+.settings-icon-container img {
+  width: 170%;
+  height: 170%;
+  object-fit: cover;
+}
+
+.settings-title {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: 1px;
+  margin-top: 3px;
+  color: #09481E;
+  -webkit-text-stroke: 1.5px #F4F4EE;
+  paint-order: stroke fill;
+}
+
+.settings-close {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #F4F4EE;
+  opacity: 0.5;
+  margin-top: -7px;
+  transform: translateY(-10%);
+  cursor: pointer;
+}
+
+.settings-body {
+  position: relative;
+  height: calc(100% - 50px);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 0;
+}
+
+/* муив */
+.settings-university {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: auto;
+  z-index: 2;
+}
+
+.settings-content {
+  width: 85%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 3;
+}
+
+.settings-main-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 100;
+  color: #09481E;
+  text-align: center;
+  margin: 0 0 15px 0;
+  padding: 8px 25px;
+  border: 1px solid #09481E;
+  border-radius: 25px;
+  background-color: #F4F4EE;
+  width: fit-content;
+  align-self: center;
+  letter-spacing: 1.5px;
+  position: relative;
+}
+
+.settings-main-title::after {
+  content: "";
+  position: absolute;
+  bottom: -20px; 
+  left: 50%;
+  transform: translateX(-50%);
+  width: 250%; 
+  height: 1px;
+  opacity: 0.3;
+  background-color: #09481E;
+}
+
+.settings-checkbox-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(9, 72, 30, 0.3);
+}
+
+.settings-checkbox-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-checkbox-text {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #F4F4EE;
+  -webkit-text-stroke: 1.5px #09481E;
+  paint-order: stroke fill;
+}
+
+.settings-checkbox {
+  display: none;
+}
+
+.settings-checkbox-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid #09481E;
+  background-color: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  margin-right: 5px;
+}
+
+.settings-checkbox-circle::after {
+  content: "✓";
+  color: transparent;
+  font-size: 12px;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.settings-checkbox:checked + .settings-checkbox-circle {
+  background-color: #09481E;
+}
+
+.settings-checkbox:checked + .settings-checkbox-circle::after {
+  color: #F4F4EE;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(9, 72, 30, 0.3);
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-radius: 8px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.settings-item:hover {
+  background-color: rgba(9, 72, 30, 0.1);
+}
+
+.settings-item-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.settings-item-text {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #F4F4EE;
+  -webkit-text-stroke: 2px #09481E;
+  letter-spacing: 1.5px;
+  paint-order: stroke fill;
+}
+
+.settings-item-icon-right {
+  width: 22px;
+  height: 22px;
+}
+
+.settings-divider {
+  height: 1px;
+  background-color: #09481E;
+  margin: 12px 0;
+  opacity: 0.3;
+  width: 190%;
+  margin-left: -25%;
+}
+
+.settings-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 5px;
+  position: relative;
+  width: fit-content;
+  align-self: center;
+}
+
+.settings-logout::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 1px;
+  background-color: #09481E;
+  opacity: 0.5;
+}
+
+.settings-logout:hover {
+  background-color: rgba(180, 0, 55, 0.1);
+}
+
+.settings-logout-text {
+  font-family: 'Inter', sans-serif; 
+  font-size: 14px;
+  font-weight: 100;
+  color: #09481E; 
+  position: relative;
+  z-index: 2;
+  padding: 0 8px;
+  background-color: #F4F4EE;
+  -webkit-text-stroke: 0; 
+  paint-order: normal;
+}
+
+/* главное окно */
+.major-popup {
+  display: none;
+  position: fixed;
+  bottom: 210px;
+  right: 48px;
+  width: 380px;
+  height: 580px;
+  background-color: #F4F4EE;
+  border: 2px solid #09481E;
+  border-radius: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  overflow: hidden;
+  font-family: 'Inter', sans-serif;
+  animation: fadeIn 0.4s ease-out;
+  z-index: 1000;
+}
+
+.major-popup::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/static/chat.png") center/cover no-repeat;
+  opacity: 0.09;
+  z-index: 0;
+}
+
+.major-popup * {
+  position: relative;
+  z-index: 2;
+}
+
+/* шапка */
+.major-header {
+  background-color: #09481E;
+  height: 22px;
+  padding: 6px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 35px;
+  margin: 10px;
+}
+
+.major-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-left: -8px;
+}
+
+.major-icon-container {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 0.2px solid #F4F4EE;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  margin-right: 11px;
+  background: none;
+}
+
+.major-icon-container img {
+  width: 170%;
+  height: 170%;
+  object-fit: cover;
+}
+
+.major-title {
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #09481E;
+  margin-left: 1px;
+  margin-top: 3px;
+  -webkit-text-stroke: 1.5px #F4F4EE;
+  paint-order: stroke fill;
+}
+
+.major-close {
+  background: none;
+  border: none;
+  font-size: 15px;
+  color: #F4F4EE;
+  opacity: 0.5;
+  margin-top: -7px;
+  transform: translateY(-10%);
+  cursor: pointer;
+}
+
+/* тело окна */
+.major-body {
+  position: relative;
+  height: calc(100% - 50px);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 15px 0;
+  overflow-y: auto;
+}
+
+.major-content {
+  width: 85%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 3;
+}
+
+/* заголовок */
+.major-main-title {
+  font-size: 15px;
+  font-weight: 100;
+  color: #09481E;
+  text-align: center;
+  margin: 0 0 15px;
+  padding: 8px 25px;
+  border: 1px solid #09481E;
+  border-radius: 25px;
+  background-color: #F4F4EE;
+  width: fit-content;
+  align-self: center;
+  letter-spacing: 1.5px;
+  position: relative;
+}
+
+.major-main-title::after {
+  content: "";
+  position: absolute;
+  bottom: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 350%;
+  height: 1px;
+  opacity: 0.3;
+  background-color: #09481E;
+}
+
+/* имя и цитата */
+.major-name, .profile-name {
+  font-weight: 600;
+  color: #09481E;
+}
+
+.major-name {
+  font-size: 20px;
+  text-align: center;
+  margin: 30px 0 5px;
+}
+
+.profile-name {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.major-quote {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #3D4E3F;
+  text-align: justify;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  font-weight: 100;
+  font-style: normal;
+  letter-spacing: 3px;
+  line-height: 1.8;
+  display: inline-block; 
+  position: relative;
+  white-space: nowrap;
+}
+
+.major-quote::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 1px; 
+  width: 100%; 
+  background-color: #4C6A4F; 
+}
+
+/* список функций */
+.major-features {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.major-feature {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 15px;
+  background-color: rgba(244, 244, 238, 0.7);
+  border: 1px solid #09481E;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.major-feature:hover {
+  background-color: #09481E;
+  transform: translateY(-2px);
+}
+
+.major-feature-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  color: #09481E;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.major-feature-icon {
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+.major-feature:hover .major-feature-text {
+  color: #F4F4EE;
+}
+
+.major-feature:hover .major-feature-icon {
+  filter: brightness(0) invert(1);
+}
+
+/* нижняя часть окна */
+.major-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.major-divider {
+  height: 1px;
+  background-color: #09481E;
+  margin: 20px 0 15px;
+  opacity: 0.3;
+  width: 190%;
+  margin-left: -25%;
+}
+
+.major-university {
+  width: 100px;
+  height: auto;
+  z-index: 2;
+}
+
+.major-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+/* ФИО + иконка */
+.profile-row {
+  display: flex;
+  align-items: center;
+  margin-top: -15px;
+  border: 1px solid #09481E;
+  border-radius: 35px;
+  background-color: #F4F4EE; 
+  padding: 8px 18px; 
+  box-sizing: border-box; 
+  overflow: hidden;       
+}
+
+.user-icon {
+  width: 44px;
+  height: 44px;
+  margin-right: 10px;
+}
+
+
+.profile-row-container {
+  position: relative;
+  display: inline-block;
+  margin-top: -15px; 
+}
+
+.profile-row {
+  display: flex;
+  align-items: center;
+  border: 1px solid #09481E;
+  border-radius: 35px;
+  background-color: #F4F4EE;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  justify-content: center;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.profile-row-container::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -25px; 
+  transform: translateX(-50%);
+  width: 1px;
+  height: 20px;
+  background-color: #09481E;
+  z-index: 1;
+}
+
+/* КРУГ */
+.circle-menu {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background-color: #F4F4EE;
+  border: 0.5px solid #09481E;
+  box-sizing: border-box;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.circle-lines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.circle-lines .diag1,
+.circle-lines .diag2 {
+    position: absolute;
+    width: 1px;              
+    height: 140%;
     background-color: #09481E;
-    border: 4px solid #09481E;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 
-      0 0 0 7px rgba(9, 72, 30, 0.4), 
-      0 6px 18px rgba(0, 0, 0, 0.25);
-  }
-  
-  .islam-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  }
-  
-  .moon-icon {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    filter: drop-shadow(0 0 0 rgba(255, 255, 255, 0));
-    transition: filter 0.6s ease, transform 0.3s ease;
-  }
-  
-  .moon-icon:hover {
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9))
-            drop-shadow(0 0 20px rgba(9, 72, 30, 0.6));
-    transform: scale(1.07);
-  }
-  
-  /* всплывающее окно */
-  .islam-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background-color: #F4F4EE;
-    border: 2px solid #B40037;
-    border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    animation: fadeIn 0.3s ease;
-  }
-  
-  /* шапка окна */
-  .popup-header {
-    background-color: #B40037;
-    color: #F4F4EE;
-    font-weight: normal;
-    font-size: 12px;
-    padding: 6px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 40px; 
-    margin: 10px;
-    font-weight: 100;
-  }
-    
-  .close-btn {
-    background: none;
-    border: none;
-    color: rgba(244, 244, 238, 0.7);
-    font-size: 14px;
-    position: relative;
-    z-index: 20;
-    cursor: pointer;
-  }
-  
-  /* тело окна */
-  .popup-body {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
-    padding-top: 0;
-  }
-  
-  /* купол мечети */
-  .popup-dome {
-    position: absolute;
-    top: -125px;
-    left: 0;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    z-index: 1;
-  }
-  
-  /* луна */
-  .popup-icon {
-    width: 150px;
-    height: 225px;
-    margin-top: 70px;
-    margin-bottom: 25px;
-    z-index: 2;
-  }
-  
-  .popup-question {
-    position: absolute;
-    top: 280px;
-    left: 0;
-    right: 0;
-    font-size: 28px;
-    color: #F4F4EE; 
-    margin: 0 auto;
-    font-weight: 900;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); 
-    -webkit-text-stroke: 2px #B40037;
-    paint-order: stroke fill; 
-    z-index: 3;
-    white-space: nowrap;
-    text-align: center; 
-    width: fit-content; 
-    max-width: 90%; 
-  }
-  
-  /* переключатель */
-  .switch {
-    position: absolute;
-    top: 350px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: inline-block;
-    width: 66px;
-    height: 36px;
-    border: 2px solid #B40037;
-    border-radius: 50px;
-    padding: 3px;
-    box-shadow: 0 0 6px rgba(180, 0, 55, 0.3);
-    transition: border-color 0.4s ease, box-shadow 0.4s ease;
-    margin: 0;
-    z-index: 3;
-  }
-  
-  .switch input:disabled + .slider {
-    background-color: #09481E;
-    cursor: not-allowed;
-    opacity: 0.8;
-  }
-  
-  .switch input:disabled + .slider:before {
-    background-color: #F4F4EE;
-  }
-  
-  .switch:has(input:disabled) {
-    border-color: #09481E;
-    box-shadow: 0 0 6px rgba(9, 72, 30, 0.3);
-    cursor: not-allowed;
-  }
-  
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 4px;
-    background-color: #B40037;
-    border-radius: 50px;
-    transition: 1s ease;
-  }
-  
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 22px;
-    width: 22px;
-    left: 4px;
-    bottom: 4px;
-    background-color: #F4F4EE;
-    border-radius: 50%;
-    transition: 1s ease;
-  }
-  
-  /* активное состояние */
-  input:checked + .slider {
-    background-color: #09481E;
-  }
-  
-  /* активный ободок */
-  .switch:has(input:checked) {
-    border-color: #09481E;
-    box-shadow: 0 0 6px rgba(9, 72, 30, 0.3);
-  }
-  
-  /* движение ползунка */
-  input:checked + .slider:before {
-    transform: translateX(28px);
-  }
-  
-  /* 2 окно - АВТОРИЗАЦИЯ */
-  .auth-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background-color: #F4F4EE;
-    border: 2px solid #09481E;
-    border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    overflow: hidden;
-    animation: fadeIn 0.3s ease;
-  }
-  
-  /* шапка */
-  .auth-header {
-    background-color: #09481E;
-    color: #F4F4EE;
-    font-size: 12px;
-    font-weight: 100;
-    position: relative;
-    z-index: 10;
-    padding: 6px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 40px;
-    margin: 10px;
-  }
-  
-  .auth-body {
-    text-align: center;
-    position: relative;
-    height: 100%;
-  }
-  
-  /* купол */
-  .auth-dome {
-    position: absolute;
-    top: -125px;
-    left: 0;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    z-index: 1;
-  }
-  
-  /* луна */
-  .auth-icon {
-    width: 150px;
-    height: 225px;
-    margin-top: 70px;
-    margin-bottom: 25px;
-    z-index: 2;
-  }
-  
-  .auth-title {
-    position: absolute;
-    top: 260px; 
-    left: 0;
-    right: 0; 
-    font-size: 28px;
-    color: #F4F4EE;
-    margin: 0 auto; 
-    font-weight: 800;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5); 
-    -webkit-text-stroke: 2px #09481E;
-    paint-order: stroke fill; 
-    z-index: 3;
-    white-space: nowrap;
-    text-align: center;
-    width: fit-content; 
-    max-width: 90%;
-  }
-  
-  .auth-inputs-container {
-    position: absolute;
-    top: 315px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px; 
-    z-index: 4;
-  }
-  
-  /* поля ввода */
-  .auth-input {
-    width: 100%;
-    padding: 12px 20px;
-    border-radius: 25px;
-    border: 1.4px solid #09481E;
-    background: #E8E8E2;
-    font-size: 16px;
-    outline: none;
-    font-weight: 200;
-    box-sizing: border-box;
-    transition: all 0.3s ease;
-  }
-  
-  .auth-input:focus {
-    border-color: #09481E;
-    box-shadow: 0 0 5px rgba(9, 72, 30, 0.3);
-  }
-  
-  /* для пароля с глазом */
-  .password-wrapper {
-    position: relative;
-    width: 100%;
-    margin-top: 2px; 
-  }
-  
-  .toggle-password {
-    position: absolute;
-    right: 18px;
     top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    z-index: 5;
+    left: 50%;
+    transform-origin: center;
+    opacity: 0.6;
+}
+
+.circle-lines .diag1 {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.circle-lines .diag2 {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+/* центральный круг  */
+.circle-center {
+  position: absolute;
+  width: 75px;
+  height: 75px;
+  background: #f4f4ee;
+  border: 0.5px solid #09481E; 
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3; 
+}
+
+/* (кнопки) */
+.circle-sector {
+  position: absolute;
+  width: 50%;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-align: center;
+  z-index: 2; 
+}
+.circle-sector img {
+  width: 30px;
+  height: 30px;
+  margin-bottom: 2px;
+  object-fit: contain;
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+              filter 0.4s;
+  filter: brightness(1);
+}
+
+.circle-sector:hover img {
+  transform: scale(2) translateY(-10px); 
+  filter: brightness(1.2) drop-shadow(0 0 8px rgba(9, 72, 30, 0.5));
+}
+
+.circle-sector span {
+  font-size: 13px;
+  line-height: 1.0;
+  color: #09481E;
+  font-family: 'Inter', sans-serif;
+  max-width: 80px;
+  text-align: center;
+  font-weight: 100;
+  display: inline-block; 
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+              text-shadow 0.4s;
+}
+
+.circle-sector:hover span {
+  transform: scale(1.6) translateY(6px); 
+  text-shadow: 0 0 5px rgba(9, 72, 30, 0.4);
+}
+
+.circle-sector.top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.circle-sector.bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.circle-sector.left {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.circle-sector.right {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+
+/* базовое центрирование */
+.circle-sector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* отталкивание от центрального круга */
+.circle-sector.top img,
+.circle-sector.top span {
+  transform: translateY(-12px);
+}
+
+.circle-sector.bottom img,
+.circle-sector.bottom span {
+  transform: translateY(12px);
+}
+
+.circle-sector.left img,
+.circle-sector.left span {
+  transform: translateX(-12px);
+}
+
+.circle-sector.right img,
+.circle-sector.right span {
+  transform: translateX(12px);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* для иконок */
+.social-icons {
+  position: absolute;
+  bottom: 15px;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.social-icons a {
+  pointer-events: auto;
+  position: absolute;
+  bottom: 0;
+}
+
+/* VK */
+.social-icons a:first-child {
+  left: 0px;
+}
+
+/* Telegram  */
+.social-icons a:last-child {
+  right: 0px;
+}
+
+/* иконки */
+.vk-icon, .tg-icon {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  object-fit: contain;
+  display: block;
+}
+
+/* анимации для окон */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
   }
-  
-  .password-icon {
-    width: 20px;
-    opacity: 0.7;
-    transition: opacity 0.3s ease;
-  }
-  
-  .toggle-password:hover .password-icon {
+  to {
     opacity: 1;
+    transform: translateY(0) scale(1);
   }
-  
-  /* кнопка ВОЙТИ */
-  .auth-btn {
-    width: 50%;
-    padding: 10px;
-    background-color: #09481E;
-    color: #F4F4EE;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    font-weight: 200;
-    margin-top: 20px; 
-    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+@keyframes slideOutDown {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
-  
-  .auth-btn:hover {
-    background-color: #073317;
-    transform: translateY(-2px);
+  to {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
   }
-  
-  .auth-btn:active {
-    transform: translateY(0);
+}
+
+@keyframes pulseIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) rotate(-5deg);
   }
-  
-  /* окно загрузки (авторизация) */
-  .loading-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background-color: #F4F4EE;
-    border: 2px solid #09481E;
-    border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    overflow: hidden;
-    animation: fadeIn 0.3s ease;
-    font-size: 12px;
-    font-weight: 100;
-  }
-  
-  
-  .loading-box {
-    background-color: #E6E6DF; 
-    border-radius: 25px;
-    border: 1px solid #09481E;
-    width: 330px;
-    height: 450px;
-    margin: 40px auto 0 auto;
-    text-align: center;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* IMuslimEd */
-  .loading-title {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 26px;
-    font-weight: 600;
-    color: #F4F4EE;
-    -webkit-text-stroke: 2px #09481E;
-    paint-order: stroke fill;
-    margin-bottom: -60px; 
-    z-index: 1;
-    position: relative;
-  }
-  
-  /* луна */
-  .loading-moon {
-    width: 170px;
-    height: auto;
-    display: block;
-    margin: -10px 0; 
-    z-index: 2;
-  }
-  
-  .loading-text {
-    font-size: 12px;
-    font-weight: 100;
-    color: #09481E;
-    margin-top: -50px; 
-    z-index: 3;
-    position: relative;
-  }
-  
-  
-  /* приветствие */
-  .main-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background-color: #F4F4EE;
-    border: 2px solid #09481E;
-    border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    overflow: hidden;
-    font-family: 'Inter', sans-serif;
-    animation: fadeIn 0.4s ease-out;
-    z-index: 1000;
-  }
-  
-  .main-header {
-    background-color: #09481E;
-    color: #F4F4EE;
-    font-size: 12px;
-    font-weight: 100;
-    padding: 6px 18px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 40px;
-    margin: 10px;
-    position: relative;
-    z-index: 10;
-  }
-  
-  .main-body {
-    position: relative;
-    height: 100%;
-    width: 100%;
-  }
-  
-  .main-title {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 22px;
-    font-weight: 600;
-    color: #F4F4EE;
-    -webkit-text-stroke: 2px #09481E;
-    paint-order: stroke fill;
-    text-align: center;
-    z-index: 3;
-    position: absolute;
-    top: 100px; 
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    margin: 0;
-  }
-  
-  .main-moon {
-    width: 160px;
-    height: auto;
-    z-index: 3;
-    position: absolute;
-    top: 95px; 
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  /* рамка */
-  .main-welcome {
-    text-align: center;
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 15px;
-    font-weight: 100;
-    color: #09481E;
-    border: 0.5px solid #09481E;
-    border-radius: 25px;
-    padding: 12px 18px;
-    width: 65%; 
-    line-height: 1.4;
-    background-color: #F4F4EE;
-    z-index: 3;
-    box-shadow: 0 2px 8px #09481E;
-    position: absolute;
-    top: 320px; 
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 0;
-  }
-  
-  /* кнопка */
-  .main-btn {
-    background-color: #09481E;
-    color: #F4F4EE;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 25px;
-    font-size: 12px;
-    cursor: pointer;
-    font-weight: 100;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    z-index: 3;
-    position: absolute;
-    top: 420px; 
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 0;
-  }
-  
-  .main-btn:hover {
-    background-color: #073317;
-    transform: translateX(-50%) translateY(-2px);
-  }
-  
-  .main-btn:active {
-    transform: translateX(-50%) translateY(0);
-  }
-  
-  .chat-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background: #F4F4EE;
-    border: 2px solid #09481E;
-    border-radius: 30px;
-    overflow: hidden;
-  }
-  
-  .chat-popup::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url("/static/chat.png") center/cover no-repeat;
-    opacity: 0.09;
-    z-index: 0;
-  }
-  .chat-popup * {
-    position: relative;
-    z-index: 2;
-  }
-  
-  .chat-body, .chat-input-container {
-    position: relative;
-    z-index: 2;
-  }
-  
-  .chat-header {
-    background-color: #09481E;
-    height: 22px; 
-    padding: 6px 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 35px;
-    margin: 10px;
-    position: relative;
-    z-index: 2;
-  }
-  
-  .chat-icon-container {
-    width: 28px;           
-    height: 28px;
-    border-radius: 50%;
-    border: 0.2px solid #F4F4EE;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: none;
-    overflow: hidden;
-    margin-right: 11px;      
-  }
-  
-  .chat-icon-container img {
-    width: 170%;       
-    height: 170%;
-    object-fit: cover;
-  }
-  
-  .chat-title {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 16px; 
-    font-weight: 600;
-    margin-left: 1px;      
-    margin-top: 3px; 
-    color: #09481E;
-    -webkit-text-stroke: 1.5px #F4F4EE;
-    paint-order: stroke fill;
-  }
-  
-  .chat-menu {
-    font-size: 25px;
-    color: #F4F4EE;
-    opacity: 0.5;
-    margin-right: -3px;
-    cursor: pointer;
-    margin-top: 7px;
-  }
-  
-  /* (луна + текст) */
-  .chat-left {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    margin-left: -8px; 
-  }
-  
-  .chat-date {
-    text-align: center;
-    font-size: 13px;
-    color: #09481E;
-    margin: 2px 0; 
-    background-color: #F4F4EE;
-    border: 1px solid #09481E;
-    border-radius: 12px;
-    padding: 2px 12px;
-    display: inline-block;
-    margin-left: auto;
-    margin-right: auto;
-    line-height: 1.2;
-    font-family: 'Inknut Antiqua', serif;
-    font-weight: 100;
-  
-  }
-  
-  .chat-close {
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: #F4F4EE;
-    opacity: 0.5;
-    margin-top: -7px; 
-    transform: translateY(-10%);
-    cursor: pointer;
-  }
-  
-  /* поле для соо */
-  .chat-input-container {
-    position: absolute;
-    bottom: 14px;
-    left: 10px;
-    right: 10px;
-    display: flex;
-    align-items: center;
-    background: #FFFFFE;
-    border: 1px solid #09481E;
-    border-radius: 22px;
-    padding: 10px 15px;
-    height: 70px;
-  }
-  
-  .chat-input::placeholder {
-    color: #09481E;
+  50% {
     opacity: 0.7;
-    font-weight: 300;
-  }
-  
-  .chat-input {
-    flex: 1;
-    border: none !important;
-    background: none;
-    outline: none;
-    font-size: 12px;
-    font-weight: 100;
-    margin-bottom: 40px;
-  }
-  
-  .chat-send {
-    background: none;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 40px;
-  }
-  
-  .chat-send img {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .message-user {
-    background: #F4F4EE;
-    border: 1px solid #09481E;
-    border-radius: 15px;
-    padding: 8px 12px;
-    margin: 6px 0;
-    font-size: 14px;
-    text-align: right;
-    max-width: 75%;
-    margin-left: auto;
-  }
-  
-  /* меню */
-  .menu-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background-color: #09481E;
-    border: 2px solid #09481E;
-    border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    overflow: hidden;
-    animation: fadeIn 0.3s ease;
-    z-index: 1001;
-  }
-  
-  .menu-header {
-    background-color: #09481E;
-    height: 22px; 
-    padding: 6px 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 35px;
-    margin: 10px;
-    position: relative;
-    z-index: 2;
-    border: 1px solid #F4F4EE;
-  }
-  
-  /* (луна + текст) */
-  .menu-left {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    margin-left: -8px; 
-  }
-  
-  .menu-icon-container {
-    width: 28px;           
-    height: 28px;
-    border-radius: 50%;
-    border: 0.2px solid #F4F4EE;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: none;
-    overflow: hidden;
-    margin-right: 11px;      
-  }
-  
-  .menu-icon-container img {
-    width: 170%;       
-    height: 170%;
-    object-fit: cover;
-  }
-  
-  .menu-title {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 16px; 
-    font-weight: 600;
-    margin-left: 1px;      
-    margin-top: 3px; 
-    color: #09481E;
-    -webkit-text-stroke: 1.5px #F4F4EE;
-    paint-order: stroke fill;
-  }
-  
-  .menu-close {
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: #F4F4EE;
-    opacity: 0.5;
-    margin-top: -7px; 
-    transform: translateY(-10%);
-    cursor: pointer;
-  }
-  
-  .menu-body {
-    position: relative;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding-top: 0;
-  }
-  
-  .menu-body::before,
-  .menu-body::after {
-    content: '';
-    position: absolute;
-    top: 31%;    
-    bottom: 41%; 
-    width: 6px; 
-    background-color: rgba(244, 244, 238, 0.97);
-    z-index: 1;
-    border-radius: 3px;
-  }
-  
-  .menu-body::before {
-    left: 0%;    
-  }
-  
-  .menu-body::after {
-    right: 0%; 
-  }
-  
-  .menu-dome {
-    position: absolute;
-    bottom: 130px; 
-    left: 0;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    z-index: 1;
-  }
-  
-  .menu-dome2 {
-    position: absolute;
-    bottom: -60px; 
-    left: 0;
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    z-index: 1;
-    transform: rotate(180deg); 
-  }
-  
-  /* лого */
-  .menu-university {
-    width: 140px;
-    z-index: 2;
-    filter: brightness(0) invert(1);
-    position: absolute;
-    bottom: 130px; 
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  /* пункты меню */
-  .menu-items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    width: 55%;
-    z-index: 3;
-    position: absolute;
-    top: 43%; 
-    left: 50%;
-    transform: translate(-50%, -50%); 
-  }
-  
-  .menu-item {
-    font-family: 'Inknut Antiqua', serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3px 12px;
-    background-color: #09481E;
-    border: 1px solid rgba(244, 244, 238, 0.8);
-    border-radius: 18px; 
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    color: #F4F4EE;
-    height: 30px; 
-    position: relative;
-    width: 85%; 
-    max-width: 180px;
-    margin: 0 auto; 
-  }
-  
-  .menu-item:hover {
-    background-color: #F4F4EE;
-    color: #09481E;
-    transform: translateY(-2px);
-  }
-  
-  .menu-item:hover .menu-icon {
-    filter: none; 
-  }
-  
-  .menu-text {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 16px;
-    font-weight: 100;
-    order: 2; 
-    letter-spacing: 1.2px; 
-    text-align: center;
-    flex: 1; 
-    margin: 0 30px; 
-    opacity: 0.95;
-  }
-  
-  .menu-icon {
-    width: 16px;
-    height: 16px;
-    transition: all 0.3s ease;
-    filter: brightness(0) invert(1);
-    position: absolute;
-    right: 12px;
-  }
-  
-  .menu-item:hover .menu-icon {
-    filter: brightness(0) invert(1) drop-shadow(0 0 8px #09481E); /* Зеленая тень */
-    transform: scale(1.1); /* Легкое увеличение */
-  }
-  
-  /* окно настроек */
-  .settings-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background-color: #F4F4EE;
-    border: 2px solid #09481E;
-    border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    overflow: hidden;
-    animation: fadeIn 0.3s ease;
-    z-index: 1002;
-  }
-  
-  .settings-header {
-    background-color: #09481E;
-    height: 22px;
-    padding: 6px 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 35px;
-    margin: 10px;
-    position: relative;
-    z-index: 2;
-  }
-  
-  .settings-left {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    margin-left: -8px;
-  }
-  
-  .settings-icon-container {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 0.2px solid #F4F4EE;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: none;
-    overflow: hidden;
-    margin-right: 11px;
-  }
-  
-  .settings-icon-container img {
-    width: 170%;
-    height: 170%;
-    object-fit: cover;
-  }
-  
-  .settings-title {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 16px;
-    font-weight: 600;
-    margin-left: 1px;
-    margin-top: 3px;
-    color: #09481E;
-    -webkit-text-stroke: 1.5px #F4F4EE;
-    paint-order: stroke fill;
-  }
-  
-  .settings-close {
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: #F4F4EE;
-    opacity: 0.5;
-    margin-top: -7px;
-    transform: translateY(-10%);
-    cursor: pointer;
-  }
-  
-  .settings-body {
-    position: relative;
-    height: calc(100% - 50px);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px 0;
-  }
-  
-  /* муив */
-  .settings-university {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: auto;
-    z-index: 2;
-  }
-  
-  .settings-content {
-    width: 85%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    z-index: 3;
-  }
-  
-  .settings-main-title {
-    font-family: 'Inter', sans-serif;
-    font-size: 15px;
-    font-weight: 100;
-    color: #09481E;
-    text-align: center;
-    margin: 0 0 15px 0;
-    padding: 8px 25px;
-    border: 1px solid #09481E;
-    border-radius: 25px;
-    background-color: #F4F4EE;
-    width: fit-content;
-    align-self: center;
-    letter-spacing: 1.5px;
-    position: relative;
-  }
-  
-  .settings-main-title::after {
-    content: "";
-    position: absolute;
-    bottom: -20px; 
-    left: 50%;
-    transform: translateX(-50%);
-    width: 250%; 
-    height: 1px;
-    opacity: 0.3;
-    background-color: #09481E;
-  }
-  
-  .settings-checkbox-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(9, 72, 30, 0.3);
-  }
-  
-  .settings-checkbox-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .settings-checkbox-text {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: #F4F4EE;
-    -webkit-text-stroke: 1.5px #09481E;
-    paint-order: stroke fill;
-  }
-  
-  .settings-checkbox {
-    display: none;
-  }
-  
-  .settings-checkbox-circle {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 3px solid #09481E;
-    background-color: transparent;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    position: relative;
-    margin-right: 5px;
-  }
-  
-  .settings-checkbox-circle::after {
-    content: "✓";
-    color: transparent;
-    font-size: 12px;
-    font-weight: bold;
-    transition: color 0.3s ease;
-  }
-  
-  .settings-checkbox:checked + .settings-checkbox-circle {
-    background-color: #09481E;
-  }
-  
-  .settings-checkbox:checked + .settings-checkbox-circle::after {
-    color: #F4F4EE;
-  }
-  
-  .settings-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(9, 72, 30, 0.3);
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    border-radius: 8px;
-    padding-left: 8px;
-    padding-right: 8px;
-  }
-  
-  .settings-item:hover {
-    background-color: rgba(9, 72, 30, 0.1);
-  }
-  
-  .settings-item-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .settings-item-text {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: #F4F4EE;
-    -webkit-text-stroke: 2px #09481E;
-    letter-spacing: 1.5px;
-    paint-order: stroke fill;
-  }
-  
-  .settings-item-icon-right {
-    width: 22px;
-    height: 22px;
-  }
-  
-  .settings-divider {
-    height: 1px;
-    background-color: #09481E;
-    margin: 12px 0;
-    opacity: 0.3;
-    width: 190%;
-    margin-left: -25%;
-  }
-  
-  .settings-logout {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 0;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 5px;
-    position: relative;
-    width: fit-content;
-    align-self: center;
-  }
-  
-  .settings-logout::after {
-    content: "";
-    position: absolute;
-    bottom: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 70%;
-    height: 1px;
-    background-color: #09481E;
-    opacity: 0.5;
-  }
-  
-  .settings-logout:hover {
-    background-color: rgba(180, 0, 55, 0.1);
-  }
-  
-  .settings-logout-text {
-    font-family: 'Inter', sans-serif; 
-    font-size: 14px;
-    font-weight: 100;
-    color: #09481E; 
-    position: relative;
-    z-index: 2;
-    padding: 0 8px;
-    background-color: #F4F4EE;
-    -webkit-text-stroke: 0; 
-    paint-order: normal;
-  }
-  
-  /* главное окно */
-  .major-popup {
-    display: none;
-    position: fixed;
-    bottom: 210px;
-    right: 48px;
-    width: 380px;
-    height: 580px;
-    background-color: #F4F4EE;
-    border: 2px solid #09481E;
-    border-radius: 30px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    overflow: hidden;
-    font-family: 'Inter', sans-serif;
-    animation: fadeIn 0.4s ease-out;
-    z-index: 1000;
-  }
-  
-  .major-popup::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url("/static/chat.png") center/cover no-repeat;
-    opacity: 0.09;
-    z-index: 0;
-  }
-  
-  .major-popup * {
-    position: relative;
-    z-index: 2;
-  }
-  
-  /* шапка */
-  .major-header {
-    background-color: #09481E;
-    height: 22px;
-    padding: 6px 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-radius: 35px;
-    margin: 10px;
-  }
-  
-  .major-left {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    margin-left: -8px;
-  }
-  
-  .major-icon-container {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 0.2px solid #F4F4EE;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    margin-right: 11px;
-    background: none;
-  }
-  
-  .major-icon-container img {
-    width: 170%;
-    height: 170%;
-    object-fit: cover;
-  }
-  
-  .major-title {
-    font-family: 'Inknut Antiqua', serif;
-    font-size: 16px;
-    font-weight: 600;
-    color: #09481E;
-    margin-left: 1px;
-    margin-top: 3px;
-    -webkit-text-stroke: 1.5px #F4F4EE;
-    paint-order: stroke fill;
-  }
-  
-  .major-close {
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: #F4F4EE;
-    opacity: 0.5;
-    margin-top: -7px;
-    transform: translateY(-10%);
-    cursor: pointer;
-  }
-  
-  /* тело окна */
-  .major-body {
-    position: relative;
-    height: calc(100% - 50px);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 15px 0;
-    overflow-y: auto;
-  }
-  
-  .major-content {
-    width: 85%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    z-index: 3;
-  }
-  
-  /* заголовок */
-  .major-main-title {
-    font-size: 15px;
-    font-weight: 100;
-    color: #09481E;
-    text-align: center;
-    margin: 0 0 15px;
-    padding: 8px 25px;
-    border: 1px solid #09481E;
-    border-radius: 25px;
-    background-color: #F4F4EE;
-    width: fit-content;
-    align-self: center;
-    letter-spacing: 1.5px;
-    position: relative;
-  }
-  
-  .major-main-title::after {
-    content: "";
-    position: absolute;
-    bottom: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 350%;
-    height: 1px;
-    opacity: 0.3;
-    background-color: #09481E;
-  }
-  
-  /* имя и цитата */
-  .major-name, .profile-name {
-    font-weight: 600;
-    color: #09481E;
-  }
-  
-  .major-name {
-    font-size: 20px;
-    text-align: center;
-    margin: 30px 0 5px;
-  }
-  
-  .profile-name {
-    font-size: 14px;
-    white-space: nowrap;
-  }
-  
-  .major-quote {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    color: #3D4E3F;
-    text-align: justify;
-    margin-top: 30px;
-    margin-bottom: 15px;
-    padding-bottom: 5px;
-    font-weight: 100;
-    font-style: normal;
-    letter-spacing: 3px;
-    line-height: 1.8;
-    display: inline-block; 
-    position: relative;
-    white-space: nowrap;
-  }
-  
-  .major-quote::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 1px; 
-    width: 100%; 
-    background-color: #4C6A4F; 
-  }
-  
-  /* список функций */
-  .major-features {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 100%;
-  }
-  
-  .major-feature {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 15px;
-    background-color: rgba(244, 244, 238, 0.7);
-    border: 1px solid #09481E;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .major-feature:hover {
-    background-color: #09481E;
-    transform: translateY(-2px);
-  }
-  
-  .major-feature-text {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: #09481E;
-    font-weight: 500;
-    transition: color 0.3s ease;
-  }
-  
-  .major-feature-icon {
-    width: 20px;
-    height: 20px;
-    opacity: 0.7;
-    transition: all 0.3s ease;
-  }
-  
-  .major-feature:hover .major-feature-text {
-    color: #F4F4EE;
-  }
-  
-  .major-feature:hover .major-feature-icon {
-    filter: brightness(0) invert(1);
-  }
-  
-  /* нижняя часть окна */
-  .major-bottom {
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .major-divider {
-    height: 1px;
-    background-color: #09481E;
-    margin: 20px 0 15px;
-    opacity: 0.3;
-    width: 190%;
-    margin-left: -25%;
-  }
-  
-  .major-university {
-    width: 100px;
-    height: auto;
-    z-index: 2;
-  }
-  
-  .major-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-  }
-  
-  /* ФИО + иконка */
-  .profile-row {
-    display: flex;
-    align-items: center;
-    margin-top: -15px;
-    border: 1px solid #09481E;
-    border-radius: 35px;
-    background-color: #F4F4EE; 
-    padding: 8px 18px; 
-    box-sizing: border-box; 
-    overflow: hidden;       
-  }
-  
-  .user-icon {
-    width: 44px;
-    height: 44px;
-    margin-right: 10px;
-  }
-  
-  
-  .profile-row-container {
-    position: relative;
-    display: inline-block;
-    margin-top: -15px; 
-  }
-  
-  .profile-row {
-    display: flex;
-    align-items: center;
-    border: 1px solid #09481E;
-    border-radius: 35px;
-    background-color: #F4F4EE;
-    padding: 10px 20px;
-    box-sizing: border-box;
-    overflow: hidden;
-    justify-content: center;
-    width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  
-  .profile-row-container::after {
-    content: "";
-    position: absolute;
-    left: 50%;
-    bottom: -25px; 
-    transform: translateX(-50%);
-    width: 1px;
-    height: 20px;
-    background-color: #09481E;
-    z-index: 1;
-  }
-  
-  .circle-menu {
-    position: relative;
-    width: 260px;
-    height: 260px;
-    border-radius: 50%;
-    background-color: #F4F4EE;
-    border: 1px solid #4C6A4F;
-    box-sizing: border-box; 
-    overflow: hidden;     
-    margin-top: 5px;     
-  }
-  
-  .center-circle {
-    position: absolute;
-    width: 80px;
-    height: 80px;
-    background-color: #F4F4EE; 
-    border-radius: 50%;
-    border: 1px solid #4C6A4F;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-sizing: border-box;
-  }
-  
-  .sector {
-    position: absolute;
-    width: 120px;
-    text-align: center;
-    font-size: 14px;
-    color: #274127;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .sector-icon {
-    width: 36px;
-    height: 36px;
-    margin-bottom: 6px;
-  }
-  
-  .sector.top    { top: 10px; left: 50%; transform: translateX(-50%); }
-  .sector.right  { right: -5px; top: 50%; transform: translateY(-50%); }
-  .sector.bottom { bottom: 10px; left: 50%; transform: translateX(-50%); }
-  .sector.left   { left: -5px; top: 50%; transform: translateY(-50%); }
-  
-  /* для иконок */
-  .social-icons {
-    position: absolute;
-    bottom: 15px;
-    left: 0;
-    width: 100%;
-    height: 30px;
-    z-index: 4;
-    pointer-events: none;
-  }
-  
-  .social-icons a {
-    pointer-events: auto;
-    position: absolute;
-    bottom: 0;
-  }
-  
-  /* VK */
-  .social-icons a:first-child {
-    left: 0px;
-  }
-  
-  /* Telegram  */
-  .social-icons a:last-child {
-    right: 0px;
-  }
-  
-  /* иконки */
-  .vk-icon, .tg-icon {
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-    object-fit: contain;
-    display: block;
-  }
-  
-  /* анимации для окон */
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  
-  @keyframes slideInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-  
-  @keyframes slideOutDown {
-    from {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-    to {
-      opacity: 0;
-      transform: translateY(30px) scale(0.95);
-    }
-  }
-  
-  @keyframes pulseIn {
-    0% {
-      opacity: 0;
-      transform: scale(0.8) rotate(-5deg);
-    }
-    50% {
-      opacity: 0.7;
-      transform: scale(1.05) rotate(2deg);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) rotate(0deg);
-    }
-  }
-  
-  @keyframes bounceIn {
-    0% {
-      opacity: 0;
-      transform: scale(0.3) translateY(100px);
-    }
-    50% {
-      opacity: 0.9;
-      transform: scale(1.05) translateY(-10px);
-    }
-    70% {
-      transform: scale(0.95) translateY(5px);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-  
-  @keyframes fadeInScale {
-    from {
-      opacity: 0;
-      transform: scale(0.8) translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-  
-  /* классы для анимаций */
-  .popup-visible {
-    display: block !important;
-    animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  }
-  
-  .popup-hidden {
-    animation: slideOutDown 0.3s ease-out forwards;
-  }
-  
-  .popup-pulse {
-    display: block !important;
-    animation: pulseIn 0.6s ease-out;
-  }
-  
-  .popup-bounce {
-    display: block !important;
-    animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  }
-  
-  .popup-fade-scale {
-    display: block !important;
-    animation: fadeInScale 0.4s ease-out;
-  }
-  
-  /* анимация для кнопки при открытии */
-  .btn-pulse {
-    animation: pulseIn 0.4s ease-out;
-  }
-  
-  /* анимация для переключателя */
-  .switch-animated {
-    animation: pulseIn 0.3s ease-out;
-  }
-  
-  /* анимация для купола мечети */
-  .popup-dome {
-    animation: fadeInScale 0.8s ease-out;
-  }
-  
-  .auth-dome {
-    animation: fadeInScale 0.8s ease-out;
-  }
-  
-  /* анимация для луны */
-  .popup-icon {
-    animation: bounceIn 0.6s ease-out 0.1s both;
-  }
-  
-  .auth-icon {
-    animation: bounceIn 0.6s ease-out 0.1s both;
-  }
-  
-  .loading-moon {
-    animation: bounceIn 0.6s ease-out 0.1s both;
-  }
-  
-  /* анимация для текста */
-  .popup-question {
-    animation: fadeInScale 0.5s ease-out 0.2s both;
-  }
-  
-  .auth-title {
-    animation: fadeInScale 0.5s ease-out 0.2s both;
-  }
-  
-  .loading-title {
-    animation: fadeInScale 0.5s ease-out 0.2s both;
-  }
-  
-  .loading-text {
-    animation: fadeInScale 0.5s ease-out 0.3s both;
-  }
-  
-  /* анимация для полей ввода */
-  .auth-input {
-    animation: slideInUp 0.5s ease-out 0.3s both;
-  }
-  
-  .password-wrapper {
-    animation: slideInUp 0.5s ease-out 0.4s both;
-  }
-  
-  .auth-btn {
-    animation: slideInUp 0.5s ease-out 0.5s both;
-  }
-  
-  
+    transform: scale(1.05) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(100px);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.05) translateY(-10px);
+  }
+  70% {
+    transform: scale(0.95) translateY(5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* классы для анимаций */
+.popup-visible {
+  display: block !important;
+  animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.popup-hidden {
+  animation: slideOutDown 0.3s ease-out forwards;
+}
+
+.popup-pulse {
+  display: block !important;
+  animation: pulseIn 0.6s ease-out;
+}
+
+.popup-bounce {
+  display: block !important;
+  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.popup-fade-scale {
+  display: block !important;
+  animation: fadeInScale 0.4s ease-out;
+}
+
+/* анимация для кнопки при открытии */
+.btn-pulse {
+  animation: pulseIn 0.4s ease-out;
+}
+
+/* анимация для переключателя */
+.switch-animated {
+  animation: pulseIn 0.3s ease-out;
+}
+
+/* анимация для купола мечети */
+.popup-dome {
+  animation: fadeInScale 0.8s ease-out;
+}
+
+.auth-dome {
+  animation: fadeInScale 0.8s ease-out;
+}
+
+/* анимация для луны */
+.popup-icon {
+  animation: bounceIn 0.6s ease-out 0.1s both;
+}
+
+.auth-icon {
+  animation: bounceIn 0.6s ease-out 0.1s both;
+}
+
+.loading-moon {
+  animation: bounceIn 0.6s ease-out 0.1s both;
+}
+
+/* анимация для текста */
+.popup-question {
+  animation: fadeInScale 0.5s ease-out 0.2s both;
+}
+
+.auth-title {
+  animation: fadeInScale 0.5s ease-out 0.2s both;
+}
+
+.loading-title {
+  animation: fadeInScale 0.5s ease-out 0.2s both;
+}
+
+.loading-text {
+  animation: fadeInScale 0.5s ease-out 0.3s both;
+}
+
+/* анимация для полей ввода */
+.auth-input {
+  animation: slideInUp 0.5s ease-out 0.3s both;
+}
+
+.password-wrapper {
+  animation: slideInUp 0.5s ease-out 0.4s both;
+}
+
+.auth-btn {
+  animation: slideInUp 0.5s ease-out 0.5s both;
+}
