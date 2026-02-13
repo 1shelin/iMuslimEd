@@ -5,6 +5,8 @@
   <title>iMuslimEd</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inknut+Antiqua:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
   <!-- плавающая кнопка -->
@@ -54,6 +56,26 @@
       </div>
     </div>
   </div>
+<!-- окно ввода ФИО -->
+<div id="fioPopup" class="auth-popup" style="display: none;">
+  <div class="auth-header">
+    <span>Регистрация</span>
+    <button id="closeFio" class="close-btn">✕</button>
+  </div>
+  
+  <div class="auth-body">
+    <img src="{{ url_for('static', filename='mosque_dome_green.png') }}" class="auth-dome">
+    <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="auth-icon">
+    <p class="auth-title">Введите ваше ФИО</p>
+    
+    <div class="auth-inputs-container">
+      <input type="text" id="fioInput" placeholder="Фамилия Имя Отчество" class="auth-input">
+      <button class="auth-btn" id="saveFioBtn">Продолжить</button>
+    </div>
+  </div>
+</div>
+
+  
 
 <!-- окно загрузки (авторизация) -->
 <div id="authLoading" class="loading-popup">
@@ -249,7 +271,7 @@
         <div class="profile-row-container">
           <div class="profile-row">
             <img src="{{ url_for('static', filename='user.png') }}" class="user-icon">
-            <div class="profile-name">Сафина Элина Ильмировна</div>
+            <div class="profile-name" id="profileName">ФИО</div>
           </div>
         </div>
 
@@ -308,6 +330,29 @@
     </div>
   </div>
 
+      <!-- Халяль рядом -->
+  <div id="halalPopup" class="halal-popup">
+    <div class="halal-header">
+      <span class="halal-title">Халяль рядом</span>
+      <button class="halal-close" id="closeHalal">✕</button>
+    </div>
+    <div class="halal-body">
+      <div id="halalMap" class="popup-map"></div>
+    </div>
+  </div>
+
+  <!-- Мечеть / молельная -->
+  <div id="mosquePopup" class="mosque-popup">
+    <div class="mosque-header">
+      <span class="mosque-title">Мечеть / молельная</span>
+      <button class="mosque-close" id="closeMosque">✕</button>
+    </div>
+    <div class="mosque-body">
+      <div id="mosqueMap" class="popup-map"></div>
+    </div>
+  </div>
+
+    
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
