@@ -4,6 +4,12 @@ let authFinished = false;
 let currentLogin = "";
 let currentPassword = "";
 let chatMessages = [];
+const LAST_AUTH_WINDOW_KEY = "lastAuthorizedWindow";
+
+// добавлено для отслеживания активного окна
+let activeMainWindow = null;
+// запоминаем подтверждение ислама
+let islamConfirmed = localStorage.getItem("islamConfirmed") === "true";
 
 // элементы DOM
 const openIslamBtn = document.getElementById("openIslamBtn");
@@ -31,7 +37,8 @@ const closeFio = document.getElementById("closeFio");
 const profileName = document.getElementById("profileName");
 
 const chatWindow = document.getElementById("chatWindow");
-const chatBtn = document.querySelector(".main-btn");
+const chatBtn = document.getElementById("askQuestionBtn");
+const openMajorBtn = document.getElementById("openMajorBtn");
 const closeChat = document.getElementById("closeChat");
 const sendBtn = document.getElementById("sendBtn");
 const chatInput = document.getElementById("chatInput");
@@ -62,16 +69,42 @@ const closeHalalBtn = document.getElementById("closeHalal");
 const mosquePopupEl = document.getElementById("mosquePopup");
 const closeMosqueBtn = document.getElementById("closeMosque");
 
-//  ОСНОВНЫЕ ФУНКЦИИ 
+//  основные функции 
+function getWindowKey(windowElement) {
+  if (windowElement === mainWindow) return "main";
+  if (windowElement === chatWindow) return "chat";
+  if (windowElement === majorWindow) return "major";
+  if (windowElement === settingsWindow) return "settings";
+  return "";
+}
 
-//показать попап (заменяет другие окна)
+function getWindowByKey(windowKey) {
+  if (windowKey === "main") return mainWindow;
+  if (windowKey === "chat") return chatWindow;
+  if (windowKey === "major") return majorWindow;
+  if (windowKey === "settings") return settingsWindow;
+  return null;
+}
+
+function rememberAuthorizedWindow(windowElement) {
+  const key = getWindowKey(windowElement);
+  if (!key) return;
+  activeMainWindow = windowElement;
+  localStorage.setItem(LAST_AUTH_WINDOW_KEY, key);
+}
+
+function getRememberedAuthorizedWindow() {
+  return getWindowByKey(localStorage.getItem(LAST_AUTH_WINDOW_KEY) || "");
+}
+
+// показать попап (заменяет другие окна)
 function showPopup(popupElement) {
   if (!popupElement) {
-    console.error("Popup element not found!");
+    console.error("popup element not found!");
     return;
   }
   
-  // скрыть ТОЛЬКО основные окна, но НЕ дочерние 
+  // скрыть только основные окна, но не дочерние 
   const mainPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, fioPopup
@@ -88,13 +121,13 @@ function showPopup(popupElement) {
   popupElement.classList.remove('popup-hidden');
   popupElement.classList.add('popup-visible');
   
-  console.log("Showing popup:", popupElement.id);
+  console.log("showing popup:", popupElement.id);
 }
 
 // показать дочернее окно (поверх текущего, не закрывая его)
 function showChildPopup(popupElement) {
   if (!popupElement) {
-    console.error("Child popup element not found!");
+    console.error("child popup element not found!");
     return;
   }
   
@@ -106,7 +139,7 @@ function showChildPopup(popupElement) {
   // устанавливаем высокий z-index
   popupElement.style.zIndex = '2000';
   
-  console.log("Showing child popup:", popupElement.id);
+  console.log("showing child popup:", popupElement.id);
 }
 
 // скрыть попап с анимацией
@@ -119,9 +152,10 @@ function hidePopup(popupElement) {
   setTimeout(() => {
     popupElement.classList.remove('popup-hidden');
     popupElement.style.display = 'none';
-    // Сброс z-index
+    // сброс z-index
     popupElement.style.zIndex = '';
-    console.log("Hiding popup:", popupElement.id);
+    
+    console.log("hiding popup:", popupElement.id);
   }, 300);
 }
 
@@ -140,49 +174,164 @@ function hideAllPopups() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  console.log("DOM fully loaded");
+// функция переключения главных окон
+function switchMainWindow(windowElement) {
+  const mainWindows = [majorWindow, chatWindow, settingsWindow];
 
-  // скрываем всё при загрузке
-  hideAllPopups();
+  // закрываем все окна
+  mainWindows.forEach(win => {
+    if (win && win.style.display === 'block') {
+      hidePopup(win);
+    }
+  });
 
-  // проверкаы авторизации
-  const isAuthorized = localStorage.getItem("isAuthorized");
-  const savedFio = localStorage.getItem("fio");
-
-  if (isAuthorized === "true" && savedFio) {
-    profileName.textContent = savedFio;
+  // если это то же окно — просто закрываем
+  if (activeMainWindow === windowElement) {
+    return;
   }
 
-  initEventListeners();
-});
+  // открываем новое окно
+  setTimeout(() => {
+    showPopup(windowElement);
+    rememberAuthorizedWindow(windowElement);
+  }, 50);
+}
 
 function initEventListeners() {
-  // ссновная кнопка (луна)
+  
+  // ================ универсальная логика луны ================
+  // основная кнопка (луна) — работает с любым окном
   if (openIslamBtn) {
-    openIslamBtn.addEventListener("click", handleMainButtonClick);
-    console.log("Main button listener attached");
-  } else {
-    console.error("Main button not found!");
+    // удаляем старый обработчик
+    const newIslamBtn = openIslamBtn.cloneNode(true);
+    openIslamBtn.parentNode.replaceChild(newIslamBtn, openIslamBtn);
+    
+    newIslamBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      console.log("луна нажата");
+
+      const isAuthorized = localStorage.getItem("isAuthorized");
+      const savedFio = localStorage.getItem("fio");
+      
+      // ========== 1. не авторизован ==========
+      if (isAuthorized !== "true" || !savedFio) {
+        
+        // проверяем подтверждал ли ислам
+        if (!islamConfirmed) {
+          // если ислам не подтвержден — работаем с красным окном
+          if (islamPopup.style.display === 'block') {
+            hidePopup(islamPopup);
+          } else {
+            showPopup(islamPopup);
+          }
+          return;
+        }
+        
+        // если ислам подтвержден — работаем с окнами авторизации
+        // определяем текущее открытое окно авторизации
+        const authWindows = [authPopup, fioPopup, authLoading];
+        let openAuthWindow = null;
+        
+        for (let win of authWindows) {
+          if (win && win.style.display === 'block') {
+            openAuthWindow = win;
+            break;
+          }
+        }
+        
+        // если какое-то окно авторизации открыто — закрываем его
+        if (openAuthWindow) {
+          hidePopup(openAuthWindow);
+          console.log("закрыто окно авторизации:", openAuthWindow.id);
+          return;
+        }
+        
+        // если ничего не открыто — открываем последнее активное окно авторизации
+        // проверяем, был ли уже ввод логина/пароля
+        if (currentLogin && currentPassword) {
+          // если уже есть данные, значит переходим к фио
+          console.log("открываем окно фио");
+          showPopup(fioPopup);
+        } else {
+          // иначе открываем окно авторизации
+          console.log("открываем окно авторизации");
+          showPopup(authPopup);
+        }
+        return;
+      }
+      
+      // ========== 2. авторизован ==========
+      if (profileName) profileName.textContent = savedFio;
+      
+      // все основные окна авторизованного пользователя
+      const mainUserWindows = [mainWindow, majorWindow, chatWindow, settingsWindow, menuWindow];
+      let openMainWindow = null;
+      
+      for (let win of mainUserWindows) {
+        if (win && win.style.display === 'block') {
+          openMainWindow = win;
+          break;
+        }
+      }
+      
+      // если какое-то окно открыто — закрываем его
+      if (openMainWindow) {
+        hidePopup(openMainWindow);
+        // если это не меню — запоминаем как последнее активное
+        if (openMainWindow !== menuWindow) {
+          if (openMainWindow === majorWindow || 
+              openMainWindow === mainWindow ||
+              openMainWindow === chatWindow || 
+              openMainWindow === settingsWindow) {
+            rememberAuthorizedWindow(openMainWindow);
+          }
+        }
+        console.log("закрыто окно:", openMainWindow.id);
+        return;
+      }
+      
+      // если ничего не открыто — открываем последнее активное окно или главную
+      if (!activeMainWindow) {
+        activeMainWindow = getRememberedAuthorizedWindow();
+      }
+
+      if (activeMainWindow) {
+        console.log("открываем последнее окно:", activeMainWindow.id);
+        showPopup(activeMainWindow);
+      } else {
+        console.log("открываем окно приветствия");
+        showPopup(mainWindow);
+        rememberAuthorizedWindow(mainWindow);
+      }
+    });
+    
+    window.openIslamBtn = newIslamBtn;
+    console.log("луна: универсальный обработчик установлен");
   }
   
   // кнопки закрытия
   if (closePopup) closePopup.addEventListener("click", () => hidePopup(islamPopup));
   if (closeAuth) closeAuth.addEventListener("click", () => hidePopup(authPopup));
   if (closeLoading) closeLoading.addEventListener("click", () => hidePopup(authLoading));
-  if (closeMain) closeMain.addEventListener("click", () => hidePopup(mainWindow));
+  if (closeMain) closeMain.addEventListener("click", () => {
+    hidePopup(mainWindow);
+    rememberAuthorizedWindow(mainWindow);
+  });
   if (closeChat) closeChat.addEventListener("click", () => hidePopup(chatWindow));
   if (closeFio) closeFio.addEventListener("click", () => {
     hidePopup(fioPopup);
-    currentLogin = "";
-    currentPassword = "";
+    // НЕ сбрасываем currentLogin и currentPassword
+    console.log("окно фио закрыто, данные сохранены");
   });
   
-  // переключатель 
+  // переключатель  
   if (toggle) {
     toggle.addEventListener("change", function() {
       if (this.checked) {
         islamAccepted = true;
+        islamConfirmed = true;
+        localStorage.setItem("islamConfirmed", "true"); // запоминаем навсегда
         this.disabled = true;
         
         setTimeout(() => {
@@ -198,7 +347,7 @@ function initEventListeners() {
     loginBtn.addEventListener("click", handleLogin);
   }
   
-  // кнопка сохранения ФИО
+  // кнопка сохранения фио
   if (saveFioBtn) {
     saveFioBtn.addEventListener("click", handleSaveFio);
   }
@@ -216,28 +365,37 @@ function initEventListeners() {
     });
   }
   
-  // чат
+  // кнопка чата
   if (chatBtn) chatBtn.addEventListener("click", () => {
+    hidePopup(mainWindow);     // закрываем главное окно
+    showPopup(chatWindow);     // открываем чат
+    rememberAuthorizedWindow(chatWindow);
+  });
+
+  // кнопка перехода на главный экран с картами
+  if (openMajorBtn) openMajorBtn.addEventListener("click", () => {
     hidePopup(mainWindow);
-    showPopup(chatWindow);
+    showPopup(majorWindow);
+    rememberAuthorizedWindow(majorWindow);
   });
   
   if (sendBtn) sendBtn.addEventListener("click", sendMessage);
   
-  //  КНОПКА МЕНЮ (3 ПОЛОСКИ) 
+  // кнопка меню (3 полоски) 
   if (menuButtons && menuButtons.length > 0) {
     menuButtons.forEach(btn => {
       btn.addEventListener("click", function(e) {
         e.stopPropagation();
         e.preventDefault();
-        console.log("Меню открыто через:", this);
+        console.log("меню открыто через:", this);
         
         if (menuWindow) {
           showPopup(menuWindow);
+          // НЕ запоминаем меню как activeMainWindow
         }
       });
     });
-    console.log(`Attached menu listeners to ${menuButtons.length} button(s)`);
+    console.log(`attached menu listeners to ${menuButtons.length} button(s)`);
   }
   
   // закрытие меню
@@ -249,34 +407,46 @@ function initEventListeners() {
     });
   }
   
-  // навигация в меню
+  // обработчики меню
+  
+  // главная
   if (menuHome) {
     menuHome.addEventListener("click", function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log("Меню: Главная");
+      console.log("меню: главная");
       hidePopup(menuWindow);
-      showPopup(majorWindow);
+      
+      // если главная уже открыта — просто закрываем меню, главная остается
+      if (majorWindow.style.display === 'block') {
+        console.log("главная уже открыта");
+        return;
+      }
+      
+      // иначе открываем главную
+      switchMainWindow(majorWindow);
     });
   }
 
+  // чат
   if (menuChat) {
     menuChat.addEventListener("click", function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log("Меню: Чат");
+      console.log("меню: чат");
       hidePopup(menuWindow);
-      showPopup(chatWindow);
+      switchMainWindow(chatWindow);
     });
   }
 
+  // настройки
   if (menuSettings) {
     menuSettings.addEventListener("click", function(e) {
       e.preventDefault();
       e.stopPropagation();
-      console.log("Меню: Настройки");
+      console.log("меню: настройки");
       hidePopup(menuWindow);
-      showPopup(settingsWindow);
+      switchMainWindow(settingsWindow);
     });
   }
 
@@ -285,19 +455,20 @@ function initEventListeners() {
     closeMajor.addEventListener("click", function(e) {
       e.stopPropagation();
       hidePopup(majorWindow);
+      rememberAuthorizedWindow(majorWindow);
     });
   }
   
-  // настройки
+  // закрытие настроек
   if (closeSettings) closeSettings.addEventListener("click", () => hidePopup(settingsWindow));
   
-  //  ВРЕМЯ НАМАЗА 
+  // время намаза 
   const prayerTimeElement = document.getElementById('prayerTime');
   if (prayerTimeElement && prayerPopupEl && closePrayerBtn) {
     prayerTimeElement.addEventListener('click', function(e) {
       e.stopPropagation();
       e.preventDefault();
-      console.log("Opening prayer times");
+      console.log("opening prayer times");
       
       showChildPopup(prayerPopupEl);
       loadPrayerTimes();
@@ -309,21 +480,21 @@ function initEventListeners() {
     });
   }
   
-    //  ХАЛЯЛЬ РЯДОМ 
+  // халяль рядом 
   const halalBtn = document.getElementById("halalNearby");
   if (halalBtn && halalPopupEl && closeHalalBtn) {
     halalBtn.addEventListener("click", function(e) {
       e.stopPropagation();
       e.preventDefault();
-      console.log("Opening halal map");
+      console.log("opening halal map");
       
       showChildPopup(halalPopupEl);
       
       setTimeout(() => {
-        if (!window.halalMap) {
+        if (!halalMap) {
           initHalalMap();
         } else {
-          window.halalMap.invalidateSize();
+          halalMap.invalidateSize();
         }
       }, 200); 
     });
@@ -334,38 +505,37 @@ function initEventListeners() {
     });
   }
   
-//  МЕЧЕТЬ/МОЛЕЛЬНАЯ
-const mosqueBtn = document.getElementById("mosque");
-if (mosqueBtn && mosquePopupEl && closeMosqueBtn) {
-  mosqueBtn.addEventListener("click", function(e) {
-    e.stopPropagation();
-    e.preventDefault();
-    console.log("Opening mosque map");
+  // мечеть/молельная
+  const mosqueBtn = document.getElementById("mosque");
+  if (mosqueBtn && mosquePopupEl && closeMosqueBtn) {
+    mosqueBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      console.log("opening mosque map");
+      
+      showChildPopup(mosquePopupEl);
+      
+      setTimeout(() => {
+        if (!mosqueMap) {
+          initMosqueMap();
+        } else {
+          mosqueMap.invalidateSize();
+        }
+      }, 200); 
+    });
     
-    showChildPopup(mosquePopupEl);
-    
-    // инициализация карты 
-    setTimeout(() => {
-      if (!window.mosqueMap) {
-        initMosqueMap();
-      } else {
-        window.mosqueMap.invalidateSize();
-      }
-    }, 200); 
-  });
-  
-  closeMosqueBtn.addEventListener("click", function(e) {
-    e.stopPropagation();
-    hidePopup(mosquePopupEl);
-  });
-}
+    closeMosqueBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      hidePopup(mosquePopupEl);
+    });
+  }
   
   // очистка истории чата
   const clearChatCheckbox = document.getElementById('clearChatHistory');
   if (clearChatCheckbox) {
     clearChatCheckbox.addEventListener('change', function(e) {
       if (this.checked) {
-        if (confirm("Вы уверены, что хотите очистить историю чата?")) {
+        if (confirm("вы уверены, что хотите очистить историю чата?")) {
           messageContainer.innerHTML = '';
           localStorage.removeItem('chatHistory');
           setTimeout(() => {
@@ -380,23 +550,25 @@ if (mosqueBtn && mosquePopupEl && closeMosqueBtn) {
   
   // о сервисе
   document.getElementById('aboutService')?.addEventListener('click', function() {
-    alert("iMuslimEd - сервис для мусульманских студентов Московского Университета им. С.Ю. Витте\n\nВерсия 1.0");
+    alert("imuslimed - сервис для мусульманских студентов московского университета им. с.ю. витте\n\nверсия 1.0");
   });
   
   // обратная связь
   document.getElementById('feedback')?.addEventListener('click', function() {
-    alert("Для обратной связи напишите на email: support@imuslimed.ru\n\nМы ценим ваше мнение!");
+    alert("для обратной связи напишите на email: support@imuslimed.ru\n\nмы ценим ваше мнение!");
   });
   
   // выход
   document.getElementById('logoutBtn')?.addEventListener('click', function() {
-    if (confirm("Вы уверены, что хотите выйти?")) {
+    if (confirm("вы уверены, что хотите выйти?")) {
       localStorage.removeItem("fio");
       localStorage.removeItem("chatHistory");
       localStorage.removeItem("isAuthorized");
+      localStorage.removeItem("islamConfirmed"); // добавляем сброс
       
       authFinished = false;
       islamAccepted = false;
+      islamConfirmed = false; // добавляем сброс
       currentLogin = "";
       currentPassword = "";
       
@@ -408,13 +580,15 @@ if (mosqueBtn && mosquePopupEl && closeMosqueBtn) {
         profileName.textContent = "";
       }
       
-      // Сбрасываем переключатель религии
+      // сбрасываем переключатель религии
       if (toggle) {
         toggle.checked = false;
         toggle.disabled = false;
       }
       
       hideAllPopups();
+      activeMainWindow = null;
+      localStorage.removeItem(LAST_AUTH_WINDOW_KEY);
       
       setTimeout(() => {
         showPopup(islamPopup);
@@ -422,12 +596,12 @@ if (mosqueBtn && mosquePopupEl && closeMosqueBtn) {
     }
   });
   
-  // FAQ
+  // faq
   document.getElementById('faq')?.addEventListener('click', function() {
-    alert("Функция 'Часто задаваемые вопросы' в разработке");
+    alert("функция 'часто задаваемые вопросы' в разработке");
   });
   
-  // Enter в полях ввода
+  // enter в полях ввода
   if (loginInput) loginInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") loginBtn.click();
   });
@@ -445,18 +619,11 @@ if (mosqueBtn && mosquePopupEl && closeMosqueBtn) {
   });
 }
 
+// функция handleMainButtonClick больше не используется
+// оставлена для обратной совместимости
 function handleMainButtonClick(e) {
   e.stopPropagation();
-
-  const isAuthorized = localStorage.getItem("isAuthorized");
-  const savedFio = localStorage.getItem("fio");
-
-  if (isAuthorized === "true" && savedFio) {
-    if (profileName) profileName.textContent = savedFio;
-    showPopup(majorWindow);
-  } else {
-    showPopup(islamPopup);
-  }
+  console.log("handleMainButtonClick - используется новый обработчик луны");
 }
 
 async function handleLogin() {
@@ -464,7 +631,7 @@ async function handleLogin() {
   const password = passwordInput.value.trim();
 
   if (!login || !password) {
-    alert("Введите логин и пароль!");
+    alert("введите логин и пароль!");
     return;
   }
 
@@ -484,7 +651,8 @@ async function handleLogin() {
     hidePopup(authLoading);
 
     if (result.success) {
-      if (result.registered === false) {
+      // если пользователь новый или у него нет фио — обязательно ведем на ввод фио
+      if (result.registered === false || !result.fio) {
         showPopup(fioPopup);
       } else {
         localStorage.setItem("isAuthorized", "true");
@@ -498,25 +666,30 @@ async function handleLogin() {
         passwordInput.value = "";
 
         showPopup(mainWindow);
-
-        setTimeout(() => {
-          hidePopup(mainWindow);
-        }, 3000);
+        rememberAuthorizedWindow(mainWindow);
+        // таймер убран — окно приветствия не закрывается автоматически
       }
     } else {
-      alert(result.error || "Ошибка входа");
+      alert(result.error || "ошибка входа");
     }
   } catch (error) {
     hidePopup(authLoading);
-    alert("Ошибка сети");
+    alert("ошибка сети");
   }
 }
 
 async function handleSaveFio() {
-  const fio = fioInput.value.trim();
-
+  const fio = formatFIO(fioInput.value);
+  
+  // проверка на пустое значение
   if (!fio) {
-    alert("Введите ФИО");
+    alert("введите фио");
+    return;
+  }
+  
+  // проверка на максимальную длину
+  if (fio.length > 100) {
+    alert("фио слишком длинное");
     return;
   }
 
@@ -547,16 +720,14 @@ async function handleSaveFio() {
       passwordInput.value = "";
 
       showPopup(mainWindow);
-
-      setTimeout(() => {
-        hidePopup(mainWindow);
-      }, 3000);
+      rememberAuthorizedWindow(mainWindow);
+      // таймер убран — окно приветствия не закрывается автоматически
     } else {
-      alert(result.error || "Ошибка сохранения");
+      alert(result.error || "ошибка сохранения");
     }
   } catch (error) {
     hidePopup(authLoading);
-    alert("Ошибка сети");
+    alert("ошибка сети");
   }
 }
 
@@ -578,10 +749,10 @@ function sendMessage() {
   setTimeout(() => {
     let botDiv = document.createElement("div");
     botDiv.classList.add("message-bot");
-    botDiv.textContent = "Спасибо за ваше сообщение!";
+    botDiv.textContent = "спасибо за ваше сообщение!";
     messageContainer.appendChild(botDiv);
     
-    chatMessages.push({ type: 'bot', text: "Спасибо за ваше сообщение!" });
+    chatMessages.push({ type: 'bot', text: "спасибо за ваше сообщение!" });
     saveChatHistory();
     
     messageContainer.scrollTop = messageContainer.scrollHeight;
@@ -594,12 +765,11 @@ function saveChatHistory() {
   }
 }
 
-//  ВРЕМЯ НАМАЗА 
-
+// время намаза 
 async function loadPrayerTimes() {
   if (!prayerTimesContainer) return;
 
-  prayerTimesContainer.textContent = "Загрузка…";
+  prayerTimesContainer.textContent = "загрузка…";
 
   const lat = 55.700283;
   const lon = 37.654942;
@@ -610,7 +780,7 @@ async function loadPrayerTimes() {
     const json = await res.json();
 
     if (!json || !json.data || !json.data.timings) {
-      throw new Error("Неверный ответ API");
+      throw new Error("неверный ответ api");
     }
 
     const timings = json.data.timings;
@@ -624,11 +794,11 @@ async function loadPrayerTimes() {
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
     const prayers = [
-      { name: "Фаджр", time: timings.Fajr },
-      { name: "Зухр", time: timings.Dhuhr },
-      { name: "Аср", time: timings.Asr },
-      { name: "Магриб", time: timings.Maghrib },
-      { name: "Иша", time: timings.Isha }
+      { name: "фаджр", time: timings.Fajr },
+      { name: "зухр", time: timings.Dhuhr },
+      { name: "аср", time: timings.Asr },
+      { name: "магриб", time: timings.Maghrib },
+      { name: "иша", time: timings.Isha }
     ];
 
     let activeIndex = 0;
@@ -652,20 +822,20 @@ async function loadPrayerTimes() {
 
   } catch (err) {
     console.error(err);
-    prayerTimesContainer.textContent = "Ошибка при загрузке времени намаза";
+    prayerTimesContainer.textContent = "ошибка при загрузке времени намаза";
   }
 }
 
-//  КАРТЫ 
+// карты 
 let halalMap = null;
 let mosqueMap = null;
 
 function initHalalMap() {
-    console.log("Инициализация карты халяль...");
+    console.log("инициализация карты халяль...");
     
     const mapElement = document.getElementById('halalMap');
     if (!mapElement) {
-        console.error("Элемент halalMap не найден!");
+        console.error("элемент halalmap не найден!");
         return;
     }
     
@@ -684,26 +854,26 @@ function initHalalMap() {
         setTimeout(() => {
             // проверка, видим ли элемент
             const rect = mapElement.getBoundingClientRect();
-            console.log("Размеры элемента:", rect.width, "x", rect.height);
+            console.log("размеры элемента:", rect.width, "x", rect.height);
             
             if (rect.width === 0 || rect.height === 0) {
-                console.warn("Элемент карты имеет нулевой размер!");
+                console.warn("элемент карты имеет нулевой размер!");
             }
             
             // создание карт
             halalMap = L.map('halalMap').setView([55.700283, 37.654942], 15);
             
-            // тайлы OpenStreetMap
+            // тайлы openstreetmap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© openstreetmap contributors'
             }).addTo(halalMap);
             
             // маркеры
             const places = [
                 { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
-                { name: "Кафе 'Non Gusht'", lat: 55.700903, lon: 37.651461 },
-                { name: "Кафе 'Сочный Вертел'", lat: 55.694225, lon: 37.665306 },
-                { name: "Кафе 'Плов&Бургер'", lat: 55.700121, lon: 37.657538 },
+                { name: "Кафе 'Non gusht'", lat: 55.700903, lon: 37.651461 },
+                { name: "Кафе 'Сочный вертел'", lat: 55.694225, lon: 37.665306 },
+                { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
                 { name: "Кофейня 'Здрасте'", lat: 55.690114, lon: 37.654806 },
             ];
             
@@ -713,19 +883,19 @@ function initHalalMap() {
                     .bindPopup(place.name);
             });
             
-            // обновленме размер карты
+            // обновление размера карты
             setTimeout(() => {
                 if (halalMap) {
                     halalMap.invalidateSize();
-                    console.log("Карта халяль обновлена");
+                    console.log("карта халяль обновлена");
                 }
             }, 100);
             
-            console.log("Карта халяль успешно создана!");
+            console.log("карта халяль успешно создана!");
         }, 300);
         
     } catch (error) {
-        console.error("Ошибка при создании карты халяль:", error);
+        console.error("ошибка при создании карты халяль:", error);
     }
 }
 
@@ -735,7 +905,7 @@ function initMosqueMap() {
     // элемент карты
     const mapElement = document.getElementById('mosqueMap');
     if (!mapElement) {
-        console.error("Элемент mosqueMap не найден!");
+        console.error("Элемент mosquemap не найден!");
         return;
     }
     
@@ -754,18 +924,18 @@ function initMosqueMap() {
         setTimeout(() => {
             // проверка
             const rect = mapElement.getBoundingClientRect();
-            console.log("Размеры элемента:", rect.width, "x", rect.height);
+            console.log("размеры элемента:", rect.width, "x", rect.height);
             
             if (rect.width === 0 || rect.height === 0) {
                 console.warn("Элемент карты имеет нулевой размер!");
             }
             
-            // Создание карты
+            // создание карты
             mosqueMap = L.map('mosqueMap').setView([55.700283, 37.654942], 12);
             
-            // OpenStreetMap
+            // openstreetmap
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© openstreetmap contributors'
             }).addTo(mosqueMap);
             
             // маркеры мечетей
@@ -776,7 +946,8 @@ function initMosqueMap() {
                { name: "Мечеть 'Мемориальная'", lat: 55.725377, lon: 37.497144 },
                { name: "Мечеть 'Историческая'", lat: 55.738803, lon: 37.632483 },
                { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
-               { name: "Кафе 'Плов&Бургер'", lat: 55.700121, lon: 37.657538 },
+               { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
+
              ];
             
             mosques.forEach(mosque => {
@@ -789,23 +960,23 @@ function initMosqueMap() {
             setTimeout(() => {
                 if (mosqueMap) {
                     mosqueMap.invalidateSize();
-                    console.log("Карта мечетей обновлена");
+                    console.log("карта мечетей обновлена");
                 }
             }, 100);
             
-            console.log("Карта мечетей успешно создана!");
+            console.log("карта мечетей успешно создана!");
         }, 300);
         
     } catch (error) {
-        console.error("Ошибка при создании карты мечетей:", error);
+        console.error("ошибка при создании карты мечетей:", error);
     }
 }
 
-// ДЛЯ КАРТ
+// для карт
 function setupMapHandlers() {
-    console.log("Настройка обработчиков карт...");
+    console.log("настройка обработчиков карт...");
     
-    // ХАЛЯЛЬ
+    // халяль
     const halalBtn = document.getElementById("halalNearby");
     const halalPopup = document.getElementById("halalPopup");
     const closeHalal = document.getElementById("closeHalal");
@@ -817,7 +988,7 @@ function setupMapHandlers() {
         newHalalBtn.addEventListener("click", function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log("Клик по кнопке Халяль");
+            console.log("клик по кнопке халяль");
             
             showChildPopup(halalPopup);
             
@@ -825,7 +996,7 @@ function setupMapHandlers() {
         });
     }
     
-    // МЕЧЕТЬ
+    // мечеть
     const mosqueBtn = document.getElementById("mosque");
     const mosquePopup = document.getElementById("mosquePopup");
     const closeMosque = document.getElementById("closeMosque");
@@ -837,7 +1008,7 @@ function setupMapHandlers() {
         newMosqueBtn.addEventListener("click", function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log("Клик по кнопке Мечеть");
+            console.log("клик по кнопке мечеть");
             
             showChildPopup(mosquePopup);
             
@@ -860,7 +1031,20 @@ function setupMapHandlers() {
     }
 }
 
+// форматирование фио - каждое слово с большой буквы
+function formatFIO(fio) {
+  return fio
+    .trim()
+    .split(' ')
+    .filter(word => word.length > 0)
+    .map(word => {
+      return word[0].toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
+  console.log("dom fully loaded");
   hideAllPopups();
 
   // проверка
@@ -869,14 +1053,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   if (isAuthorized === "true" && savedFio) {
     profileName.textContent = savedFio;
+    activeMainWindow = getRememberedAuthorizedWindow();
   }
 
   initEventListeners();
-  
-  setTimeout(setupMapHandlers, 500);
 });
 
-//  закрытие
+// закрытие по клику вне
 document.addEventListener('click', (e) => {
   const popups = [
     { popup: islamPopup, btn: openIslamBtn },
@@ -920,4 +1103,4 @@ document.addEventListener('click', (e) => {
   });
 });
 
-console.log("Script loaded successfully!");
+console.log("script loaded successfully!");

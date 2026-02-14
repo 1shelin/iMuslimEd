@@ -107,7 +107,8 @@
       • Ас-саляму ʿАлейкум!<br>
       Добро пожаловать в <b>iMuslimEd.</b>
     </div>
-    <button class="main-btn">Задать вопрос</button>
+    <button id="askQuestionBtn" class="main-btn">Задать вопрос</button>
+    <button id="openMajorBtn" class="main-secondary-btn">Главная</button>
   </div>
 </div>
 
@@ -330,6 +331,18 @@
     </div>
   </div>
 
+  <!-- Часто задаваемые вопросы -->
+  <div id="faqPopup" class="faq-popup">
+    <div class="faq-header">
+      <span class="faq-title">Часто задаваемые вопросы</span>
+      <button class="faq-close" id="closeFaq">✕</button>
+    </div>
+
+    <div class="faq-body">
+      <div class="faq-scroll-content"></div>
+    </div>
+  </div>
+
       <!-- Халяль рядом -->
   <div id="halalPopup" class="halal-popup">
     <div class="halal-header">
@@ -351,8 +364,6 @@
       <div id="mosqueMap" class="popup-map"></div>
     </div>
   </div>
-
-    
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
