@@ -62,6 +62,8 @@ const closeMajor = document.getElementById("closeMajor");
 const prayerPopupEl = document.getElementById("prayerPopup");
 const closePrayerBtn = document.getElementById("closePrayer");
 const prayerTimesContainer = document.getElementById("prayerTimes");
+const faqPopupEl = document.getElementById("faqPopup");
+const closeFaqBtn = document.getElementById("closeFaq");
 
 const halalPopupEl = document.getElementById("halalPopup");
 const closeHalalBtn = document.getElementById("closeHalal");
@@ -164,7 +166,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, halalPopupEl, mosquePopupEl
+    fioPopup, prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl
   ];
   
   allPopups.forEach(popup => {
@@ -321,7 +323,6 @@ function initEventListeners() {
   if (closeChat) closeChat.addEventListener("click", () => hidePopup(chatWindow));
   if (closeFio) closeFio.addEventListener("click", () => {
     hidePopup(fioPopup);
-    // НЕ сбрасываем currentLogin и currentPassword
     console.log("окно фио закрыто, данные сохранены");
   });
   
@@ -331,7 +332,7 @@ function initEventListeners() {
       if (this.checked) {
         islamAccepted = true;
         islamConfirmed = true;
-        localStorage.setItem("islamConfirmed", "true"); // запоминаем навсегда
+        localStorage.setItem("islamConfirmed", "true"); 
         this.disabled = true;
         
         setTimeout(() => {
@@ -391,7 +392,6 @@ function initEventListeners() {
         
         if (menuWindow) {
           showPopup(menuWindow);
-          // НЕ запоминаем меню как activeMainWindow
         }
       });
     });
@@ -406,9 +406,7 @@ function initEventListeners() {
       hidePopup(menuWindow);
     });
   }
-  
-  // обработчики меню
-  
+    
   // главная
   if (menuHome) {
     menuHome.addEventListener("click", function(e) {
@@ -477,6 +475,34 @@ function initEventListeners() {
     closePrayerBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       hidePopup(prayerPopupEl);
+    });
+  }
+
+  // часто задаваемые вопросы
+  const faqBtn = document.getElementById("faq");
+  if (faqBtn && faqPopupEl && closeFaqBtn) {
+    faqBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      showChildPopup(faqPopupEl);
+    });
+
+    closeFaqBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      hidePopup(faqPopupEl);
+    });
+  }
+
+  // аккордеон FAQ
+  const faqQuestionButtons = document.querySelectorAll(".faq-question");
+  if (faqQuestionButtons.length > 0) {
+    faqQuestionButtons.forEach((btn) => {
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        const faqItem = this.closest(".faq-item");
+        if (!faqItem) return;
+        faqItem.classList.toggle("open");
+      });
     });
   }
   
@@ -564,11 +590,11 @@ function initEventListeners() {
       localStorage.removeItem("fio");
       localStorage.removeItem("chatHistory");
       localStorage.removeItem("isAuthorized");
-      localStorage.removeItem("islamConfirmed"); // добавляем сброс
+      localStorage.removeItem("islamConfirmed"); 
       
       authFinished = false;
       islamAccepted = false;
-      islamConfirmed = false; // добавляем сброс
+      islamConfirmed = false; 
       currentLogin = "";
       currentPassword = "";
       
@@ -596,11 +622,6 @@ function initEventListeners() {
     }
   });
   
-  // faq
-  document.getElementById('faq')?.addEventListener('click', function() {
-    alert("функция 'часто задаваемые вопросы' в разработке");
-  });
-  
   // enter в полях ввода
   if (loginInput) loginInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") loginBtn.click();
@@ -619,8 +640,6 @@ function initEventListeners() {
   });
 }
 
-// функция handleMainButtonClick больше не используется
-// оставлена для обратной совместимости
 function handleMainButtonClick(e) {
   e.stopPropagation();
   console.log("handleMainButtonClick - используется новый обработчик луны");
@@ -667,7 +686,6 @@ async function handleLogin() {
 
         showPopup(mainWindow);
         rememberAuthorizedWindow(mainWindow);
-        // таймер убран — окно приветствия не закрывается автоматически
       }
     } else {
       alert(result.error || "ошибка входа");
@@ -721,7 +739,6 @@ async function handleSaveFio() {
 
       showPopup(mainWindow);
       rememberAuthorizedWindow(mainWindow);
-      // таймер убран — окно приветствия не закрывается автоматически
     } else {
       alert(result.error || "ошибка сохранения");
     }
@@ -1069,9 +1086,10 @@ document.addEventListener('click', (e) => {
     { popup: chatWindow, btn: chatBtn },
     { popup: menuWindow, btn: menuButtons },
     { popup: settingsWindow, btn: menuSettings },
-    { popup: majorWindow, btn: openIslamBtn },
+    { popup: majorWindow, btn: [openIslamBtn, openMajorBtn] },
     { popup: fioPopup, btn: null },
     { popup: prayerPopupEl, btn: document.getElementById('prayerTime') },
+    { popup: faqPopupEl, btn: document.getElementById('faq') },
     { popup: halalPopupEl, btn: document.getElementById('halalNearby') },
     { popup: mosquePopupEl, btn: document.getElementById('mosque') }
   ];
@@ -1093,7 +1111,7 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       
       if (!isClickInside && !isButtonClick && !(isChildPopup && isClickOnParent)) {
