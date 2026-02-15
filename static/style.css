@@ -1273,6 +1273,23 @@ input:checked + .slider:before {
   z-index: 1000;
 }
 
+.major-content,
+.settings-header,
+.settings-body {
+  transition: filter 0.22s ease, opacity 0.22s ease;
+}
+
+.major-popup.parent-dimmed .major-content > :not(#prayerPopup):not(#faqPopup):not(#halalPopup):not(#mosquePopup) {
+  filter: blur(2px) saturate(0.9);
+  opacity: 0.45;
+}
+
+.settings-popup.parent-dimmed .settings-header,
+.settings-popup.parent-dimmed .settings-body {
+  filter: blur(2px) saturate(0.9);
+  opacity: 0.45;
+}
+
 .major-popup::before {
   content: "";
   position: absolute;
@@ -1889,9 +1906,175 @@ html, body {
 
 .about-body {
   position: relative;
-  height: calc(100% - 45px);
-  padding: 16px;
+  height: calc(100% - 58px);
+  padding: 12px;
   box-sizing: border-box;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  background:
+    radial-gradient(130px 65px at 100% 0%, rgba(9,72,30,0.09), transparent 65%),
+    radial-gradient(140px 70px at 0% 100%, rgba(9,72,30,0.08), transparent 65%);
+}
+
+.about-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 8px;
+}
+
+.about-popup.popup-visible .about-layout > * {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: aboutSectionIn 0.35s ease forwards;
+}
+
+.about-popup.popup-visible .about-layout > *:nth-child(1) { animation-delay: 0.02s; }
+.about-popup.popup-visible .about-layout > *:nth-child(2) { animation-delay: 0.06s; }
+.about-popup.popup-visible .about-layout > *:nth-child(3) { animation-delay: 0.10s; }
+.about-popup.popup-visible .about-layout > *:nth-child(4) { animation-delay: 0.14s; }
+.about-popup.popup-visible .about-layout > *:nth-child(5) { animation-delay: 0.18s; }
+.about-popup.popup-visible .about-layout > *:nth-child(6) { animation-delay: 0.22s; }
+
+.about-hero {
+  border: 1px solid rgba(9,72,30,0.2);
+  border-radius: 12px;
+  background: linear-gradient(160deg, #ffffff 0%, #eef3ee 100%);
+  padding: 10px 12px;
+  box-shadow: 0 4px 10px rgba(9,72,30,0.07);
+}
+
+.about-hero-title {
+  margin: 0 0 6px;
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #09481E;
+  letter-spacing: 0.2px;
+}
+
+.about-meta {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0 0 8px;
+}
+
+.about-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(9,72,30,0.24);
+  background: #f7faf7;
+  color: #09481E;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.about-hero-text {
+  margin: 0 0 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #09481E;
+}
+
+.about-hero-text:last-child {
+  margin-bottom: 0;
+}
+
+.about-goal,
+.about-features,
+.about-data,
+.about-impact {
+  border: 1px solid rgba(9,72,30,0.2);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 10px 12px;
+}
+
+.about-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #09481E;
+  color: #F4F4EE;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  margin-bottom: 8px;
+}
+
+.about-section-text {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #09481E;
+}
+
+.about-feature-list {
+  margin: 0;
+  padding-left: 17px;
+  display: grid;
+  gap: 6px;
+}
+
+.about-feature-list li {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #09481E;
+}
+
+.about-quote {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(9,72,30,0.12), rgba(9,72,30,0.03));
+  border-left: 3px solid #09481E;
+  font-family: 'Inknut Antiqua', serif;
+  font-size: 11px;
+  color: #09481E;
+}
+
+.about-passport {
+  border: 1px solid rgba(9,72,30,0.2);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 8px 10px;
+}
+
+.about-passport-row {
+  display: grid;
+  grid-template-columns: 78px 1fr;
+  gap: 8px;
+  align-items: start;
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(9,72,30,0.18);
+}
+
+.about-passport-row:last-child {
+  border-bottom: none;
+}
+
+.about-passport-key {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #6a7a6a;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.about-passport-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #09481E;
+  line-height: 1.35;
 }
 
 .feedback-popup {
@@ -1961,6 +2144,12 @@ html, body {
   box-shadow: 0 4px 12px rgba(9,72,30,0.08);
 }
 
+.feedback-popup.popup-visible .feedback-card {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: aboutSectionIn 0.35s ease forwards;
+}
+
 .feedback-text {
   margin: 0 0 8px;
   font-family: 'Inter', sans-serif;
@@ -1983,6 +2172,13 @@ html, body {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1.5px;
+}
+
+@keyframes aboutSectionIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .prayer-row {
@@ -2252,24 +2448,33 @@ html, body {
 }
 
 @keyframes slideInUp {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    translate: 0 24px;
+    filter: blur(2px);
   }
-  to {
+  65% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    translate: 0 -2px;
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    translate: 0 0;
+    filter: blur(0);
   }
 }
 
 @keyframes slideOutDown {
-  from {
+  0% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    translate: 0 0;
+    filter: blur(0);
   }
-  to {
+  100% {
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    translate: 0 14px;
+    filter: blur(1px);
   }
 }
 
@@ -2320,11 +2525,13 @@ html, body {
 /* классы для анимаций */
 .popup-visible {
   display: block !important;
-  animation: slideInUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  will-change: opacity, translate, filter;
+  animation: slideInUp 0.34s cubic-bezier(0.2, 0.75, 0.22, 1);
 }
 
 .popup-hidden {
-  animation: slideOutDown 0.3s ease-out forwards;
+  will-change: opacity, translate, filter;
+  animation: slideOutDown 0.22s ease-in forwards;
 }
 
 .popup-pulse {

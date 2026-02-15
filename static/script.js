@@ -115,6 +115,20 @@ function hasBlockingChildPopupOpen() {
   return childPopups.some((popup) => popup && popup.style.display === 'block');
 }
 
+function updateParentWindowEffects() {
+  const majorChildOpen = [prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl]
+    .some((popup) => popup && popup.style.display === 'block');
+  const settingsChildOpen = [aboutPopupEl, feedbackPopupEl]
+    .some((popup) => popup && popup.style.display === 'block');
+
+  if (majorWindow) {
+    majorWindow.classList.toggle('parent-dimmed', majorChildOpen);
+  }
+  if (settingsWindow) {
+    settingsWindow.classList.toggle('parent-dimmed', settingsChildOpen);
+  }
+}
+
 // показать попап (заменяет другие окна)
 function showPopup(popupElement) {
   if (!popupElement) {
@@ -156,6 +170,7 @@ function showChildPopup(popupElement) {
   
   // устанавливаем высокий z-index
   popupElement.style.zIndex = '2000';
+  updateParentWindowEffects();
   
   console.log("showing child popup:", popupElement.id);
 }
@@ -172,9 +187,10 @@ function hidePopup(popupElement) {
     popupElement.style.display = 'none';
     // сброс z-index
     popupElement.style.zIndex = '';
+    updateParentWindowEffects();
     
     console.log("hiding popup:", popupElement.id);
-  }, 300);
+  }, 180);
 }
 
 // скрыть все попапы
@@ -1131,6 +1147,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   initEventListeners();
+  updateParentWindowEffects();
 });
 
 // закрытие по клику вне
