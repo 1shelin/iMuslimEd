@@ -245,6 +245,39 @@
     <!-- логотип МУИВ внизу -->
     <img src="{{ url_for('static', filename='muiv_green.png') }}" class="settings-university">
   </div>
+  <!-- о сервисе -->
+  <div id="aboutPopup" class="about-popup">
+    <div class="about-header">
+      <span class="about-title">О сервисе</span>
+      <button class="about-close" id="closeAbout">✕</button>
+    </div>
+
+    <div class="about-body"></div>
+  </div>
+
+  <!-- обратная связь -->
+  <div id="feedbackPopup" class="feedback-popup">
+    <div class="feedback-header">
+      <span class="feedback-title">Обратная связь</span>
+      <button class="feedback-close" id="closeFeedback">✕</button>
+    </div>
+
+    <div class="feedback-body">
+      <div class="feedback-card">
+        <p class="feedback-text">
+          Для направления обращений, предложений или сообщений о технических ошибках воспользуйтесь электронной почтой:
+          <a class="feedback-email" href="mailto:support@imuslimed.ru">support@imuslimed.ru</a>.
+        </p>
+        <p class="feedback-text">
+          Все обращения рассматриваются администрацией сервиса в установленном порядке.
+        </p>
+        <p class="feedback-text">
+          Мы ценим ваше мнение и стремимся к постоянному совершенствованию платформы.
+        </p>
+        <p class="feedback-sign">С уважением, IMuslimEd.</p>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- главное окно (major) -->

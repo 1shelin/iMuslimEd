@@ -62,6 +62,10 @@ const closeMajor = document.getElementById("closeMajor");
 const prayerPopupEl = document.getElementById("prayerPopup");
 const closePrayerBtn = document.getElementById("closePrayer");
 const prayerTimesContainer = document.getElementById("prayerTimes");
+const aboutPopupEl = document.getElementById("aboutPopup");
+const closeAboutBtn = document.getElementById("closeAbout");
+const feedbackPopupEl = document.getElementById("feedbackPopup");
+const closeFeedbackBtn = document.getElementById("closeFeedback");
 const faqPopupEl = document.getElementById("faqPopup");
 const closeFaqBtn = document.getElementById("closeFaq");
 
@@ -97,6 +101,18 @@ function rememberAuthorizedWindow(windowElement) {
 
 function getRememberedAuthorizedWindow() {
   return getWindowByKey(localStorage.getItem(LAST_AUTH_WINDOW_KEY) || "");
+}
+
+function hasBlockingChildPopupOpen() {
+  const childPopups = [
+    prayerPopupEl,
+    faqPopupEl,
+    halalPopupEl,
+    mosquePopupEl,
+    aboutPopupEl,
+    feedbackPopupEl
+  ];
+  return childPopups.some((popup) => popup && popup.style.display === 'block');
 }
 
 // показать попап (заменяет другие окна)
@@ -166,7 +182,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl
+    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl
   ];
   
   allPopups.forEach(popup => {
@@ -368,8 +384,8 @@ function initEventListeners() {
   
   // кнопка чата
   if (chatBtn) chatBtn.addEventListener("click", () => {
-    hidePopup(mainWindow);     // закрываем главное окно
-    showPopup(chatWindow);     // открываем чат
+    hidePopup(mainWindow);     
+    showPopup(chatWindow);    
     rememberAuthorizedWindow(chatWindow);
   });
 
@@ -386,6 +402,11 @@ function initEventListeners() {
   if (menuButtons && menuButtons.length > 0) {
     menuButtons.forEach(btn => {
       btn.addEventListener("click", function(e) {
+        if (hasBlockingChildPopupOpen()) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
         e.stopPropagation();
         e.preventDefault();
         console.log("меню открыто через:", this);
@@ -415,13 +436,11 @@ function initEventListeners() {
       console.log("меню: главная");
       hidePopup(menuWindow);
       
-      // если главная уже открыта — просто закрываем меню, главная остается
       if (majorWindow.style.display === 'block') {
         console.log("главная уже открыта");
         return;
       }
-      
-      // иначе открываем главную
+  
       switchMainWindow(majorWindow);
     });
   }
@@ -464,6 +483,7 @@ function initEventListeners() {
   const prayerTimeElement = document.getElementById('prayerTime');
   if (prayerTimeElement && prayerPopupEl && closePrayerBtn) {
     prayerTimeElement.addEventListener('click', function(e) {
+      if (hasBlockingChildPopupOpen()) return;
       e.stopPropagation();
       e.preventDefault();
       console.log("opening prayer times");
@@ -482,6 +502,7 @@ function initEventListeners() {
   const faqBtn = document.getElementById("faq");
   if (faqBtn && faqPopupEl && closeFaqBtn) {
     faqBtn.addEventListener("click", function(e) {
+      if (hasBlockingChildPopupOpen()) return;
       e.stopPropagation();
       e.preventDefault();
       showChildPopup(faqPopupEl);
@@ -493,7 +514,7 @@ function initEventListeners() {
     });
   }
 
-  // аккордеон FAQ
+  // FAQ
   const faqQuestionButtons = document.querySelectorAll(".faq-question");
   if (faqQuestionButtons.length > 0) {
     faqQuestionButtons.forEach((btn) => {
@@ -510,6 +531,7 @@ function initEventListeners() {
   const halalBtn = document.getElementById("halalNearby");
   if (halalBtn && halalPopupEl && closeHalalBtn) {
     halalBtn.addEventListener("click", function(e) {
+      if (hasBlockingChildPopupOpen()) return;
       e.stopPropagation();
       e.preventDefault();
       console.log("opening halal map");
@@ -535,6 +557,7 @@ function initEventListeners() {
   const mosqueBtn = document.getElementById("mosque");
   if (mosqueBtn && mosquePopupEl && closeMosqueBtn) {
     mosqueBtn.addEventListener("click", function(e) {
+      if (hasBlockingChildPopupOpen()) return;
       e.stopPropagation();
       e.preventDefault();
       console.log("opening mosque map");
@@ -575,14 +598,36 @@ function initEventListeners() {
   }
   
   // о сервисе
-  document.getElementById('aboutService')?.addEventListener('click', function() {
-    alert("imuslimed - сервис для мусульманских студентов московского университета им. с.ю. витте\n\nверсия 1.0");
+  document.getElementById('aboutService')?.addEventListener('click', function(e) {
+    if (hasBlockingChildPopupOpen()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (feedbackPopupEl && feedbackPopupEl.style.display === 'block') return;
+    showChildPopup(aboutPopupEl);
   });
+
+  if (closeAboutBtn) {
+    closeAboutBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      hidePopup(aboutPopupEl);
+    });
+  }
   
   // обратная связь
-  document.getElementById('feedback')?.addEventListener('click', function() {
-    alert("для обратной связи напишите на email: support@imuslimed.ru\n\nмы ценим ваше мнение!");
+  document.getElementById('feedback')?.addEventListener('click', function(e) {
+    if (hasBlockingChildPopupOpen()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (aboutPopupEl && aboutPopupEl.style.display === 'block') return;
+    showChildPopup(feedbackPopupEl);
   });
+
+  if (closeFeedbackBtn) {
+    closeFeedbackBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      hidePopup(feedbackPopupEl);
+    });
+  }
   
   // выход
   document.getElementById('logoutBtn')?.addEventListener('click', function() {
@@ -638,6 +683,18 @@ function initEventListeners() {
   if (chatInput) chatInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendBtn.click();
   });
+
+  const socialLinks = document.querySelectorAll(".social-icons a");
+  if (socialLinks.length > 0) {
+    socialLinks.forEach((link) => {
+      link.addEventListener("click", function(e) {
+        if (hasBlockingChildPopupOpen()) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      });
+    });
+  }
 }
 
 function handleMainButtonClick(e) {
@@ -811,11 +868,11 @@ async function loadPrayerTimes() {
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
     const prayers = [
-      { name: "фаджр", time: timings.Fajr },
-      { name: "зухр", time: timings.Dhuhr },
-      { name: "аср", time: timings.Asr },
-      { name: "магриб", time: timings.Maghrib },
-      { name: "иша", time: timings.Isha }
+      { name: "Фаджр", time: timings.Fajr },
+      { name: "Зухр", time: timings.Dhuhr },
+      { name: "Аср", time: timings.Asr },
+      { name: "Магриб", time: timings.Maghrib },
+      { name: "Иша", time: timings.Isha }
     ];
 
     let activeIndex = 0;
@@ -1090,6 +1147,8 @@ document.addEventListener('click', (e) => {
     { popup: fioPopup, btn: null },
     { popup: prayerPopupEl, btn: document.getElementById('prayerTime') },
     { popup: faqPopupEl, btn: document.getElementById('faq') },
+    { popup: aboutPopupEl, btn: document.getElementById('aboutService') },
+    { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
     { popup: halalPopupEl, btn: document.getElementById('halalNearby') },
     { popup: mosquePopupEl, btn: document.getElementById('mosque') }
   ];
@@ -1111,8 +1170,10 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl].includes(popup);
-      const isClickOnParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
+      const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
+      const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;
       
       if (!isClickInside && !isButtonClick && !(isChildPopup && isClickOnParent)) {
         hidePopup(popup);
