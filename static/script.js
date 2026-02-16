@@ -4,6 +4,7 @@ let authFinished = false;
 let currentLogin = "";
 let currentPassword = "";
 let chatMessages = [];
+const MAX_CHAT_MESSAGE_LENGTH = 500;
 const LAST_AUTH_WINDOW_KEY = "lastAuthorizedWindow";
 
 // добавлено для отслеживания активного окна
@@ -43,6 +44,8 @@ const closeChat = document.getElementById("closeChat");
 const sendBtn = document.getElementById("sendBtn");
 const chatInput = document.getElementById("chatInput");
 const messageContainer = document.getElementById("messageContainer");
+const chatDateEl = document.getElementById("chatDate");
+const CHAT_DAY_MARKER_KEY = "chatDayMarker";
 
 // кнопки меню
 const menuButtons = document.querySelectorAll(".chat-menu");
@@ -101,6 +104,38 @@ function rememberAuthorizedWindow(windowElement) {
 
 function getRememberedAuthorizedWindow() {
   return getWindowByKey(localStorage.getItem(LAST_AUTH_WINDOW_KEY) || "");
+}
+
+function updateChatDateLabel() {
+  if (!chatDateEl) return;
+  const now = new Date();
+  const todayKey = now.toISOString().slice(0, 10);
+  const baseDay = localStorage.getItem(CHAT_DAY_MARKER_KEY);
+
+  if (!baseDay) {
+    localStorage.setItem(CHAT_DAY_MARKER_KEY, todayKey);
+    chatDateEl.textContent = "Сегодня";
+    return;
+  }
+
+  if (baseDay === todayKey) {
+    chatDateEl.textContent = "Сегодня";
+  } else {
+    chatDateEl.textContent = now.toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'long'
+    });
+  }
+}
+
+function resizeChatInput() {
+  if (!chatInput) return;
+  const minHeight = 18;
+  const maxHeight = 78;
+  chatInput.style.height = `${minHeight}px`;
+  const nextHeight = Math.min(chatInput.scrollHeight, maxHeight);
+  chatInput.style.height = `${nextHeight}px`;
+  chatInput.style.overflowY = chatInput.scrollHeight > maxHeight ? "auto" : "hidden";
 }
 
 function hasBlockingChildPopupOpen() {
@@ -468,7 +503,8 @@ function initEventListeners() {
       e.stopPropagation();
       console.log("меню: чат");
       hidePopup(menuWindow);
-      switchMainWindow(chatWindow);
+      showPopup(chatWindow);
+      rememberAuthorizedWindow(chatWindow);
     });
   }
 
@@ -696,9 +732,18 @@ function initEventListeners() {
     if (e.key === "Enter") saveFioBtn.click();
   });
   
-  if (chatInput) chatInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendBtn.click();
+  if (chatInput) chatInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendBtn.click();
+    }
   });
+
+  if (chatInput) {
+    chatInput.maxLength = MAX_CHAT_MESSAGE_LENGTH;
+    resizeChatInput();
+    chatInput.addEventListener("input", resizeChatInput);
+  }
 
   const socialLinks = document.querySelectorAll(".social-icons a");
   if (socialLinks.length > 0) {
@@ -824,6 +869,10 @@ async function handleSaveFio() {
 function sendMessage() {
   let msg = chatInput.value.trim();
   if (!msg) return;
+  if (msg.length > MAX_CHAT_MESSAGE_LENGTH) {
+    alert(`Максимум ${MAX_CHAT_MESSAGE_LENGTH} символов в одном сообщении.`);
+    return;
+  }
   
   let div = document.createElement("div");
   div.classList.add("message-user");
@@ -834,6 +883,7 @@ function sendMessage() {
   saveChatHistory();
   
   chatInput.value = "";
+  resizeChatInput();
   messageContainer.scrollTop = messageContainer.scrollHeight;
   
   setTimeout(() => {
@@ -1136,6 +1186,8 @@ function formatFIO(fio) {
 document.addEventListener('DOMContentLoaded', function() {
   console.log("dom fully loaded");
   hideAllPopups();
+  updateChatDateLabel();
+  setInterval(updateChatDateLabel, 60000);
 
   // проверка
   const isAuthorized = localStorage.getItem("isAuthorized");
