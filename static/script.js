@@ -174,7 +174,7 @@ function showPopup(popupElement) {
   // скрыть только основные окна, но не дочерние 
   const mainPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
-    chatWindow, menuWindow, settingsWindow, fioPopup
+    chatWindow, menuWindow, settingsWindow, majorWindow, fioPopup
   ];
   
   mainPopups.forEach(popup => {
@@ -247,17 +247,18 @@ function hideAllPopups() {
 function switchMainWindow(windowElement) {
   const mainWindows = [majorWindow, chatWindow, settingsWindow];
 
+  // если целевое окно уже открыто — ничего не делаем
+  if (windowElement && windowElement.style.display === 'block') {
+    rememberAuthorizedWindow(windowElement);
+    return;
+  }
+
   // закрываем все окна
   mainWindows.forEach(win => {
     if (win && win.style.display === 'block') {
       hidePopup(win);
     }
   });
-
-  // если это то же окно — просто закрываем
-  if (activeMainWindow === windowElement) {
-    return;
-  }
 
   // открываем новое окно
   setTimeout(() => {
@@ -866,7 +867,7 @@ async function handleSaveFio() {
   }
 }
 
-function sendMessage() {
+async function sendMessage() {
   let msg = chatInput.value.trim();
   if (!msg) return;
   if (msg.length > MAX_CHAT_MESSAGE_LENGTH) {
@@ -886,17 +887,44 @@ function sendMessage() {
   resizeChatInput();
   messageContainer.scrollTop = messageContainer.scrollHeight;
   
-  setTimeout(() => {
-    let botDiv = document.createElement("div");
-    botDiv.classList.add("message-bot");
-    botDiv.textContent = "спасибо за ваше сообщение!";
-    messageContainer.appendChild(botDiv);
-    
-    chatMessages.push({ type: 'bot', text: "спасибо за ваше сообщение!" });
+  let botDiv = document.createElement("div");
+  botDiv.classList.add("message-bot");
+  botDiv.textContent = "Думаю...";
+  messageContainer.appendChild(botDiv);
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+
+  try {
+    const response = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg }),
+    });
+    const result = await response.json();
+
+    const botText = result.success
+      ? (result.response || "Пустой ответ модели.")
+      : (result.error || "Ошибка ответа модели.");
+
+    await typeMessage(botDiv, botText, 12);
+    chatMessages.push({ type: 'bot', text: botText });
     saveChatHistory();
-    
     messageContainer.scrollTop = messageContainer.scrollHeight;
-  }, 1000);
+  } catch (error) {
+    botDiv.textContent = "Ошибка сети при обращении к модели.";
+    chatMessages.push({ type: 'bot', text: "Ошибка сети при обращении к модели." });
+    saveChatHistory();
+  }
+}
+
+async function typeMessage(el, text, speedMs = 12) {
+  el.textContent = "";
+  for (let i = 0; i < text.length; i++) {
+    el.textContent += text[i];
+    if (messageContainer) {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+    await new Promise((resolve) => setTimeout(resolve, speedMs));
+  }
 }
 
 function saveChatHistory() {
