@@ -23,10 +23,11 @@ SYSTEM_PROMPT = (
     "Если вопрос вне компетенции, напиши: "
     "«Данный вопрос требует консультации с квалифицированным специалистом или религиозным наставником. "
     "Сервис IMuslimEd предоставляет справочную информацию общего характера.» "
-    "Формат обязателен: только обычный текст, без Markdown, без решеток, без таблиц, без символа |, без списков. "
+    "Формат: допускается обычный текст, списки и markdown-таблицы, когда это улучшает понятность ответа. "
+    "Допускается арабский текст с переводом и транскрипцией при религиозных вопросах. "
     "Не упоминай название модели, провайдера, слово нейросеть или ИИ. "
     "Не задавай встречных вопросов в конце ответа. Пиши: Мухаммад (не Мухаммед). "
-    "Ограничение: 3-6 коротких предложений."
+    "Начинай сразу с ответа, без приветствий, в конце не пиши никаких дополнений, только ответ на вопрос."
 )
 
 
@@ -54,7 +55,7 @@ def load_env_file():
 load_env_file()
 
 MAX_USER_CHARS = int(os.environ.get("MAX_USER_CHARS", "250"))
-MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "80"))
+MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "180"))
 KIE_TEMPERATURE = float(os.environ.get("KIE_TEMPERATURE", "0.2"))
 
 
@@ -104,14 +105,95 @@ def sanitize_history(items):
     return cleaned
 
 
+def is_valid_fio(value):
+    normalized = (value or "").strip()
+    if not normalized:
+        return False
+    normalized = re.sub(r"\s+", " ", normalized)
+    pattern = r"^[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)?(?: [А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)?){1,2}$"
+    return re.fullmatch(pattern, normalized) is not None
+
+
 def get_kie_api_key():
     return (os.environ.get("KIE_API_KEY") or "").strip()
 
 
+def rule_based_navigation_answer(user_message):
+    text = (user_message or "").strip().lower()
+    if not text:
+        return ""
+
+    def has_any(*parts):
+        return any(p in text for p in parts)
+
+    is_university_context = has_any("универ", "университет", "вуз", "муив", "витте", "уник")
+
+    is_prayer_time_question = (
+        has_any("намаз", "намаза") and
+        has_any("сейчас", "во сколько", "время", "когда", "какой сейчас") and
+        has_any("москв", "сегодня", "текущ", "сейчас")
+    )
+    if is_prayer_time_question:
+        return (
+            "Я не показываю точное время намаза в чате, чтобы не дать неверные данные. "
+            "Откройте раздел «Время намаза» — там актуальное расписание на сегодня."
+        )
+
+    if (
+        (has_any("халяль", "halal") and has_any("где поесть", "поесть", "еда", "кафе", "ресторан", "рядом", "около", "поблизости"))
+        or (has_any("около уника", "около универа", "рядом с универом", "рядом с вузом") and has_any("халяль", "halal"))
+    ):
+        return (
+            "Откройте раздел «Халяль рядом» — там отмечены халяль-кафе и рестораны рядом с университетом."
+        )
+
+    if (
+        has_any("где помолиться", "где молиться", "где мечеть", "молельная", "молельн", "место для намаза", "комната для намаза", "где читать намаз")
+    ):
+        return (
+            "Откройте раздел «Мечеть / молельная» — там карта ближайших мест для молитвы."
+        )
+
+    if "часто задаваем" in text or text in {"faq", "чаво"}:
+        return (
+            "Откройте раздел «Часто задаваемые вопросы» на главной — там собраны основные ответы по сервису и теме Ислама."
+        )
+
+    if (has_any("соц", "соцсети", "vk", "вк", "telegram", "телеграм", "тг") and is_university_context) or (
+        has_any("где соцсети", "ссылки на соцсети") and is_university_context
+    ):
+        return (
+            "Соцсети МУИВ указаны иконками на «Главной»: VK и Telegram. "
+            "Также ссылки: VK — https://vk.com/mosvitte, Telegram — https://t.me/mosvitte."
+        )
+
+    if is_university_context:
+        return (
+            "Речь о МУИВ — Московском университете имени С.Ю. Витте."
+        )
+
+    if "обратн" in text or "куда обратиться" in text or "связаться" in text:
+        return (
+            "Откройте «Настройки» → «Обратная связь» "
+        )
+
+    if "о сервисе" in text or "расскажи о сервисе" in text:
+        return (
+            "Откройте «Настройки» → «О сервисе». Там описание целей платформы IMuslimEd, функций и принципов работы."
+        )
+
+    return ""
+
+
 def ask_kie_gemini(user_message):
+    rb = rule_based_navigation_answer(user_message)
+    if rb:
+        return rb
+
     api_key = get_kie_api_key()
     if not api_key:
-        return "KIE API ключ не найден. Установите переменную окружения KIE_API_KEY."
+        print("[chat] missing API key")
+        return "Ошибка подключения, повторите запрос."
 
     payload = {
         "max_tokens": MAX_OUTPUT_TOKENS,
@@ -138,18 +220,34 @@ def ask_kie_gemini(user_message):
             KIE_API_URL,
             headers=headers,
             json=payload,
-            timeout=60,
+            timeout=(6, 25),
         )
-    except requests.RequestException:
-        return "Не удалось подключиться к KIE API. Проверьте интернет и повторите запрос."
+    except requests.ReadTimeout as e:
+        print(f"[chat] timeout, retry once: {e}")
+        try:
+            response = requests.post(
+                KIE_API_URL,
+                headers=headers,
+                json=payload,
+                timeout=(6, 25),
+            )
+        except requests.RequestException as e2:
+            print(f"[chat] network error after retry: {e2}")
+            return "Ошибка подключения, повторите запрос."
+    except requests.RequestException as e:
+        print(f"[chat] network error: {e}")
+        return "Ошибка подключения, повторите запрос."
 
     if response.status_code != 200:
-        return f"KIE API ошибка: HTTP {response.status_code}. Проверьте ключ и баланс."
+        body_preview = (response.text or "").strip().replace("\n", " ")[:240]
+        print(f"[chat] upstream status={response.status_code} body={body_preview}")
+        return "Ошибка подключения, повторите запрос."
 
     try:
         data = response.json()
-    except ValueError:
-        return "KIE API вернул некорректный ответ."
+    except ValueError as e:
+        print(f"[chat] invalid JSON: {e}; raw={response.text[:240] if response.text else ''}")
+        return "Ошибка подключения, повторите запрос."
 
     choices = data.get("choices") or []
     if not choices:
@@ -168,94 +266,7 @@ def ask_kie_gemini(user_message):
     if not isinstance(content, str) or not content.strip():
         return "Модель не вернула текстовый ответ."
 
-    text = content.replace("Мухаммед", "Мухаммад")
-    text = text.replace("**", "").replace("__", "")
-    text = re.sub(r"[\U0001F300-\U0001FAFF]", "", text)
-
-    banned_fragments = [
-        "Я, Gemini Enterprise",
-        "Я — Gemini Enterprise",
-        "Я Gemini Enterprise",
-        "Хотите узнать подробнее",
-        "Gemini",
-        "гемини",
-        "нейросеть",
-        "искусственный интеллект",
-    ]
-    for frag in banned_fragments:
-        text = text.replace(frag, "")
-
-    paragraphs = []
-    current = []
-
-    for raw in text.splitlines():
-        line = raw.strip()
-
-        if not line:
-            if current:
-                paragraphs.append(" ".join(current).strip())
-                current = []
-            continue
-
-        if "|" in line:
-            continue
-        if set(line) <= {"-", "—", ":"}:
-            continue
-
-        if line.startswith("#"):
-            line = line.lstrip("#").strip()
-        if line.startswith("- "):
-            line = line[2:].strip()
-        if line.startswith("• "):
-            line = line[2:].strip()
-
-        current.append(line)
-
-    if current:
-        paragraphs.append(" ".join(current).strip())
-
-    cleaned = []
-    for p in paragraphs:
-        while "  " in p:
-            p = p.replace("  ", " ")
-        p = p.strip()
-        if p:
-            cleaned.append(p)
-
-    text = "\n\n".join(cleaned).strip()
-
-    sentence_split = re.split(r"(?<=[.!?])\s+", text)
-    drop_patterns = [
-        "если хотите",
-        "могу рассказать",
-        "могу подробнее",
-        "могу объяснить",
-        "хотите",
-        "о каком-то конкретном аспекте",
-        "подсказать",
-        "могу подсказать",
-        "интересует",
-    ]
-    kept = []
-    for s in sentence_split:
-        low = s.lower()
-        if any(p in low for p in drop_patterns):
-            continue
-        kept.append(s.strip())
-    text = " ".join([s for s in kept if s]).strip()
-
-    # Если ответ обрезался по лимиту токенов, закрываем его на последнем полном предложении.
-    if text and text[-1] not in ".!?":
-        last_end = max(text.rfind("."), text.rfind("!"), text.rfind("?"))
-        if last_end != -1:
-            text = text[: last_end + 1].strip()
-        else:
-            # Если знаков конца нет вообще, принудительно закрываем фразу.
-            text = text.rstrip(",:; -") + "."
-
-    if text.endswith("?"):
-        text = text.rstrip("?").rstrip(".! ") + "."
-
+    text = content.replace("Мухаммед", "Мухаммад").strip()
     return text or "Не удалось сформировать корректный ответ."
 
 
@@ -323,7 +334,12 @@ def save_fio():
         return jsonify({"success": False, "error": "Не все данные предоставлены"})
 
     # безопасная обработка ФИО
-    fio = html.escape(fio.strip())
+    fio = html.escape(re.sub(r"\s+", " ", fio.strip()))
+    if not is_valid_fio(fio):
+        return jsonify({
+            "success": False,
+            "error": "ФИО вводится на русском через пробелы: Фамилия Имя Отчество"
+        })
     
     users = load_users()
     hashed_login = hash_value(login)

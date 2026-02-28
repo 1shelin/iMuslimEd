@@ -37,6 +37,10 @@ const fioInput = document.getElementById("fioInput");
 const saveFioBtn = document.getElementById("saveFioBtn");
 const closeFio = document.getElementById("closeFio");
 const profileName = document.getElementById("profileName");
+const miniAlertPopup = document.getElementById("miniAlertPopup");
+const miniAlertBox = document.getElementById("miniAlertBox");
+const miniAlertText = document.getElementById("miniAlertText");
+const miniAlertOk = document.getElementById("miniAlertOk");
 
 const chatWindow = document.getElementById("chatWindow");
 const chatBtn = document.getElementById("askQuestionBtn");
@@ -132,6 +136,23 @@ function updateChatDateLabel() {
   }
 }
 
+function scrollChatToBottom() {
+  if (!messageContainer) return;
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+  requestAnimationFrame(() => {
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+  });
+  setTimeout(() => {
+    messageContainer.scrollTop = messageContainer.scrollHeight;
+  }, 60);
+}
+
+function isChatNearBottom(threshold = 28) {
+  if (!messageContainer) return true;
+  const distance = messageContainer.scrollHeight - messageContainer.clientHeight - messageContainer.scrollTop;
+  return distance <= threshold;
+}
+
 function resizeChatInput() {
   if (!chatInput) return;
   const minHeight = 18;
@@ -150,7 +171,8 @@ function hasBlockingChildPopupOpen() {
     mosquePopupEl,
     aboutPopupEl,
     feedbackPopupEl,
-    clearHistoryConfirmPopupEl
+    clearHistoryConfirmPopupEl,
+    miniAlertPopup
   ];
   return childPopups.some((popup) => popup && popup.style.display === 'block');
 }
@@ -193,6 +215,9 @@ function showPopup(popupElement) {
   popupElement.style.display = 'block';
   popupElement.classList.remove('popup-hidden');
   popupElement.classList.add('popup-visible');
+  if (popupElement === chatWindow) {
+    scrollChatToBottom();
+  }
   
   console.log("showing popup:", popupElement.id);
 }
@@ -274,6 +299,12 @@ function switchMainWindow(windowElement) {
 }
 
 function initEventListeners() {
+  if (miniAlertOk) {
+    miniAlertOk.addEventListener("click", function(e) {
+      e.stopPropagation();
+      hideMiniAlert();
+    });
+  }
   
   // ================ универсальная логика луны ================
   // основная кнопка (луна) — работает с любым окном
@@ -445,6 +476,7 @@ function initEventListeners() {
     hidePopup(mainWindow);     
     showPopup(chatWindow);    
     rememberAuthorizedWindow(chatWindow);
+    scrollChatToBottom();
   });
 
   // кнопка перехода на главный экран с картами
@@ -512,6 +544,7 @@ function initEventListeners() {
       hidePopup(menuWindow);
       showPopup(chatWindow);
       rememberAuthorizedWindow(chatWindow);
+      scrollChatToBottom();
     });
   }
 
@@ -795,12 +828,97 @@ function handleMainButtonClick(e) {
   console.log("handleMainButtonClick - используется новый обработчик луны");
 }
 
+function getActiveHostWindowForMiniAlert() {
+  const windows = [
+    fioPopup,
+    authPopup,
+    mainWindow,
+    chatWindow,
+    settingsWindow,
+    majorWindow,
+    authLoading
+  ];
+  for (const win of windows) {
+    if (win && win.style.display === "block") {
+      return win;
+    }
+  }
+  return null;
+}
+
+function showMiniAlert(message) {
+  if (!miniAlertPopup || !miniAlertText || !miniAlertBox) return;
+  miniAlertText.textContent = message || "Ошибка";
+  const host = getActiveHostWindowForMiniAlert();
+  if (host) {
+    const rect = host.getBoundingClientRect();
+    miniAlertBox.style.left = `${Math.round(rect.left + rect.width / 2)}px`;
+    miniAlertBox.style.top = `${Math.round(rect.top + rect.height / 2)}px`;
+  } else {
+    miniAlertBox.style.left = "50%";
+    miniAlertBox.style.top = "50%";
+  }
+  miniAlertPopup.style.display = "block";
+}
+
+function hideMiniAlert() {
+  if (!miniAlertPopup) return;
+  miniAlertPopup.style.display = "none";
+  if (miniAlertBox) {
+    miniAlertBox.style.left = "50%";
+    miniAlertBox.style.top = "50%";
+  }
+}
+
+const LOGIN_PASSWORD_HINT = "Введите ваш логин и пароль личного кабинета";
+
+function validateLoginValue(login) {
+  if (!login) return "Введите логин";
+  if (login.length < 3) return "Логин должен содержать минимум 3 символа";
+  if (login.length > 30) return "Логин слишком длинный";
+  if (/\s/.test(login)) return "Логин не должен содержать пробелы";
+  if (!/^[A-Za-z0-9._-]+$/.test(login)) {
+    return "Логин может содержать только латиницу, цифры и символы . _ -";
+  }
+  return "";
+}
+
+function validatePasswordValue(password) {
+  if (!password) return "Введите пароль";
+  if (password.length < 4) return "Пароль должен содержать минимум 4 символа";
+  if (password.length > 64) return "Пароль слишком длинный";
+  if (/\s/.test(password)) return "Пароль не должен содержать пробелы";
+  return "";
+}
+
+function validateFioValue(fio) {
+  if (!fio) return "Введите ФИО";
+  const normalized = fio.trim().replace(/\s+/g, " ");
+  const fioRegex = /^[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)?(?: [А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)?){1,2}$/;
+  if (!fioRegex.test(normalized)) {
+    return "ФИО вводится на русском через пробелы: Фамилия Имя Отчество";
+  }
+  return "";
+}
+
 async function handleLogin() {
   const login = loginInput.value.trim();
   const password = passwordInput.value.trim();
 
-  if (!login || !password) {
-    alert("введите логин и пароль!");
+  const loginError = validateLoginValue(login);
+  if (loginError) {
+    showMiniAlert(LOGIN_PASSWORD_HINT);
+    return;
+  }
+
+  const passwordError = validatePasswordValue(password);
+  if (passwordError) {
+    showMiniAlert(LOGIN_PASSWORD_HINT);
+    return;
+  }
+
+  if (login === password) {
+    showMiniAlert(LOGIN_PASSWORD_HINT);
     return;
   }
 
@@ -843,26 +961,30 @@ async function handleLogin() {
         renderChatHistory(result.chat_history || []);
       }
     } else {
-      alert(result.error || "ошибка входа");
+      showMiniAlert(LOGIN_PASSWORD_HINT);
     }
   } catch (error) {
     hidePopup(authLoading);
-    alert("ошибка сети");
+    showMiniAlert("Ошибка сети");
   }
 }
 
 async function handleSaveFio() {
   const fio = formatFIO(fioInput.value);
   
-  // проверка на пустое значение
-  if (!fio) {
-    alert("введите фио");
+  const fioError = validateFioValue(fio);
+  if (fioError) {
+    showMiniAlert(fioError);
     return;
   }
-  
-  // проверка на максимальную длину
+
   if (fio.length > 100) {
-    alert("фио слишком длинное");
+    showMiniAlert("ФИО слишком длинное");
+    return;
+  }
+
+  if (currentLogin && fio.toLowerCase() === currentLogin.toLowerCase()) {
+    showMiniAlert("ФИО не должно совпадать с логином");
     return;
   }
 
@@ -900,11 +1022,11 @@ async function handleSaveFio() {
       rememberAuthorizedWindow(mainWindow);
       renderChatHistory(result.chat_history || []);
     } else {
-      alert(result.error || "ошибка сохранения");
+      showMiniAlert(result.error || "Ошибка сохранения");
     }
   } catch (error) {
     hidePopup(authLoading);
-    alert("ошибка сети");
+    showMiniAlert("Ошибка сети");
   }
 }
 
@@ -912,10 +1034,12 @@ async function sendMessage() {
   let msg = chatInput.value.trim();
   if (!msg) return;
   if (msg.length > MAX_CHAT_MESSAGE_LENGTH) {
-    alert(`Максимум ${MAX_CHAT_MESSAGE_LENGTH} символов в одном сообщении.`);
+    showMiniAlert(`Максимум ${MAX_CHAT_MESSAGE_LENGTH} символов в одном сообщении.`);
     return;
   }
   
+  const keepScrollAtBottom = isChatNearBottom();
+
   let div = document.createElement("div");
   div.classList.add("message-user");
   div.textContent = msg;
@@ -926,13 +1050,13 @@ async function sendMessage() {
   
   chatInput.value = "";
   resizeChatInput();
-  messageContainer.scrollTop = messageContainer.scrollHeight;
+  if (keepScrollAtBottom) scrollChatToBottom();
   
   let botDiv = document.createElement("div");
   botDiv.classList.add("message-bot");
   botDiv.textContent = "Думаю";
   messageContainer.appendChild(botDiv);
-  messageContainer.scrollTop = messageContainer.scrollHeight;
+  if (keepScrollAtBottom) scrollChatToBottom();
   const stopThinking = startThinkingAnimation(botDiv);
 
   try {
@@ -943,15 +1067,17 @@ async function sendMessage() {
     });
     const result = await response.json();
 
-    const botText = result.success
+    const rawBotText = result.success
       ? (result.response || "Пустой ответ модели.")
       : (result.error || "Ошибка ответа модели.");
+    const botText = sanitizeBotText(rawBotText);
 
     stopThinking();
-    await typeMessage(botDiv, botText, 12);
+    await typeMessage(botDiv, botText, 18, keepScrollAtBottom);
+    botDiv.innerHTML = markdownToHtml(botText);
     chatMessages.push({ type: 'bot', text: botText });
     saveChatHistory();
-    messageContainer.scrollTop = messageContainer.scrollHeight;
+    if (keepScrollAtBottom) scrollChatToBottom();
   } catch (error) {
     stopThinking();
     botDiv.textContent = "Ошибка сети при обращении к модели.";
@@ -964,28 +1090,167 @@ function startThinkingAnimation(el) {
   const frames = ["Думаю.", "Думаю..", "Думаю..."];
   let idx = 0;
   el.textContent = frames[idx];
+
+  const statusStages = [
+    { ms: 4000, text: "Ищу точный ответ..." },
+    { ms: 8000, text: "Осталось еще немного..." },
+    { ms: 12000, text: "Почти готово..." }
+  ];
+  const stageTimers = statusStages.map((stage) =>
+    setTimeout(() => {
+      el.textContent = stage.text;
+      if (isChatNearBottom()) scrollChatToBottom();
+    }, stage.ms)
+  );
+
   const timer = setInterval(() => {
-    idx = (idx + 1) % frames.length;
-    el.textContent = frames[idx];
-    if (messageContainer) {
-      messageContainer.scrollTop = messageContainer.scrollHeight;
+    const currentText = el.textContent || "";
+    const isBase = currentText.startsWith("Думаю");
+    if (isBase) {
+      idx = (idx + 1) % frames.length;
+      el.textContent = frames[idx];
     }
+    if (isChatNearBottom()) scrollChatToBottom();
   }, 280);
 
   return function stop() {
     clearInterval(timer);
+    stageTimers.forEach((t) => clearTimeout(t));
   };
 }
 
-async function typeMessage(el, text, speedMs = 12) {
+async function typeMessage(el, text, speedMs = 12, keepScrollAtBottom = true) {
   el.textContent = "";
   for (let i = 0; i < text.length; i++) {
     el.textContent += text[i];
-    if (messageContainer) {
-      messageContainer.scrollTop = messageContainer.scrollHeight;
+    if (keepScrollAtBottom && isChatNearBottom()) {
+      scrollChatToBottom();
     }
     await new Promise((resolve) => setTimeout(resolve, speedMs));
   }
+}
+
+function sanitizeBotText(raw) {
+  let text = String(raw || "");
+  const directReplacements = [
+    "Я, Gemini Enterprise,",
+    "Я — Gemini Enterprise,",
+    "Я Gemini Enterprise,",
+    "Я, Gemini Enterprise",
+    "Я — Gemini Enterprise",
+    "Я Gemini Enterprise",
+    "Gemini Enterprise",
+    "Надеюсь, что эта информация была вам полезна.",
+    "Если у вас возникнут другие вопросы о традициях, текстах молитв или истории — обязательно спрашивайте!",
+  ];
+  directReplacements.forEach((frag) => {
+    text = text.replaceAll(frag, "");
+  });
+
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  const bannedTailPatterns = [
+    "хотите ли вы узнать",
+    "если у вас возникнут другие вопросы",
+    "обязательно спрашивайте",
+    "надеюсь, что эта информация",
+  ];
+
+  const cleaned = lines.filter((line) => {
+    const low = line.toLowerCase();
+    return !bannedTailPatterns.some((p) => low.includes(p));
+  });
+
+  return cleaned.join("\n").trim();
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatInlineMarkdown(value) {
+  let s = escapeHtml(value);
+  s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/__(.+?)__/g, "<strong>$1</strong>");
+  s = s.replace(/\*(.+?)\*/g, "<em>$1</em>");
+  s = s.replace(/`(.+?)`/g, "<code>$1</code>");
+  return s;
+}
+
+function parseTableRow(line) {
+  let s = line.trim();
+  if (s.startsWith("|")) s = s.slice(1);
+  if (s.endsWith("|")) s = s.slice(0, -1);
+  return s.split("|").map((c) => c.trim());
+}
+
+function isTableSeparator(line) {
+  const s = line.trim();
+  return /^\|?\s*:?-{3,}:?(\s*\|\s*:?-{3,}:?)+\s*\|?$/.test(s);
+}
+
+function markdownToHtml(rawText) {
+  const text = String(rawText || "").replace(/\r\n/g, "\n");
+  const lines = text.split("\n");
+  const htmlParts = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+
+    if (!line) {
+      i += 1;
+      continue;
+    }
+
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)/);
+    if (headingMatch) {
+      htmlParts.push(`<p class="chat-md-heading">${formatInlineMarkdown(headingMatch[2])}</p>`);
+      i += 1;
+      continue;
+    }
+
+    if (line.includes("|") && i + 1 < lines.length && isTableSeparator(lines[i + 1])) {
+      const headerCells = parseTableRow(lines[i]);
+      const rows = [];
+      i += 2;
+      while (i < lines.length && lines[i].includes("|") && lines[i].trim()) {
+        rows.push(parseTableRow(lines[i]));
+        i += 1;
+      }
+      const thead = `<thead><tr>${headerCells.map((c) => `<th>${formatInlineMarkdown(c)}</th>`).join("")}</tr></thead>`;
+      const tbody = `<tbody>${rows.map((row) => `<tr>${row.map((c) => `<td>${formatInlineMarkdown(c)}</td>`).join("")}</tr>`).join("")}</tbody>`;
+      htmlParts.push(`<table class="chat-md-table">${thead}${tbody}</table>`);
+      continue;
+    }
+
+    const orderedMatch = line.match(/^(\d+)[.)]\s+(.+)/);
+    if (orderedMatch) {
+      const listItems = [];
+      while (i < lines.length) {
+        const m = lines[i].trim().match(/^(\d+)[.)]\s+(.+)/);
+        if (!m) break;
+        listItems.push(`<li>${formatInlineMarkdown(m[2])}</li>`);
+        i += 1;
+      }
+      htmlParts.push(`<ol class="chat-md-ol">${listItems.join("")}</ol>`);
+      continue;
+    }
+
+    htmlParts.push(`<p>${formatInlineMarkdown(line)}</p>`);
+    i += 1;
+  }
+
+  if (htmlParts.length === 0) return `<p>${formatInlineMarkdown(text)}</p>`;
+  return htmlParts.join("");
 }
 
 function saveChatHistory() {
@@ -1003,11 +1268,15 @@ function renderChatHistory(historyItems) {
     if (typeof item.text !== "string") return;
     const div = document.createElement("div");
     div.classList.add(item.type === "user" ? "message-user" : "message-bot");
-    div.textContent = item.text;
+    if (item.type === "bot") {
+      div.innerHTML = markdownToHtml(item.text);
+    } else {
+      div.textContent = item.text;
+    }
     messageContainer.appendChild(div);
     chatMessages.push({ type: item.type, text: item.text });
   });
-  messageContainer.scrollTop = messageContainer.scrollHeight;
+  scrollChatToBottom();
 }
 
 async function loadChatHistoryFromServer() {
