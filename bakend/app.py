@@ -11,6 +11,8 @@ app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
 KIE_API_URL = "https://api.kie.ai/gemini-3-flash/v1/chat/completions"
+MAX_HISTORY_MESSAGES = 300
+MAX_HISTORY_TEXT_LEN = 2000
 
 SYSTEM_PROMPT = (
     "Ты ассистент IMuslimEd. Отвечай по-русски, нейтрально, кратко и структурированно. "
@@ -52,7 +54,7 @@ def load_env_file():
 load_env_file()
 
 MAX_USER_CHARS = int(os.environ.get("MAX_USER_CHARS", "250"))
-MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "70"))
+MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "80"))
 KIE_TEMPERATURE = float(os.environ.get("KIE_TEMPERATURE", "0.2"))
 
 
@@ -77,6 +79,29 @@ def save_users(users):
             json.dump(users, f, indent=2, ensure_ascii=False)
     except Exception as e:
         print(f"Error saving users: {e}")
+
+
+def sanitize_history(items):
+    if not isinstance(items, list):
+        return []
+    cleaned = []
+    for item in items[:MAX_HISTORY_MESSAGES]:
+        if not isinstance(item, dict):
+            continue
+        msg_type = item.get("type")
+        text = item.get("text")
+        if msg_type not in ("user", "bot"):
+            continue
+        if not isinstance(text, str):
+            continue
+        text = text.strip()
+        if not text:
+            continue
+        cleaned.append({
+            "type": msg_type,
+            "text": text[:MAX_HISTORY_TEXT_LEN]
+        })
+    return cleaned
 
 
 def get_kie_api_key():
@@ -257,10 +282,16 @@ def auth():
         user_data = users[hashed_login]
         
         if user_data["password"] == hashed_password:
+            history = sanitize_history(user_data.get("chat_history", []))
+            if user_data.get("chat_history") != history:
+                user_data["chat_history"] = history
+                save_users(users)
             return jsonify({
                 "success": True,
                 "registered": True,
-                "fio": user_data.get("fio", "")
+                "fio": user_data.get("fio", ""),
+                "user_id": hashed_login,
+                "chat_history": history,
             })
         else:
             return jsonify({
@@ -306,17 +337,73 @@ def save_fio():
     users[hashed_login] = {
         "password": hashed_password,
         "fio": fio,
+        "chat_history": [],
         "created_at": datetime.now().isoformat()
     }
 
     save_users(users)
-    return jsonify({"success": True})
+    return jsonify({"success": True, "user_id": hashed_login, "chat_history": []})
 
 
 @app.route('/check_auth', methods=['GET'])
 def check_auth():
     """Проверка статуса авторизации (необязательно, можно использовать для проверки сессии)"""
     return jsonify({"authenticated": False})
+
+
+@app.route('/chat_history', methods=['GET'])
+def get_chat_history():
+    user_id = (request.args.get("user_id") or "").strip()
+    if not user_id:
+        return jsonify({"success": False, "error": "Не указан user_id"}), 400
+
+    users = load_users()
+    user_data = users.get(user_id)
+    if not user_data:
+        return jsonify({"success": False, "error": "Пользователь не найден"}), 404
+
+    history = sanitize_history(user_data.get("chat_history", []))
+    if user_data.get("chat_history") != history:
+        user_data["chat_history"] = history
+        save_users(users)
+    return jsonify({"success": True, "history": history})
+
+
+@app.route('/chat_history', methods=['POST'])
+def save_chat_history_endpoint():
+    data = request.json or {}
+    user_id = (data.get("user_id") or "").strip()
+    history = data.get("history")
+
+    if not user_id:
+        return jsonify({"success": False, "error": "Не указан user_id"}), 400
+
+    users = load_users()
+    user_data = users.get(user_id)
+    if not user_data:
+        return jsonify({"success": False, "error": "Пользователь не найден"}), 404
+
+    cleaned_history = sanitize_history(history)
+    user_data["chat_history"] = cleaned_history
+    save_users(users)
+    return jsonify({"success": True, "saved": len(cleaned_history)})
+
+
+@app.route('/clear_chat_history', methods=['POST'])
+def clear_chat_history():
+    data = request.json or {}
+    user_id = (data.get("user_id") or "").strip()
+    if not user_id:
+        return jsonify({"success": False, "error": "Не указан user_id"}), 400
+
+    users = load_users()
+    user_data = users.get(user_id)
+    if not user_data:
+        return jsonify({"success": False, "error": "Пользователь не найден"}), 404
+
+    user_data["chat_history"] = []
+    save_users(users)
+    return jsonify({"success": True})
 
 
 @app.route('/chat', methods=['POST'])
@@ -344,4 +431,4 @@ if __name__ == '__main__':
     print(f"Templates folder: {app.template_folder}")
     print(f"Static folder: {app.static_folder}")
     
-    app.run(debug=True, port=5001, use_reloader=False) 
+    app.run(debug=True, port=5000, use_reloader=False) 

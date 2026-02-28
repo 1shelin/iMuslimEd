@@ -3,6 +3,7 @@ let islamAccepted = false;
 let authFinished = false;
 let currentLogin = "";
 let currentPassword = "";
+let currentUserId = localStorage.getItem("currentUserId") || "";
 let chatMessages = [];
 const MAX_CHAT_MESSAGE_LENGTH = 500;
 const LAST_AUTH_WINDOW_KEY = "lastAuthorizedWindow";
@@ -71,6 +72,9 @@ const feedbackPopupEl = document.getElementById("feedbackPopup");
 const closeFeedbackBtn = document.getElementById("closeFeedback");
 const faqPopupEl = document.getElementById("faqPopup");
 const closeFaqBtn = document.getElementById("closeFaq");
+const clearHistoryConfirmPopupEl = document.getElementById("clearHistoryConfirmPopup");
+const clearHistoryConfirmYesBtn = document.getElementById("confirmClearHistoryYes");
+const clearHistoryConfirmNoBtn = document.getElementById("confirmClearHistoryNo");
 
 const halalPopupEl = document.getElementById("halalPopup");
 const closeHalalBtn = document.getElementById("closeHalal");
@@ -145,7 +149,8 @@ function hasBlockingChildPopupOpen() {
     halalPopupEl,
     mosquePopupEl,
     aboutPopupEl,
-    feedbackPopupEl
+    feedbackPopupEl,
+    clearHistoryConfirmPopupEl
   ];
   return childPopups.some((popup) => popup && popup.style.display === 'block');
 }
@@ -155,12 +160,13 @@ function updateParentWindowEffects() {
     .some((popup) => popup && popup.style.display === 'block');
   const settingsChildOpen = [aboutPopupEl, feedbackPopupEl]
     .some((popup) => popup && popup.style.display === 'block');
+  const settingsConfirmOpen = clearHistoryConfirmPopupEl && clearHistoryConfirmPopupEl.style.display === 'block';
 
   if (majorWindow) {
     majorWindow.classList.toggle('parent-dimmed', majorChildOpen);
   }
   if (settingsWindow) {
-    settingsWindow.classList.toggle('parent-dimmed', settingsChildOpen);
+    settingsWindow.classList.toggle('parent-dimmed', settingsChildOpen || settingsConfirmOpen);
   }
 }
 
@@ -233,7 +239,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl
+    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl
   ];
   
   allPopups.forEach(popup => {
@@ -635,18 +641,42 @@ function initEventListeners() {
   // очистка истории чата
   const clearChatCheckbox = document.getElementById('clearChatHistory');
   if (clearChatCheckbox) {
-    clearChatCheckbox.addEventListener('change', function(e) {
-      if (this.checked) {
-        if (confirm("вы уверены, что хотите очистить историю чата?")) {
-          messageContainer.innerHTML = '';
-          localStorage.removeItem('chatHistory');
-          setTimeout(() => {
-            this.checked = false;
-          }, 500);
-        } else {
-          this.checked = false;
+    clearChatCheckbox.addEventListener('change', function() {
+      if (!this.checked) return;
+      if (clearHistoryConfirmPopupEl) {
+        showChildPopup(clearHistoryConfirmPopupEl);
+      }
+    });
+  }
+
+  if (clearHistoryConfirmNoBtn) {
+    clearHistoryConfirmNoBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      hidePopup(clearHistoryConfirmPopupEl);
+      if (clearChatCheckbox) clearChatCheckbox.checked = false;
+    });
+  }
+
+  if (clearHistoryConfirmYesBtn) {
+    clearHistoryConfirmYesBtn.addEventListener('click', async function(e) {
+      e.stopPropagation();
+      messageContainer.innerHTML = '';
+      chatMessages = [];
+
+      if (currentUserId) {
+        try {
+          await fetch("/clear_chat_history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_id: currentUserId })
+          });
+        } catch (error) {
+          console.error("Ошибка очистки истории чата:", error);
         }
       }
+
+      hidePopup(clearHistoryConfirmPopupEl);
+      if (clearChatCheckbox) clearChatCheckbox.checked = false;
     });
   }
   
@@ -686,8 +716,8 @@ function initEventListeners() {
   document.getElementById('logoutBtn')?.addEventListener('click', function() {
     if (confirm("вы уверены, что хотите выйти?")) {
       localStorage.removeItem("fio");
-      localStorage.removeItem("chatHistory");
       localStorage.removeItem("isAuthorized");
+      localStorage.removeItem("currentUserId");
       localStorage.removeItem("islamConfirmed"); 
       
       authFinished = false;
@@ -695,6 +725,7 @@ function initEventListeners() {
       islamConfirmed = false; 
       currentLogin = "";
       currentPassword = "";
+      currentUserId = "";
       
       if (loginInput) loginInput.value = "";
       if (passwordInput) passwordInput.value = "";
@@ -794,6 +825,10 @@ async function handleLogin() {
         showPopup(fioPopup);
       } else {
         localStorage.setItem("isAuthorized", "true");
+        currentUserId = result.user_id || "";
+        if (currentUserId) {
+          localStorage.setItem("currentUserId", currentUserId);
+        }
 
         if (result.fio) {
           localStorage.setItem("fio", result.fio);
@@ -805,6 +840,7 @@ async function handleLogin() {
 
         showPopup(mainWindow);
         rememberAuthorizedWindow(mainWindow);
+        renderChatHistory(result.chat_history || []);
       }
     } else {
       alert(result.error || "ошибка входа");
@@ -849,6 +885,10 @@ async function handleSaveFio() {
     if (result.success) {
       localStorage.setItem("fio", fio);
       localStorage.setItem("isAuthorized", "true");
+      currentUserId = result.user_id || "";
+      if (currentUserId) {
+        localStorage.setItem("currentUserId", currentUserId);
+      }
 
       if (profileName) profileName.textContent = fio;
 
@@ -858,6 +898,7 @@ async function handleSaveFio() {
 
       showPopup(mainWindow);
       rememberAuthorizedWindow(mainWindow);
+      renderChatHistory(result.chat_history || []);
     } else {
       alert(result.error || "ошибка сохранения");
     }
@@ -889,9 +930,10 @@ async function sendMessage() {
   
   let botDiv = document.createElement("div");
   botDiv.classList.add("message-bot");
-  botDiv.textContent = "Думаю...";
+  botDiv.textContent = "Думаю";
   messageContainer.appendChild(botDiv);
   messageContainer.scrollTop = messageContainer.scrollHeight;
+  const stopThinking = startThinkingAnimation(botDiv);
 
   try {
     const response = await fetch("/chat", {
@@ -905,15 +947,34 @@ async function sendMessage() {
       ? (result.response || "Пустой ответ модели.")
       : (result.error || "Ошибка ответа модели.");
 
+    stopThinking();
     await typeMessage(botDiv, botText, 12);
     chatMessages.push({ type: 'bot', text: botText });
     saveChatHistory();
     messageContainer.scrollTop = messageContainer.scrollHeight;
   } catch (error) {
+    stopThinking();
     botDiv.textContent = "Ошибка сети при обращении к модели.";
     chatMessages.push({ type: 'bot', text: "Ошибка сети при обращении к модели." });
     saveChatHistory();
   }
+}
+
+function startThinkingAnimation(el) {
+  const frames = ["Думаю.", "Думаю..", "Думаю..."];
+  let idx = 0;
+  el.textContent = frames[idx];
+  const timer = setInterval(() => {
+    idx = (idx + 1) % frames.length;
+    el.textContent = frames[idx];
+    if (messageContainer) {
+      messageContainer.scrollTop = messageContainer.scrollHeight;
+    }
+  }, 280);
+
+  return function stop() {
+    clearInterval(timer);
+  };
 }
 
 async function typeMessage(el, text, speedMs = 12) {
@@ -928,8 +989,53 @@ async function typeMessage(el, text, speedMs = 12) {
 }
 
 function saveChatHistory() {
-  if (messageContainer) {
-    localStorage.setItem("chatHistory", messageContainer.innerHTML);
+  saveChatHistoryToServer();
+}
+
+function renderChatHistory(historyItems) {
+  if (!messageContainer) return;
+  messageContainer.innerHTML = "";
+  chatMessages = [];
+  if (!Array.isArray(historyItems)) return;
+
+  historyItems.forEach((item) => {
+    if (!item || (item.type !== "user" && item.type !== "bot")) return;
+    if (typeof item.text !== "string") return;
+    const div = document.createElement("div");
+    div.classList.add(item.type === "user" ? "message-user" : "message-bot");
+    div.textContent = item.text;
+    messageContainer.appendChild(div);
+    chatMessages.push({ type: item.type, text: item.text });
+  });
+  messageContainer.scrollTop = messageContainer.scrollHeight;
+}
+
+async function loadChatHistoryFromServer() {
+  if (!currentUserId) return;
+  try {
+    const res = await fetch(`/chat_history?user_id=${encodeURIComponent(currentUserId)}`);
+    const data = await res.json();
+    if (data.success && Array.isArray(data.history)) {
+      renderChatHistory(data.history);
+    }
+  } catch (error) {
+    console.error("Ошибка загрузки истории чата:", error);
+  }
+}
+
+async function saveChatHistoryToServer() {
+  if (!currentUserId) return;
+  try {
+    await fetch("/chat_history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: currentUserId,
+        history: chatMessages
+      })
+    });
+  } catch (error) {
+    console.error("Ошибка сохранения истории чата:", error);
   }
 }
 
@@ -1220,10 +1326,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // проверка
   const isAuthorized = localStorage.getItem("isAuthorized");
   const savedFio = localStorage.getItem("fio");
+  currentUserId = localStorage.getItem("currentUserId") || "";
 
   if (isAuthorized === "true" && savedFio) {
     profileName.textContent = savedFio;
     activeMainWindow = getRememberedAuthorizedWindow();
+    loadChatHistoryFromServer();
   }
 
   initEventListeners();
@@ -1246,6 +1354,7 @@ document.addEventListener('click', (e) => {
     { popup: faqPopupEl, btn: document.getElementById('faq') },
     { popup: aboutPopupEl, btn: document.getElementById('aboutService') },
     { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
+    { popup: clearHistoryConfirmPopupEl, btn: document.getElementById('clearChatHistory') },
     { popup: halalPopupEl, btn: document.getElementById('halalNearby') },
     { popup: mosquePopupEl, btn: document.getElementById('mosque') }
   ];
@@ -1267,7 +1376,7 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, clearHistoryConfirmPopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
       const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;
