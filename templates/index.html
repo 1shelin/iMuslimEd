@@ -179,12 +179,64 @@
         <span class="menu-text">Чат</span>
         <img src="{{ url_for('static', filename='message.png') }}" class="menu-icon">
       </a>
+
+      <a href="#" class="menu-item" id="menuPrayer">
+        <span class="menu-text">Молитва</span>
+        <img src="{{ url_for('static', filename='Dua.png') }}" class="menu-icon">
+      </a>
+
+      <a href="#" class="menu-item" id="menuNames99">
+        <span class="menu-text">99 Имён</span>
+        <img src="{{ url_for('static', filename='Quran.png') }}" class="menu-icon">
+      </a>
       
       <a href="#" class="menu-item" id="menuSettings">
         <span class="menu-text">Настройки</span>
         <img src="{{ url_for('static', filename='settings.png') }}" class="menu-icon">
       </a>
     </div>
+  </div>
+</div>
+
+<!-- окно молитва -->
+<div id="menuPrayerWindow" class="menu-full-popup">
+  <div class="settings-header">
+    <div class="settings-left">
+      <div class="settings-icon-container">
+        <img src="{{ url_for('static', filename='moonstar_white.png') }}">
+      </div>
+      <span class="settings-title">IMuslimEd</span>
+    </div>
+
+    <div class="chat-right-icons">
+      <span class="chat-menu">≡</span>
+      <button id="closeMenuPrayerWindow" class="settings-close">✕</button>
+    </div>
+  </div>
+
+  <div class="menu-full-body">
+    <h1 class="menu-full-title">Молитва</h1>
+  </div>
+</div>
+
+<!-- окно 99 имён -->
+<div id="menuNames99Window" class="menu-full-popup">
+  <div class="settings-header">
+    <div class="settings-left">
+      <div class="settings-icon-container">
+        <img src="{{ url_for('static', filename='moonstar_white.png') }}">
+      </div>
+      <span class="settings-title">IMuslimEd</span>
+    </div>
+
+    <div class="chat-right-icons">
+      <span class="chat-menu">≡</span>
+      <button id="closeMenuNames99Window" class="settings-close">✕</button>
+    </div>
+  </div>
+
+  <div class="menu-full-body">
+    <h1 class="menu-full-title">99 Имён</h1>
   </div>
 </div>
 

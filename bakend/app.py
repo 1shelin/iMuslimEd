@@ -27,7 +27,12 @@ SYSTEM_PROMPT = (
     "Допускается арабский текст с переводом и транскрипцией при религиозных вопросах. "
     "Не упоминай название модели, провайдера, слово нейросеть или ИИ. "
     "Не задавай встречных вопросов в конце ответа. Пиши: Мухаммад (не Мухаммед). "
-    "Начинай сразу с ответа, без приветствий, в конце не пиши никаких дополнений, только ответ на вопрос."
+    "Начинай сразу с ответа, без приветствий, в конце не пиши никаких дополнений, только ответ на вопрос. "
+    "Отвечай кратко и завершённо. "
+    "Если ответ не помещается, сокращай формулировки, но не обрывай мысль. "
+    "Всегда заканчивай ответ итоговым предложением. "
+    "Не задавай вопросов в конце. "
+    "Если вопрос короткий и прямой, отвечай максимально по факту: 1-3 коротких предложения без лишних деталей."
 )
 
 
@@ -54,8 +59,8 @@ def load_env_file():
 
 load_env_file()
 
-MAX_USER_CHARS = int(os.environ.get("MAX_USER_CHARS", "250"))
-MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "180"))
+MAX_USER_CHARS = int(os.environ.get("MAX_USER_CHARS", "400"))
+MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "220"))
 KIE_TEMPERATURE = float(os.environ.get("KIE_TEMPERATURE", "0.2"))
 
 
@@ -98,11 +103,36 @@ def sanitize_history(items):
         text = text.strip()
         if not text:
             continue
-        cleaned.append({
+        created_at = item.get("created_at")
+        normalized_item = {
             "type": msg_type,
             "text": text[:MAX_HISTORY_TEXT_LEN]
-        })
+        }
+        if isinstance(created_at, str):
+            created_at = created_at.strip()
+            if created_at:
+                try:
+                    datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+                    normalized_item["created_at"] = created_at
+                except ValueError:
+                    pass
+        cleaned.append(normalized_item)
     return cleaned
+
+
+def normalize_iso_datetime(value):
+    if not isinstance(value, str):
+        return ""
+    raw = value.strip()
+    if not raw:
+        return ""
+    try:
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+        if dt.tzinfo is not None:
+            dt = dt.replace(tzinfo=None)
+        return dt.isoformat()
+    except ValueError:
+        return ""
 
 
 def is_valid_fio(value):
@@ -118,6 +148,23 @@ def get_kie_api_key():
     return (os.environ.get("KIE_API_KEY") or "").strip()
 
 
+def choose_response_max_tokens(user_message):
+    text = (user_message or "").strip()
+    if not text:
+        return min(90, MAX_OUTPUT_TOKENS)
+
+    words = [w for w in re.split(r"\s+", text) if w]
+    words_count = len(words)
+    chars_count = len(text)
+
+    # Для коротких вопросов 
+    if words_count <= 7 or chars_count <= 45:
+        return min(90, MAX_OUTPUT_TOKENS)
+    if words_count <= 16 or chars_count <= 120:
+        return min(140, MAX_OUTPUT_TOKENS)
+    return MAX_OUTPUT_TOKENS
+
+
 def rule_based_navigation_answer(user_message):
     text = (user_message or "").strip().lower()
     if not text:
@@ -126,61 +173,92 @@ def rule_based_navigation_answer(user_message):
     def has_any(*parts):
         return any(p in text for p in parts)
 
-    is_university_context = has_any("универ", "университет", "вуз", "муив", "витте", "уник")
+    is_university_context = has_any("универ", "университет", "вуз", "муив", "витте", "уник", "кампус")
+    is_moscow_context = has_any("москв", "мск", "moscow")
 
     is_prayer_time_question = (
         has_any("намаз", "намаза") and
         has_any("сейчас", "во сколько", "время", "когда", "какой сейчас") and
-        has_any("москв", "сегодня", "текущ", "сейчас")
+        has_any("сегодня", "текущ", "сейчас", "по москве", "по москве?", "мск", "москва")
     )
-    if is_prayer_time_question:
+    is_general_prayer_time_question = (
+        has_any("намаз", "намаза") and
+        has_any(
+            "во сколько", "время", "какое время", "когда", "какой намаз",
+            "время намаза", "расписание намаза", "расписание намазов",
+            "намаз сегодня", "намазы сегодня", "пора на намаз"
+        )
+    )
+    if is_prayer_time_question or is_general_prayer_time_question:
         return (
             "Я не показываю точное время намаза в чате, чтобы не дать неверные данные. "
             "Откройте раздел «Время намаза» — там актуальное расписание на сегодня."
         )
 
     if (
-        (has_any("халяль", "halal") and has_any("где поесть", "поесть", "еда", "кафе", "ресторан", "рядом", "около", "поблизости"))
-        or (has_any("около уника", "около универа", "рядом с универом", "рядом с вузом") and has_any("халяль", "halal"))
+        (
+            has_any("халяль", "halal", "халял", "халель") and
+            has_any("где поесть", "поесть", "еда", "кафе", "ресторан", "рядом", "около", "поблизости", "где поесть рядом")
+        )
+        or (
+            has_any("около уника", "около универа", "рядом с универом", "рядом с вузом", "около университета") and
+            has_any("халяль", "halal", "халял")
+        )
     ):
         return (
             "Откройте раздел «Халяль рядом» — там отмечены халяль-кафе и рестораны рядом с университетом."
         )
 
     if (
-        has_any("где помолиться", "где молиться", "где мечеть", "молельная", "молельн", "место для намаза", "комната для намаза", "где читать намаз")
+        has_any(
+            "где помолиться", "где молиться", "где мечеть", "молельная", "молельн",
+            "место для намаза", "комната для намаза", "где читать намаз",
+            "где совершить намаз", "ближайшая мечеть", "мечеть рядом", "где молитвенная"
+        )
     ):
         return (
             "Откройте раздел «Мечеть / молельная» — там карта ближайших мест для молитвы."
         )
 
-    if "часто задаваем" in text or text in {"faq", "чаво"}:
+    if has_any("часто задаваем", "faq", "чаво", "вопросы и ответы", "популярные вопросы"):
         return (
             "Откройте раздел «Часто задаваемые вопросы» на главной — там собраны основные ответы по сервису и теме Ислама."
         )
 
     if (has_any("соц", "соцсети", "vk", "вк", "telegram", "телеграм", "тг") and is_university_context) or (
-        has_any("где соцсети", "ссылки на соцсети") and is_university_context
+        has_any("где соцсети", "ссылки на соцсети", "ссылки муив", "где вк", "где тг") and is_university_context
     ):
         return (
             "Соцсети МУИВ указаны иконками на «Главной»: VK и Telegram. "
             "Также ссылки: VK — https://vk.com/mosvitte, Telegram — https://t.me/mosvitte."
         )
 
-    if is_university_context:
+    if is_university_context and not has_any("ислам", "религ", "намаз", "халяль", "мечет"):
         return (
             "Речь о МУИВ — Московском университете имени С.Ю. Витте."
         )
 
-    if "обратн" in text or "куда обратиться" in text or "связаться" in text:
+    if has_any("обратн", "куда обратиться", "связаться", "техподдержка", "поддержка", "support", "ошибка в приложении"):
         return (
             "Откройте «Настройки» → «Обратная связь» "
         )
 
-    if "о сервисе" in text or "расскажи о сервисе" in text:
+    if has_any("о сервисе", "расскажи о сервисе", "что за сервис", "что это за платформа", "imuslimed"):
         return (
             "Откройте «Настройки» → «О сервисе». Там описание целей платформы IMuslimEd, функций и принципов работы."
         )
+
+    if has_any("главная", "открыть главную", "перейти на главную", "домой"):
+        return "Откройте раздел «Главная» через меню."
+
+    if has_any("настройки", "открыть настройки", "параметры"):
+        return "Откройте раздел «Настройки» через меню."
+
+    if has_any("чат", "открыть чат", "задать вопрос", "перейти в чат"):
+        return "Откройте раздел «Чат» через меню или кнопку «Задать вопрос»."
+
+    if has_any("очистить историю", "удалить переписку", "стереть историю"):
+        return "Очистка выполняется в разделе «Настройки» через пункт «Очистить историю чата»."
 
     return ""
 
@@ -195,78 +273,117 @@ def ask_kie_gemini(user_message):
         print("[chat] missing API key")
         return "Ошибка подключения, повторите запрос."
 
-    payload = {
-        "max_tokens": MAX_OUTPUT_TOKENS,
-        "temperature": KIE_TEMPERATURE,
-        "messages": [
-            {
-                "role": "system",
-                "content": SYSTEM_PROMPT,
-            },
-            {
-                "role": "user",
-                "content": user_message,
-            },
-        ],
-        "stream": False,
-    }
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 
-    try:
-        response = requests.post(
-            KIE_API_URL,
-            headers=headers,
-            json=payload,
-            timeout=(6, 25),
-        )
-    except requests.ReadTimeout as e:
-        print(f"[chat] timeout, retry once: {e}")
+    def send_kie(payload):
         try:
-            response = requests.post(
+            return requests.post(
                 KIE_API_URL,
                 headers=headers,
                 json=payload,
                 timeout=(6, 25),
             )
-        except requests.RequestException as e2:
-            print(f"[chat] network error after retry: {e2}")
-            return "Ошибка подключения, повторите запрос."
-    except requests.RequestException as e:
-        print(f"[chat] network error: {e}")
-        return "Ошибка подключения, повторите запрос."
+        except requests.ReadTimeout as e:
+            print(f"[chat] timeout, retry once: {e}")
+            try:
+                return requests.post(
+                    KIE_API_URL,
+                    headers=headers,
+                    json=payload,
+                    timeout=(6, 25),
+                )
+            except requests.RequestException as e2:
+                print(f"[chat] network error after retry: {e2}")
+                return None
+        except requests.RequestException as e:
+            print(f"[chat] network error: {e}")
+            return None
 
-    if response.status_code != 200:
-        body_preview = (response.text or "").strip().replace("\n", " ")[:240]
-        print(f"[chat] upstream status={response.status_code} body={body_preview}")
-        return "Ошибка подключения, повторите запрос."
+    def extract_text_and_reason(response):
+        if response is None:
+            return "", "", "Ошибка подключения, повторите запрос."
 
-    try:
-        data = response.json()
-    except ValueError as e:
-        print(f"[chat] invalid JSON: {e}; raw={response.text[:240] if response.text else ''}")
-        return "Ошибка подключения, повторите запрос."
+        if response.status_code != 200:
+            body_preview = (response.text or "").strip().replace("\n", " ")[:240]
+            print(f"[chat] upstream status={response.status_code} body={body_preview}")
+            return "", "", "Ошибка подключения, повторите запрос."
 
-    choices = data.get("choices") or []
-    if not choices:
-        return "Пустой ответ от модели."
+        try:
+            data = response.json()
+        except ValueError as e:
+            print(f"[chat] invalid JSON: {e}; raw={response.text[:240] if response.text else ''}")
+            return "", "", "Ошибка подключения, повторите запрос."
 
-    message = choices[0].get("message", {})
-    content = message.get("content", "")
+        choices = data.get("choices") or []
+        if not choices:
+            return "", "", "Пустой ответ от модели."
 
-    if isinstance(content, list):
-        text_parts = []
-        for part in content:
-            if isinstance(part, dict) and part.get("type") == "text":
-                text_parts.append(part.get("text", ""))
-        content = " ".join(text_parts).strip()
+        first_choice = choices[0] if isinstance(choices[0], dict) else {}
+        finish_reason = str(first_choice.get("finish_reason") or "").lower()
+        message = first_choice.get("message", {})
+        content = message.get("content", "")
 
-    if not isinstance(content, str) or not content.strip():
-        return "Модель не вернула текстовый ответ."
+        if isinstance(content, list):
+            text_parts = []
+            for part in content:
+                if isinstance(part, dict) and part.get("type") == "text":
+                    text_parts.append(part.get("text", ""))
+            content = " ".join(text_parts).strip()
+
+        if not isinstance(content, str) or not content.strip():
+            return "", "", "Модель не вернула текстовый ответ."
+        return content.strip(), finish_reason, ""
+
+    def strip_unwanted_tail(text):
+        lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+        if not lines:
+            return text.strip()
+
+        banned_patterns = (
+            "хотите ли вы",
+            "если у вас возникнут",
+            "вы хотели бы узнать",
+            "о котором вы хотели бы узнать",
+            "нужна помощь с планированием",
+            "есть ли какой-то конкретный аспект",
+            "я надеюсь",
+        )
+
+        while lines:
+            low = lines[-1].lower()
+            if any(p in low for p in banned_patterns):
+                lines.pop()
+                continue
+            break
+        return "\n".join(lines).strip()
+
+    response_max_tokens = choose_response_max_tokens(user_message)
+    base_payload = {
+        "max_tokens": response_max_tokens,
+        "temperature": KIE_TEMPERATURE,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_message},
+        ],
+        "stream": False,
+    }
+
+    response = send_kie(base_payload)
+    content, finish_reason, error_text = extract_text_and_reason(response)
+    if error_text:
+        return error_text
 
     text = content.replace("Мухаммед", "Мухаммад").strip()
+    text = strip_unwanted_tail(text)
+
+    if finish_reason == "length":
+        if text and text[-1] not in ".!?…":
+            text += "…"
+
+    text = strip_unwanted_tail(text)
     return text or "Не удалось сформировать корректный ответ."
 
 
@@ -379,6 +496,18 @@ def get_chat_history():
         return jsonify({"success": False, "error": "Пользователь не найден"}), 404
 
     history = sanitize_history(user_data.get("chat_history", []))
+    account_created_at = normalize_iso_datetime(user_data.get("created_at", ""))
+    if account_created_at:
+        patched = []
+        for item in history:
+            if "created_at" in item:
+                patched.append(item)
+            else:
+                enriched = dict(item)
+                enriched["created_at"] = account_created_at
+                patched.append(enriched)
+        history = patched
+
     if user_data.get("chat_history") != history:
         user_data["chat_history"] = history
         save_users(users)

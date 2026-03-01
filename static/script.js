@@ -50,7 +50,6 @@ const sendBtn = document.getElementById("sendBtn");
 const chatInput = document.getElementById("chatInput");
 const messageContainer = document.getElementById("messageContainer");
 const chatDateEl = document.getElementById("chatDate");
-const CHAT_DAY_MARKER_KEY = "chatDayMarker";
 
 // кнопки меню
 const menuButtons = document.querySelectorAll(".chat-menu");
@@ -58,7 +57,17 @@ const menuWindow = document.getElementById("menuWindow");
 const menuClose = document.getElementById("closeMenu");
 const menuHome = document.getElementById("menuHome");
 const menuChat = document.getElementById("menuChat");
+const menuPrayer = document.getElementById("menuPrayer");
+const menuNames99 = document.getElementById("menuNames99");
 const menuSettings = document.getElementById("menuSettings");
+const menuPrayerWindow = document.getElementById("menuPrayerWindow");
+const menuNames99Window = document.getElementById("menuNames99Window");
+const closeMenuPrayerWindowBtn = document.getElementById("closeMenuPrayerWindow");
+const closeMenuNames99WindowBtn = document.getElementById("closeMenuNames99Window");
+const menuPrayerPopupEl = document.getElementById("menuPrayerPopup");
+const menuNames99PopupEl = document.getElementById("menuNames99Popup");
+const closeMenuPrayerBtn = document.getElementById("closeMenuPrayer");
+const closeMenuNames99Btn = document.getElementById("closeMenuNames99");
 
 const settingsWindow = document.getElementById("settingsWindow");
 const closeSettings = document.getElementById("closeSettings");
@@ -92,6 +101,9 @@ function getWindowKey(windowElement) {
   if (windowElement === chatWindow) return "chat";
   if (windowElement === majorWindow) return "major";
   if (windowElement === settingsWindow) return "settings";
+  if (windowElement === menuWindow) return "menu";
+  if (windowElement === menuPrayerWindow) return "menu_prayer";
+  if (windowElement === menuNames99Window) return "menu_names99";
   return "";
 }
 
@@ -100,6 +112,9 @@ function getWindowByKey(windowKey) {
   if (windowKey === "chat") return chatWindow;
   if (windowKey === "major") return majorWindow;
   if (windowKey === "settings") return settingsWindow;
+  if (windowKey === "menu") return menuWindow;
+  if (windowKey === "menu_prayer") return menuPrayerWindow;
+  if (windowKey === "menu_names99") return menuNames99Window;
   return null;
 }
 
@@ -117,23 +132,37 @@ function getRememberedAuthorizedWindow() {
 function updateChatDateLabel() {
   if (!chatDateEl) return;
   const now = new Date();
-  const todayKey = now.toISOString().slice(0, 10);
-  const baseDay = localStorage.getItem(CHAT_DAY_MARKER_KEY);
+  let lastDate = null;
 
-  if (!baseDay) {
-    localStorage.setItem(CHAT_DAY_MARKER_KEY, todayKey);
+  for (let i = chatMessages.length - 1; i >= 0; i--) {
+    const createdAt = chatMessages[i] && chatMessages[i].created_at;
+    if (!createdAt) continue;
+    const parsed = new Date(createdAt);
+    if (!Number.isNaN(parsed.getTime())) {
+      lastDate = parsed;
+      break;
+    }
+  }
+
+  if (!lastDate) {
     chatDateEl.textContent = "Сегодня";
     return;
   }
 
-  if (baseDay === todayKey) {
+  const isToday =
+    lastDate.getFullYear() === now.getFullYear() &&
+    lastDate.getMonth() === now.getMonth() &&
+    lastDate.getDate() === now.getDate();
+
+  if (isToday) {
     chatDateEl.textContent = "Сегодня";
-  } else {
-    chatDateEl.textContent = now.toLocaleDateString('ru-RU', {
-      day: 'numeric',
-      month: 'long'
-    });
+    return;
   }
+
+  chatDateEl.textContent = lastDate.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long"
+  });
 }
 
 function scrollChatToBottom() {
@@ -172,7 +201,9 @@ function hasBlockingChildPopupOpen() {
     aboutPopupEl,
     feedbackPopupEl,
     clearHistoryConfirmPopupEl,
-    miniAlertPopup
+    miniAlertPopup,
+    menuPrayerPopupEl,
+    menuNames99PopupEl
   ];
   return childPopups.some((popup) => popup && popup.style.display === 'block');
 }
@@ -202,7 +233,7 @@ function showPopup(popupElement) {
   // скрыть только основные окна, но не дочерние 
   const mainPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
-    chatWindow, menuWindow, settingsWindow, majorWindow, fioPopup
+    chatWindow, menuWindow, settingsWindow, majorWindow, fioPopup, menuPrayerWindow, menuNames99Window
   ];
   
   mainPopups.forEach(popup => {
@@ -264,7 +295,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl
+    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
   ];
   
   allPopups.forEach(popup => {
@@ -276,7 +307,7 @@ function hideAllPopups() {
 
 // функция переключения главных окон
 function switchMainWindow(windowElement) {
-  const mainWindows = [majorWindow, chatWindow, settingsWindow];
+  const mainWindows = [majorWindow, chatWindow, settingsWindow, menuPrayerWindow, menuNames99Window];
 
   // если целевое окно уже открыто — ничего не делаем
   if (windowElement && windowElement.style.display === 'block') {
@@ -372,7 +403,7 @@ function initEventListeners() {
       if (profileName) profileName.textContent = savedFio;
       
       // все основные окна авторизованного пользователя
-      const mainUserWindows = [mainWindow, majorWindow, chatWindow, settingsWindow, menuWindow];
+      const mainUserWindows = [mainWindow, majorWindow, chatWindow, settingsWindow, menuWindow, menuPrayerWindow, menuNames99Window];
       let openMainWindow = null;
       
       for (let win of mainUserWindows) {
@@ -385,15 +416,8 @@ function initEventListeners() {
       // если какое-то окно открыто — закрываем его
       if (openMainWindow) {
         hidePopup(openMainWindow);
-        // если это не меню — запоминаем как последнее активное
-        if (openMainWindow !== menuWindow) {
-          if (openMainWindow === majorWindow || 
-              openMainWindow === mainWindow ||
-              openMainWindow === chatWindow || 
-              openMainWindow === settingsWindow) {
-            rememberAuthorizedWindow(openMainWindow);
-          }
-        }
+        // запоминаем последнее активное окно, включая меню
+        rememberAuthorizedWindow(openMainWindow);
         console.log("закрыто окно:", openMainWindow.id);
         return;
       }
@@ -503,6 +527,7 @@ function initEventListeners() {
         
         if (menuWindow) {
           showPopup(menuWindow);
+          rememberAuthorizedWindow(menuWindow);
         }
       });
     });
@@ -556,6 +581,40 @@ function initEventListeners() {
       console.log("меню: настройки");
       hidePopup(menuWindow);
       switchMainWindow(settingsWindow);
+    });
+  }
+
+  if (menuPrayer && menuPrayerWindow) {
+    menuPrayer.addEventListener("click", function(e) {
+      if (hasBlockingChildPopupOpen()) return;
+      e.preventDefault();
+      e.stopPropagation();
+      hidePopup(menuWindow);
+      switchMainWindow(menuPrayerWindow);
+    });
+  }
+
+  if (menuNames99 && menuNames99Window) {
+    menuNames99.addEventListener("click", function(e) {
+      if (hasBlockingChildPopupOpen()) return;
+      e.preventDefault();
+      e.stopPropagation();
+      hidePopup(menuWindow);
+      switchMainWindow(menuNames99Window);
+    });
+  }
+
+  if (closeMenuPrayerWindowBtn) {
+    closeMenuPrayerWindowBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      hidePopup(menuPrayerWindow);
+    });
+  }
+
+  if (closeMenuNames99WindowBtn) {
+    closeMenuNames99WindowBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      hidePopup(menuNames99Window);
     });
   }
 
@@ -695,6 +754,7 @@ function initEventListeners() {
       e.stopPropagation();
       messageContainer.innerHTML = '';
       chatMessages = [];
+      updateChatDateLabel();
 
       if (currentUserId) {
         try {
@@ -1045,7 +1105,9 @@ async function sendMessage() {
   div.textContent = msg;
   messageContainer.appendChild(div);
   
-  chatMessages.push({ type: 'user', text: msg });
+  const userCreatedAt = new Date().toISOString();
+  chatMessages.push({ type: 'user', text: msg, created_at: userCreatedAt });
+  updateChatDateLabel();
   saveChatHistory();
   
   chatInput.value = "";
@@ -1075,13 +1137,17 @@ async function sendMessage() {
     stopThinking();
     await typeMessage(botDiv, botText, 18, keepScrollAtBottom);
     botDiv.innerHTML = markdownToHtml(botText);
-    chatMessages.push({ type: 'bot', text: botText });
+    const botCreatedAt = new Date().toISOString();
+    chatMessages.push({ type: 'bot', text: botText, created_at: botCreatedAt });
+    updateChatDateLabel();
     saveChatHistory();
     if (keepScrollAtBottom) scrollChatToBottom();
   } catch (error) {
     stopThinking();
     botDiv.textContent = "Ошибка сети при обращении к модели.";
-    chatMessages.push({ type: 'bot', text: "Ошибка сети при обращении к модели." });
+    const botErrorCreatedAt = new Date().toISOString();
+    chatMessages.push({ type: 'bot', text: "Ошибка сети при обращении к модели.", created_at: botErrorCreatedAt });
+    updateChatDateLabel();
     saveChatHistory();
   }
 }
@@ -1157,6 +1223,9 @@ function sanitizeBotText(raw) {
     "если у вас возникнут другие вопросы",
     "обязательно спрашивайте",
     "надеюсь, что эта информация",
+    "есть ли какой-то конкретный аспект",
+    "о котором вы хотели бы узнать",
+    "нужна помощь с планированием",
   ];
 
   const cleaned = lines.filter((line) => {
@@ -1261,11 +1330,15 @@ function renderChatHistory(historyItems) {
   if (!messageContainer) return;
   messageContainer.innerHTML = "";
   chatMessages = [];
-  if (!Array.isArray(historyItems)) return;
+  if (!Array.isArray(historyItems)) {
+    updateChatDateLabel();
+    return;
+  }
 
   historyItems.forEach((item) => {
     if (!item || (item.type !== "user" && item.type !== "bot")) return;
     if (typeof item.text !== "string") return;
+    const createdAt = typeof item.created_at === "string" ? item.created_at : "";
     const div = document.createElement("div");
     div.classList.add(item.type === "user" ? "message-user" : "message-bot");
     if (item.type === "bot") {
@@ -1274,8 +1347,9 @@ function renderChatHistory(historyItems) {
       div.textContent = item.text;
     }
     messageContainer.appendChild(div);
-    chatMessages.push({ type: item.type, text: item.text });
+    chatMessages.push({ type: item.type, text: item.text, created_at: createdAt });
   });
+  updateChatDateLabel();
   scrollChatToBottom();
 }
 
@@ -1617,12 +1691,16 @@ document.addEventListener('click', (e) => {
     { popup: chatWindow, btn: chatBtn },
     { popup: menuWindow, btn: menuButtons },
     { popup: settingsWindow, btn: menuSettings },
+    { popup: menuPrayerWindow, btn: menuPrayer },
+    { popup: menuNames99Window, btn: menuNames99 },
     { popup: majorWindow, btn: [openIslamBtn, openMajorBtn] },
     { popup: fioPopup, btn: null },
     { popup: prayerPopupEl, btn: document.getElementById('prayerTime') },
     { popup: faqPopupEl, btn: document.getElementById('faq') },
     { popup: aboutPopupEl, btn: document.getElementById('aboutService') },
     { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
+    { popup: menuPrayerPopupEl, btn: menuPrayer },
+    { popup: menuNames99PopupEl, btn: menuNames99 },
     { popup: clearHistoryConfirmPopupEl, btn: document.getElementById('clearChatHistory') },
     { popup: halalPopupEl, btn: document.getElementById('halalNearby') },
     { popup: mosquePopupEl, btn: document.getElementById('mosque') }
@@ -1645,7 +1723,7 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, clearHistoryConfirmPopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, clearHistoryConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
       const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;
