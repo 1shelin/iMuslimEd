@@ -88,6 +88,10 @@ const closeFaqBtn = document.getElementById("closeFaq");
 const clearHistoryConfirmPopupEl = document.getElementById("clearHistoryConfirmPopup");
 const clearHistoryConfirmYesBtn = document.getElementById("confirmClearHistoryYes");
 const clearHistoryConfirmNoBtn = document.getElementById("confirmClearHistoryNo");
+const logoutConfirmPopupEl = document.getElementById("logoutConfirmPopup");
+const logoutMiniBox = document.querySelector("#logoutConfirmPopup .logout-mini-box");
+const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
+const confirmLogoutBtn = document.getElementById("confirmLogoutBtn");
 
 const halalPopupEl = document.getElementById("halalPopup");
 const closeHalalBtn = document.getElementById("closeHalal");
@@ -201,6 +205,7 @@ function hasBlockingChildPopupOpen() {
     aboutPopupEl,
     feedbackPopupEl,
     clearHistoryConfirmPopupEl,
+    logoutConfirmPopupEl,
     miniAlertPopup,
     menuPrayerPopupEl,
     menuNames99PopupEl
@@ -208,12 +213,38 @@ function hasBlockingChildPopupOpen() {
   return childPopups.some((popup) => popup && popup.style.display === 'block');
 }
 
+function positionLogoutConfirmPopup() {
+  if (!logoutConfirmPopupEl || !logoutMiniBox) return;
+  const candidates = [
+    settingsWindow,
+    majorWindow,
+    chatWindow,
+    menuWindow,
+    mainWindow,
+    authPopup,
+    fioPopup,
+    islamPopup
+  ];
+  const anchor = candidates.find((el) => el && el.style.display === "block");
+  if (!anchor) {
+    logoutMiniBox.style.left = "50%";
+    logoutMiniBox.style.top = "50%";
+    return;
+  }
+  const rect = anchor.getBoundingClientRect();
+  logoutMiniBox.style.left = `${Math.round(rect.left + rect.width / 2)}px`;
+  logoutMiniBox.style.top = `${Math.round(rect.top + rect.height / 2)}px`;
+}
+
 function updateParentWindowEffects() {
   const majorChildOpen = [prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl]
     .some((popup) => popup && popup.style.display === 'block');
   const settingsChildOpen = [aboutPopupEl, feedbackPopupEl]
     .some((popup) => popup && popup.style.display === 'block');
-  const settingsConfirmOpen = clearHistoryConfirmPopupEl && clearHistoryConfirmPopupEl.style.display === 'block';
+  const settingsConfirmOpen = (
+    (clearHistoryConfirmPopupEl && clearHistoryConfirmPopupEl.style.display === 'block') ||
+    (logoutConfirmPopupEl && logoutConfirmPopupEl.style.display === 'block')
+  );
 
   if (majorWindow) {
     majorWindow.classList.toggle('parent-dimmed', majorChildOpen);
@@ -295,7 +326,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
+    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
   ];
   
   allPopups.forEach(popup => {
@@ -805,42 +836,66 @@ function initEventListeners() {
     });
   }
   
+  function performLogout() {
+    localStorage.removeItem("fio");
+    localStorage.removeItem("isAuthorized");
+    localStorage.removeItem("currentUserId");
+    localStorage.removeItem("islamConfirmed");
+
+    authFinished = false;
+    islamAccepted = false;
+    islamConfirmed = false;
+    currentLogin = "";
+    currentPassword = "";
+    currentUserId = "";
+
+    if (loginInput) loginInput.value = "";
+    if (passwordInput) passwordInput.value = "";
+    if (fioInput) fioInput.value = "";
+
+    if (profileName) {
+      profileName.textContent = "";
+    }
+
+    if (toggle) {
+      toggle.checked = false;
+      toggle.disabled = false;
+    }
+
+    hideAllPopups();
+    activeMainWindow = null;
+    localStorage.removeItem(LAST_AUTH_WINDOW_KEY);
+
+    setTimeout(() => {
+      showPopup(islamPopup);
+    }, 300);
+  }
+
   // выход
-  document.getElementById('logoutBtn')?.addEventListener('click', function() {
-    if (confirm("вы уверены, что хотите выйти?")) {
-      localStorage.removeItem("fio");
-      localStorage.removeItem("isAuthorized");
-      localStorage.removeItem("currentUserId");
-      localStorage.removeItem("islamConfirmed"); 
-      
-      authFinished = false;
-      islamAccepted = false;
-      islamConfirmed = false; 
-      currentLogin = "";
-      currentPassword = "";
-      currentUserId = "";
-      
-      if (loginInput) loginInput.value = "";
-      if (passwordInput) passwordInput.value = "";
-      if (fioInput) fioInput.value = "";
-      
-      if (profileName) {
-        profileName.textContent = "";
-      }
-      
-      // сбрасываем переключатель религии
-      if (toggle) {
-        toggle.checked = false;
-        toggle.disabled = false;
-      }
-      
-      hideAllPopups();
-      activeMainWindow = null;
-      localStorage.removeItem(LAST_AUTH_WINDOW_KEY);
-      
-      setTimeout(() => {
-        showPopup(islamPopup);
-      }, 300);
+  document.getElementById('logoutBtn')?.addEventListener('click', function(e) {
+    if (hasBlockingChildPopupOpen()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (logoutConfirmPopupEl) {
+      positionLogoutConfirmPopup();
+      showChildPopup(logoutConfirmPopupEl);
+    }
+  });
+
+  cancelLogoutBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    hidePopup(logoutConfirmPopupEl);
+  });
+
+  confirmLogoutBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    hidePopup(logoutConfirmPopupEl);
+    setTimeout(() => performLogout(), 100);
+  });
+
+  window.addEventListener("resize", () => {
+    if (logoutConfirmPopupEl && logoutConfirmPopupEl.style.display === "block") {
+      positionLogoutConfirmPopup();
     }
   });
   
@@ -1702,6 +1757,7 @@ document.addEventListener('click', (e) => {
     { popup: menuPrayerPopupEl, btn: menuPrayer },
     { popup: menuNames99PopupEl, btn: menuNames99 },
     { popup: clearHistoryConfirmPopupEl, btn: document.getElementById('clearChatHistory') },
+    { popup: logoutConfirmPopupEl, btn: document.getElementById('logoutBtn') },
     { popup: halalPopupEl, btn: document.getElementById('halalNearby') },
     { popup: mosquePopupEl, btn: document.getElementById('mosque') }
   ];
@@ -1723,7 +1779,7 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, clearHistoryConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
       const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;
