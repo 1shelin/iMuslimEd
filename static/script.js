@@ -64,6 +64,7 @@ const menuPrayerWindow = document.getElementById("menuPrayerWindow");
 const menuNames99Window = document.getElementById("menuNames99Window");
 const closeMenuPrayerWindowBtn = document.getElementById("closeMenuPrayerWindow");
 const closeMenuNames99WindowBtn = document.getElementById("closeMenuNames99Window");
+const names99Grid = document.getElementById("names99Grid");
 const menuPrayerPopupEl = document.getElementById("menuPrayerPopup");
 const menuNames99PopupEl = document.getElementById("menuNames99Popup");
 const closeMenuPrayerBtn = document.getElementById("closeMenuPrayer");
@@ -98,6 +99,108 @@ const closeHalalBtn = document.getElementById("closeHalal");
 
 const mosquePopupEl = document.getElementById("mosquePopup");
 const closeMosqueBtn = document.getElementById("closeMosque");
+
+const ALLAH_99_NAMES = [
+  ["Аллах", "الله", "Единственный Бог, Обладатель божественности"],
+  ["Ар-Рахман", "الرحمن", "Всеобъемлюще Милостивый"],
+  ["Ар-Рахим", "الرحيم", "Особо Милующий верующих"],
+  ["Аль-Малик", "الملك", "Владыка"],
+  ["Аль-Куддус", "القدوس", "Пресвятой"],
+  ["Ас-Салям", "السلام", "Источник мира и безопасности"],
+  ["Аль-Му’мин", "المؤمن", "Дарующий защиту и уверенность"],
+  ["Аль-Мухаймин", "المهيمن", "Хранитель и Попечитель"],
+  ["Аль-Азиз", "العزيز", "Всемогущий"],
+  ["Аль-Джаббар", "الجبار", "Обладающий непреодолимой властью"],
+  ["Аль-Мутакаббир", "المتكبر", "Превознесённый"],
+  ["Аль-Халик", "الخالق", "Творец"],
+  ["Аль-Бари", "البارئ", "Создатель из небытия"],
+  ["Аль-Мусаввир", "المصور", "Дарующий облик"],
+  ["Аль-Гаффар", "الغفار", "Многократно Прощающий"],
+  ["Аль-Каххар", "القهار", "Всепобеждающий"],
+  ["Аль-Ваххаб", "الوهاب", "Щедро Дарующий"],
+  ["Ар-Раззак", "الرزاق", "Наделяющий пропитанием"],
+  ["Аль-Фаттах", "الفتاح", "Открывающий"],
+  ["Аль-Алим", "العليم", "Всеведущий"],
+  ["Аль-Кабид", "القابض", "Сжимающий"],
+  ["Аль-Басит", "الباسط", "Расширяющий"],
+  ["Аль-Хафид", "الخافض", "Унижающий"],
+  ["Ар-Рафи‘", "الرافع", "Возвышающий"],
+  ["Аль-Му‘изз", "المعز", "Дарующий честь"],
+  ["Аль-Музилль", "المذل", "Унижающий"],
+  ["Ас-Сами‘", "السميع", "Всеслышащий"],
+  ["Аль-Басыр", "البصير", "Всевидящий"],
+  ["Аль-Хакам", "الحكم", "Судящий"],
+  ["Аль-‘Адль", "العدل", "Справедливый"],
+  ["Аль-Латиф", "اللطيف", "Тонко Знающий"],
+  ["Аль-Хабир", "الخبير", "Всеведающий"],
+  ["Аль-Халим", "الحليم", "Кроткий"],
+  ["Аль-‘Азим", "العظيم", "Великий"],
+  ["Аль-Гафур", "الغفور", "Прощающий"],
+  ["Аш-Шакур", "الشكور", "Благодарный (Вознаграждающий)"],
+  ["Аль-‘Алий", "العلي", "Возвышенный"],
+  ["Аль-Кабир", "الكبير", "Великий"],
+  ["Аль-Хафиз", "الحفيظ", "Хранитель"],
+  ["Аль-Мукит", "المقيت", "Поддерживающий"],
+  ["Аль-Хасиб", "الحسيب", "Достаточный"],
+  ["Аль-Джалиль", "الجليل", "Величественный"],
+  ["Аль-Карим", "الكريم", "Щедрый"],
+  ["Ар-Ракиб", "الرقيب", "Наблюдающий"],
+  ["Аль-Муджиб", "المجيب", "Отвечающий на мольбы"],
+  ["Аль-Васи‘", "الواسع", "Всеобъемлющий"],
+  ["Аль-Хаким", "الحكيم", "Мудрый"],
+  ["Аль-Вадуд", "الودود", "Любящий"],
+  ["Аль-Маджид", "المجيد", "Преславный"],
+  ["Аль-Ба‘ис", "الباعث", "Воскрешающий"],
+  ["Аш-Шахид", "الشهيد", "Свидетель"],
+  ["Аль-Хакк", "الحق", "Истина"],
+  ["Аль-Вакил", "الوكيل", "Попечитель"],
+  ["Аль-Кавий", "القوي", "Сильный"],
+  ["Аль-Матин", "المتين", "Крепкий"],
+  ["Аль-Валий", "الولي", "Покровитель"],
+  ["Аль-Хамид", "الحميد", "Достохвальный"],
+  ["Аль-Мухси", "المحصي", "Учитывающий"],
+  ["Аль-Мубди’", "المبدئ", "Начинающий творение"],
+  ["Аль-Му‘ид", "المعيد", "Возвращающий"],
+  ["Аль-Мухйи", "المحيي", "Оживляющий"],
+  ["Аль-Мумит", "المميت", "Умерщвляющий"],
+  ["Аль-Хайй", "الحي", "Живой"],
+  ["Аль-Кайюм", "القيوم", "Самосущий"],
+  ["Аль-Ваджид", "الواجد", "Обладающий всем"],
+  ["Аль-Маджид", "الماجد", "Славный"],
+  ["Аль-Вахид", "الواحد", "Единый"],
+  ["Аль-Ахад", "الاحد", "Единственный"],
+  ["Ас-Самад", "الصمد", "Абсолютно Самодостаточный"],
+  ["Аль-Кадир", "القادر", "Всемогущий"],
+  ["Аль-Муктадир", "المقتدر", "Обладающий совершенной мощью"],
+  ["Аль-Мукаддим", "المقدم", "Выдвигающий вперёд"],
+  ["Аль-Муаххир", "المؤخر", "Отодвигающий"],
+  ["Аль-Авваль", "الأول", "Первый"],
+  ["Аль-Ахир", "الأخر", "Последний"],
+  ["Аз-Захир", "الظاهر", "Явный по Своим знамениям"],
+  ["Аль-Батин", "الباطن", "Непостижимый сущностно"],
+  ["Аль-Вали", "الوالي", "Управляющий"],
+  ["Аль-Мута‘али", "المتعالي", "Превознесённый"],
+  ["Аль-Барр", "البر", "Благостный"],
+  ["Ат-Тавваб", "التواب", "Принимающий покаяние"],
+  ["Аль-Мунтаким", "المنتقم", "Воздающий"],
+  ["Аль-‘Афувв", "العفو", "Прощающий"],
+  ["Ар-Ра’уф", "الرؤوف", "Сострадательный"],
+  ["Малик уль-Мульк", "مالك الملك", "Владыка владычества"],
+  ["Зуль-Джаляли уаль-Икрам", "ذو الجلال والإكرام", "Обладатель Величия и Щедрости"],
+  ["Аль-Муксит", "المقسط", "Справедливо Распределяющий"],
+  ["Аль-Джами‘", "الجامع", "Собирающий"],
+  ["Аль-Ганий", "الغني", "Богатый, Ни в чём не нуждающийся"],
+  ["Аль-Мугни", "المغني", "Обогащающий"],
+  ["Аль-Мани‘", "المانع", "Удерживающий"],
+  ["Ад-Дарр", "الضار", "Допускающий вред по Своей мудрости"],
+  ["Ан-Нафи‘", "النافع", "Приносящий пользу"],
+  ["Ан-Нур", "النور", "Свет"],
+  ["Аль-Хади", "الهادي", "Ведущий прямым путём"],
+  ["Аль-Бади‘", "البديع", "Создающий без примера"],
+  ["Аль-Бакы", "الباقي", "Вечный"],
+  ["Аль-Варис", "الوارث", "Наследующий"],
+  ["Ас-Сабур", "الصبور", "Терпеливый"]
+];
 
 //  основные функции 
 function getWindowKey(windowElement) {
@@ -234,6 +337,59 @@ function positionLogoutConfirmPopup() {
   const rect = anchor.getBoundingClientRect();
   logoutMiniBox.style.left = `${Math.round(rect.left + rect.width / 2)}px`;
   logoutMiniBox.style.top = `${Math.round(rect.top + rect.height / 2)}px`;
+}
+
+function initNames99Grid() {
+  if (!names99Grid) return;
+  names99Grid.innerHTML = "";
+
+  ALLAH_99_NAMES.forEach((item, index) => {
+    const [translit, arabic, meaning] = item;
+    const card = document.createElement("div");
+    card.className = "name99-card";
+    card.setAttribute("role", "button");
+    card.tabIndex = 0;
+
+    const order = document.createElement("div");
+    order.className = "name99-index";
+    order.textContent = `${index + 1}.`;
+
+    const translitEl = document.createElement("div");
+    translitEl.className = "name99-translit";
+    translitEl.textContent = translit;
+
+    const arabicEl = document.createElement("div");
+    arabicEl.className = "name99-arabic";
+    arabicEl.textContent = arabic;
+
+    const meaningEl = document.createElement("div");
+    meaningEl.className = "name99-meaning";
+    meaningEl.textContent = meaning;
+
+    card.appendChild(order);
+    card.appendChild(translitEl);
+    card.appendChild(arabicEl);
+    card.appendChild(meaningEl);
+
+    const activateCard = () => {
+      const cards = names99Grid.querySelectorAll(".name99-card");
+      const isAlreadyActive = card.classList.contains("active");
+      cards.forEach((c) => c.classList.remove("active"));
+      if (!isAlreadyActive) {
+        card.classList.add("active");
+      }
+    };
+
+    card.addEventListener("click", activateCard);
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activateCard();
+      }
+    });
+
+    names99Grid.appendChild(card);
+  });
 }
 
 function updateParentWindowEffects() {
@@ -1719,6 +1875,7 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log("dom fully loaded");
   hideAllPopups();
   updateChatDateLabel();
+  initNames99Grid();
   setInterval(updateChatDateLabel, 60000);
 
   // проверка
