@@ -1812,7 +1812,7 @@ input:checked + .slider:before {
   bottom: -20px; 
   left: 50%;
   transform: translateX(-50%);
-  width: 250%; 
+  width: 360%; 
   height: 1px;
   opacity: 0.3;
   background-color: #09481E;
@@ -1822,8 +1822,12 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 10px 8px;
   border-bottom: 1px solid rgba(9, 72, 30, 0.3);
+  border-radius: 14px;
+  background-color: rgba(238, 236, 232, 0.94);
+  position: relative;
+  overflow: hidden;
 }
 
 .settings-checkbox-content {
@@ -1884,9 +1888,12 @@ input:checked + .slider:before {
   border-bottom: 1px solid rgba(9, 72, 30, 0.3);
   cursor: pointer;
   transition: background-color 0.3s ease;
-  border-radius: 8px;
+  border-radius: 14px;
   padding-left: 8px;
   padding-right: 8px;
+  background-color: rgba(238, 236, 232, 0.94);
+  position: relative;
+  overflow: hidden;
 }
 
 .settings-item:hover {
@@ -3431,4 +3438,4 @@ html, body {
   background: linear-gradient(180deg, #0b5c27 0%, #09481E 100%);
   border-color: #09481E;
   color: #ffffff;
-}
+} 
