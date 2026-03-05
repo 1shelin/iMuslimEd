@@ -570,6 +570,117 @@ const ALLAH_99_NAMES = [
   ["Ас-Сабур", "الصبور", "Терпеливый"]
 ];
 
+const ALLAH_99_MEANINGS_EN = [
+  "The One God, Possessor of Divinity",
+  "The Most Compassionate",
+  "The Most Merciful",
+  "The Sovereign",
+  "The Most Holy",
+  "The Source of Peace and Safety",
+  "The Giver of Security and Faith",
+  "The Guardian and Overseer",
+  "The Almighty",
+  "The Compeller",
+  "The Supreme",
+  "The Creator",
+  "The Evolver",
+  "The Fashioner",
+  "The Great Forgiver",
+  "The All-Subduer",
+  "The Bestower",
+  "The Provider",
+  "The Opener",
+  "The All-Knowing",
+  "The Withholder",
+  "The Expander",
+  "The Reducer",
+  "The Exalter",
+  "The Honorer",
+  "The Humiliator",
+  "The All-Hearing",
+  "The All-Seeing",
+  "The Judge",
+  "The Utterly Just",
+  "The Subtle and Gentle",
+  "The All-Aware",
+  "The Forbearing",
+  "The Magnificent",
+  "The Forgiving",
+  "The Appreciative",
+  "The Most High",
+  "The Most Great",
+  "The Preserver",
+  "The Sustainer",
+  "The Reckoner",
+  "The Majestic",
+  "The Generous",
+  "The Watchful",
+  "The Responsive",
+  "The All-Encompassing",
+  "The Wise",
+  "The Loving",
+  "The Glorious",
+  "The Resurrector",
+  "The Witness",
+  "The Truth",
+  "The Trustee",
+  "The Strong",
+  "The Firm",
+  "The Protecting Friend",
+  "The Praiseworthy",
+  "The Counter",
+  "The Originator",
+  "The Restorer",
+  "The Giver of Life",
+  "The Creator of Death",
+  "The Ever-Living",
+  "The Self-Subsisting",
+  "The Finder",
+  "The Illustrious",
+  "The One",
+  "The Unique",
+  "The Eternal Refuge",
+  "The Powerful",
+  "The Omnipotent",
+  "The Expediter",
+  "The Delayer",
+  "The First",
+  "The Last",
+  "The Manifest",
+  "The Hidden",
+  "The Governor",
+  "The Most Exalted",
+  "The Source of Goodness",
+  "The Accepter of Repentance",
+  "The Avenger",
+  "The Pardoner",
+  "The Most Kind",
+  "Owner of Sovereignty",
+  "Lord of Majesty and Honor",
+  "The Equitable",
+  "The Gatherer",
+  "The Self-Sufficient",
+  "The Enricher",
+  "The Preventer",
+  "The Afflicter (by wisdom)",
+  "The Benefactor",
+  "The Light",
+  "The Guide",
+  "The Incomparable Originator",
+  "The Everlasting",
+  "The Inheritor",
+  "The Most Patient"
+];
+
+function getAllah99NamesForLanguage() {
+  if (currentLanguage !== "en") return ALLAH_99_NAMES;
+  return ALLAH_99_NAMES.map(([name, arabic], idx) => [
+    translitRuToLat(name),
+    arabic,
+    ALLAH_99_MEANINGS_EN[idx] || ""
+  ]);
+}
+
 //  основные функции 
 function getWindowKey(windowElement) {
   if (windowElement === mainWindow) return "main";
@@ -698,6 +809,7 @@ function applyLanguage(lang) {
   renderPrayerContentByLanguage();
   renderFaqByLanguage();
   renderSettingsContentByLanguage();
+  initNames99Grid();
 }
 
 function updateProfileNameLabel() {
@@ -830,8 +942,9 @@ function positionLogoutConfirmPopup() {
 function initNames99Grid() {
   if (!names99Grid) return;
   names99Grid.innerHTML = "";
+  const namesData = getAllah99NamesForLanguage();
 
-  ALLAH_99_NAMES.forEach((item, index) => {
+  namesData.forEach((item, index) => {
     const [translit, arabic, meaning] = item;
     const card = document.createElement("div");
     card.className = "name99-card";
