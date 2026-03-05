@@ -17,13 +17,13 @@
   <!-- красное окно -->
   <div id="islamPopup" class="islam-popup">
     <div class="popup-header">
-      <span>Московский Университет им. С.Ю. Витте</span>
+      <span class="muiv-header-text">Московский Университет им. С.Ю. Витте</span>
       <button id="closePopup" class="close-btn">✕</button>
     </div>
     <div class="popup-body">
       <img src="{{ url_for('static', filename='mosque_dome_red.png') }}" class="popup-dome">
       <img src="{{ url_for('static', filename='moonstar_red.png') }}" class="popup-icon">
-      <p class="popup-question">Ваша религия ислам?</p>
+      <p class="popup-question" id="religionQuestionText">Ваша Религия — Ислам?</p>
       <label class="switch">
         <input type="checkbox" id="religionToggle">
         <span class="slider round"></span>
@@ -34,13 +34,13 @@
   <!-- зелёное окно авторизации -->
   <div id="authPopup" class="auth-popup">
     <div class="auth-header">
-      <span>Московский Университет им. С.Ю. Витте</span>
+      <span class="muiv-header-text">Московский Университет им. С.Ю. Витте</span>
       <button id="closeAuth" class="close-btn">✕</button>
     </div>
     <div class="auth-body">
       <img src="{{ url_for('static', filename='mosque_dome_green.png') }}" class="auth-dome">
       <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="auth-icon">
-      <p class="auth-title">Авторизуйтесь</p>
+      <p class="auth-title" id="authTitleText">Авторизуйтесь</p>
 
       <div class="auth-inputs-container">
         <input type="text" id="loginInput" placeholder="Логин" class="auth-input">
@@ -59,14 +59,14 @@
 <!-- окно ввода ФИО -->
 <div id="fioPopup" class="auth-popup" style="display: none;">
   <div class="auth-header">
-    <span>Регистрация</span>
+    <span id="registrationHeaderText">Регистрация</span>
     <button id="closeFio" class="close-btn">✕</button>
   </div>
   
   <div class="auth-body">
     <img src="{{ url_for('static', filename='mosque_dome_green.png') }}" class="auth-dome">
     <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="auth-icon">
-    <p class="auth-title">Введите ваше ФИО</p>
+    <p class="auth-title" id="fioTitleText">Введите ваше ФИО</p>
     
     <div class="auth-inputs-container">
       <input type="text" id="fioInput" placeholder="Фамилия Имя Отчество" class="auth-input">
@@ -86,7 +86,7 @@
 <!-- подтверждение выхода -->
 <div id="logoutConfirmPopup" class="logout-mini-popup" style="display: none;">
   <div class="logout-mini-box">
-    <div class="logout-mini-text">Вы уверены, что хотите выйти?</div>
+    <div class="logout-mini-text" id="logoutConfirmText">Вы уверены, что хотите выйти?</div>
     <div class="logout-mini-actions">
       <button class="logout-confirm-btn cancel" id="cancelLogoutBtn">Отмена</button>
       <button class="logout-confirm-btn ok" id="confirmLogoutBtn">ОК</button>
@@ -97,7 +97,7 @@
 <!-- окно загрузки (авторизация) -->
 <div id="authLoading" class="loading-popup">
   <div class="auth-header">
-    <span>Московский Университет им. С.Ю. Витте</span>
+    <span class="muiv-header-text">Московский Университет им. С.Ю. Витте</span>
     <button id="closeLoading" class="close-btn">✕</button>
   </div>
 
@@ -105,7 +105,7 @@
     <div class="loading-box">
       <p class="loading-title">IMuslimEd</p>
       <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="loading-moon">
-      <p class="loading-text">авторизация...</p>
+      <p class="loading-text" id="loadingText">Авторизация...</p>
     </div>
   </div>    
 </div>
@@ -113,7 +113,7 @@
 <!-- главное окно после авторизации -->
 <div id="mainWindow" class="main-popup">
   <div class="main-header">
-    <span>Московский Университет им. С.Ю. Витте</span>
+    <span class="muiv-header-text">Московский Университет им. С.Ю. Витте</span>
     <button id="closeMain" class="close-btn">✕</button>
   </div>
 
@@ -121,8 +121,8 @@
     <p class="main-title">iMuslimEd</p>
     <img src="{{ url_for('static', filename='moonstar_green.png') }}" class="main-moon">
     <div class="main-welcome">
-      • Ас-саляму ʿАлейкум!<br>
-      Добро пожаловать в <b>iMuslimEd.</b>
+      <span id="mainWelcomeLine1">• Ас-саляму ʿАлейкум!</span><br>
+      <span id="mainWelcomeLine2">Добро пожаловать в</span> <b>iMuslimEd.</b>
     </div>
     <button id="askQuestionBtn" class="main-btn">Задать вопрос</button>
     <button id="openMajorBtn" class="main-secondary-btn">Главная</button>
@@ -182,27 +182,27 @@
     
     <div class="menu-items">
       <a href="#" class="menu-item" id="menuHome">
-        <span class="menu-text">Главная</span>
+        <span class="menu-text" id="menuHomeText">Главная</span>
         <img src="{{ url_for('static', filename='house.png') }}" class="menu-icon">
       </a>
       
       <a href="#" class="menu-item" id="menuChat">
-        <span class="menu-text">Чат</span>
+        <span class="menu-text" id="menuChatText">Чат</span>
         <img src="{{ url_for('static', filename='message.png') }}" class="menu-icon">
       </a>
 
       <a href="#" class="menu-item" id="menuPrayer">
-        <span class="menu-text">Молитва</span>
+        <span class="menu-text" id="menuPrayerText">Молитва</span>
         <img src="{{ url_for('static', filename='Dua.png') }}" class="menu-icon">
       </a>
 
       <a href="#" class="menu-item" id="menuNames99">
-        <span class="menu-text">99 Имён</span>
+        <span class="menu-text" id="menuNamesText">99 Имён</span>
         <img src="{{ url_for('static', filename='Quran.png') }}" class="menu-icon">
       </a>
       
       <a href="#" class="menu-item" id="menuSettings">
-        <span class="menu-text">Настройки</span>
+        <span class="menu-text" id="menuSettingsText">Настройки</span>
         <img src="{{ url_for('static', filename='settings.png') }}" class="menu-icon">
       </a>
     </div>
@@ -226,8 +226,8 @@
   </div>
 
   <div class="menu-full-body prayer-window-body">
-    <div class="prayer-window-scroll">
-      <h1 class="menu-full-title">В помощь студентам:<br>7 дуа для экзаменов и учебы</h1>
+    <div class="prayer-window-scroll" id="prayerWindowContent">
+      <h1 class="menu-full-title" id="prayerWindowTitle">В помощь студентам:<br>7 дуа для экзаменов и учебы</h1>
 
       <div class="prayer-intro-card">
         <p class="prayer-lead">
@@ -334,7 +334,7 @@
 
   <div class="menu-full-body names-window-body">
     <div class="names99-scroll">
-      <h1 class="menu-full-title">99 Прекрасных Имён Аллаха</h1>
+      <h1 class="menu-full-title" id="namesWindowTitle">99 Прекрасных Имён Аллаха</h1>
       <div id="names99Grid" class="names99-grid"></div>
     </div>
   </div>
@@ -359,12 +359,12 @@
   <div class="settings-body">
     <div class="settings-content">
       <!-- заголовок  -->
-      <h1 class="settings-main-title">Настройки</h1>
+      <h1 class="settings-main-title" id="settingsMainTitleText">Настройки</h1>
       
       <!-- очистить историю чата -->
       <div class="settings-checkbox-item">
         <div class="settings-checkbox-content">
-          <span class="settings-checkbox-text">Очистить историю чата</span>
+          <span class="settings-checkbox-text" id="clearHistoryText">Очистить историю чата</span>
         </div>
         <div>
           <input type="checkbox" id="clearChatHistory" class="settings-checkbox">
@@ -375,7 +375,7 @@
       <!-- о сервисе -->
       <div class="settings-item" id="aboutService">
         <div class="settings-item-content">
-          <span class="settings-item-text">О сервисе</span>
+          <span class="settings-item-text" id="aboutServiceText">О сервисе</span>
         </div>
         <img src="{{ url_for('static', filename='info.png') }}" class="settings-item-icon-right" alt="О сервисе">
       </div>
@@ -383,9 +383,17 @@
       <!-- обратная связь -->
       <div class="settings-item" id="feedback">
         <div class="settings-item-content">
-          <span class="settings-item-text">Обратная связь</span>
+          <span class="settings-item-text" id="feedbackText">Обратная связь</span>
         </div>
         <img src="{{ url_for('static', filename='connection.png') }}" class="settings-item-icon-right" alt="Обратная связь">
+      </div>
+
+      <!-- язык -->
+      <div class="settings-item" id="languageSettings">
+        <div class="settings-item-content">
+          <span class="settings-item-text" id="languageText">Язык</span>
+        </div>
+        <img src="{{ url_for('static', filename='Language.png') }}" class="settings-item-icon-right" alt="Язык">
       </div>
 
       <!-- разделительная линия -->
@@ -393,7 +401,7 @@
 
       <!-- выйти -->
       <div class="settings-logout" id="logoutBtn">
-        <span class="settings-logout-text">Выйти</span>
+        <span class="settings-logout-text" id="logoutText">Выйти</span>
       </div>
     </div>
 
@@ -406,12 +414,12 @@
   <!-- о сервисе -->
   <div id="aboutPopup" class="about-popup">
     <div class="about-header">
-      <span class="about-title">О сервисе</span>
+      <span class="about-title" id="aboutPopupTitleText">О сервисе</span>
       <button class="about-close" id="closeAbout">✕</button>
     </div>
 
     <div class="about-body">
-      <div class="about-layout">
+      <div class="about-layout" id="aboutLayoutContent">
         <section class="about-hero">
           <h3 class="about-hero-title">IMuslimEd</h3>
           <div class="about-meta">
@@ -492,12 +500,12 @@
   <!-- обратная связь -->
   <div id="feedbackPopup" class="feedback-popup">
     <div class="feedback-header">
-      <span class="feedback-title">Обратная связь</span>
+      <span class="feedback-title" id="feedbackPopupTitleText">Обратная связь</span>
       <button class="feedback-close" id="closeFeedback">✕</button>
     </div>
 
     <div class="feedback-body">
-      <div class="feedback-card">
+      <div class="feedback-card" id="feedbackCardContent">
         <p class="feedback-text">
           Для направления обращений, предложений или сообщений о технических ошибках воспользуйтесь электронной почтой:
           <a class="feedback-email" href="mailto:support@imuslimed.ru">support@imuslimed.ru</a>.
@@ -515,13 +523,25 @@
 
   <!-- подтверждение очистки истории -->
   <div id="clearHistoryConfirmPopup" class="clear-history-confirm-popup">
-    <div class="clear-history-confirm-title">Очистить историю</div>
+    <div class="clear-history-confirm-title" id="clearHistoryPopupTitle">Очистить историю</div>
     <div class="clear-history-confirm-card">
-      <div class="clear-history-confirm-text">Вы точно хотите очистить историю чата?</div>
+      <div class="clear-history-confirm-text" id="clearHistoryPopupText">Вы точно хотите очистить историю чата?</div>
       <div class="clear-history-confirm-actions">
         <button id="confirmClearHistoryNo" class="clear-history-confirm-btn secondary">Нет</button>
         <button id="confirmClearHistoryYes" class="clear-history-confirm-btn primary">Да</button>
       </div>
+    </div>
+  </div>
+
+  <!-- выбор языка -->
+  <div id="languagePopup" class="language-popup">
+    <div class="language-header">
+      <span class="language-title" id="languagePopupTitle">Язык интерфейса</span>
+      <button class="language-close" id="closeLanguagePopup">✕</button>
+    </div>
+    <div class="language-body">
+      <button class="language-option" id="languageRuBtn">Русский</button>
+      <button class="language-option" id="languageEnBtn">English</button>
     </div>
   </div>
 </div>
@@ -545,7 +565,7 @@
   <div class="major-body">
     <div class="major-content">
       <!-- заголовок -->
-      <h1 class="major-main-title">Главная</h1>
+      <h1 class="major-main-title" id="majorTitleText">Главная</h1>
       
       <div class="major-container">
         <div class="profile-row-container">
@@ -555,7 +575,7 @@
           </div>
         </div>
 
-        <div class="major-quote">«Пусть знания ведут к взаимопониманию»</div>
+	        <div class="major-quote" id="majorQuoteText">«Пусть знания ведут к взаимопониманию»</div>
         
         <div class="circle-menu">
   
@@ -566,22 +586,22 @@
         
           <div class="circle-sector top" id="prayerTime">
             <img src="/static/time.png">
-            <span>Время<br>намаза</span>
+	            <span id="majorPrayerText">Время<br>намаза</span>
           </div>
         
           <div class="circle-sector right" id="mosque">
             <img src="/static/place.png">
-            <span>Мечеть /<br>молельная</span>
+	            <span id="majorMosqueText">Мечеть /<br>молельная</span>
           </div>
         
           <div class="circle-sector bottom" id="faq">
             <img src="/static/question.png">
-            <span>Часто задаваемые<br>вопросы</span>
+	            <span id="majorFaqText">Часто задаваемые<br>вопросы</span>
           </div>
         
           <div class="circle-sector left" id="halalNearby">
             <img src="/static/food.png">
-            <span>Халяль<br>рядом</span>
+	            <span id="majorHalalText">Халяль<br>рядом</span>
           </div>
         
           <div class="circle-center"></div>
@@ -598,7 +618,7 @@
       <!-- окно времени намаза -->
   <div id="prayerPopup" class="prayer-popup">
     <div class="prayer-header">
-      <span class="prayer-title">Время намаза</span>
+	      <span class="prayer-title" id="prayerPopupTitleText">Время намаза</span>
       <button class="prayer-close" id="closePrayer">✕</button>
     </div>
     
@@ -613,7 +633,7 @@
   <!-- Часто задаваемые вопросы -->
   <div id="faqPopup" class="faq-popup">
     <div class="faq-header">
-      <span class="faq-title">Часто задаваемые вопросы</span>
+	      <span class="faq-title" id="faqPopupTitleText">Часто задаваемые вопросы</span>
       <button class="faq-close" id="closeFaq">✕</button>
     </div>
 
@@ -690,7 +710,7 @@
       <!-- Халяль рядом -->
   <div id="halalPopup" class="halal-popup">
     <div class="halal-header">
-      <span class="halal-title">Халяль рядом</span>
+	      <span class="halal-title" id="halalPopupTitleText">Халяль рядом</span>
       <button class="halal-close" id="closeHalal">✕</button>
     </div>
     <div class="halal-body">
@@ -701,7 +721,7 @@
   <!-- Мечеть / молельная -->
   <div id="mosquePopup" class="mosque-popup">
     <div class="mosque-header">
-      <span class="mosque-title">Мечеть / молельная</span>
+	      <span class="mosque-title" id="mosquePopupTitleText">Мечеть / молельная</span>
       <button class="mosque-close" id="closeMosque">✕</button>
     </div>
     <div class="mosque-body">

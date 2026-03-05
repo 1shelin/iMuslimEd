@@ -7,6 +7,7 @@ let currentUserId = localStorage.getItem("currentUserId") || "";
 let chatMessages = [];
 const MAX_CHAT_MESSAGE_LENGTH = 500;
 const LAST_AUTH_WINDOW_KEY = "lastAuthorizedWindow";
+const APP_LANGUAGE_KEY = "appLanguage";
 
 // добавлено для отслеживания активного окна
 let activeMainWindow = null;
@@ -69,6 +70,11 @@ const menuPrayerPopupEl = document.getElementById("menuPrayerPopup");
 const menuNames99PopupEl = document.getElementById("menuNames99Popup");
 const closeMenuPrayerBtn = document.getElementById("closeMenuPrayer");
 const closeMenuNames99Btn = document.getElementById("closeMenuNames99");
+const languageSettingsBtn = document.getElementById("languageSettings");
+const languagePopupEl = document.getElementById("languagePopup");
+const closeLanguagePopupBtn = document.getElementById("closeLanguagePopup");
+const languageRuBtn = document.getElementById("languageRuBtn");
+const languageEnBtn = document.getElementById("languageEnBtn");
 
 const settingsWindow = document.getElementById("settingsWindow");
 const closeSettings = document.getElementById("closeSettings");
@@ -99,6 +105,368 @@ const closeHalalBtn = document.getElementById("closeHalal");
 
 const mosquePopupEl = document.getElementById("mosquePopup");
 const closeMosqueBtn = document.getElementById("closeMosque");
+
+let currentLanguage = (localStorage.getItem(APP_LANGUAGE_KEY) || "ru").toLowerCase().startsWith("en") ? "en" : "ru";
+
+const UI_TEXT = {
+  ru: {
+    muiv_header: "Московский Университет им. С.Ю. Витте",
+    religion_question: "Ваша Религия — Ислам?",
+    registration_header: "Регистрация",
+    auth_title: "Авторизуйтесь",
+    fio_title: "Введите ваше ФИО",
+    login_placeholder: "Логин",
+    password_placeholder: "Пароль",
+    fio_placeholder: "Фамилия Имя Отчество",
+    login_btn: "Войти",
+    continue_btn: "Продолжить",
+    ask_btn: "Задать вопрос",
+    home_btn: "Главная",
+    menu_home: "Главная",
+    menu_chat: "Чат",
+    menu_prayer: "Молитва",
+    menu_names: "99 Имён",
+    menu_settings: "Настройки",
+    settings_title: "Настройки",
+    clear_history: "Очистить историю чата",
+    about_service: "О сервисе",
+    feedback: "Обратная связь",
+    about_popup_title: "О сервисе",
+    feedback_popup_title: "Обратная связь",
+    language: "Язык",
+    logout: "Выйти",
+    language_popup_title: "Язык интерфейса",
+    language_ru: "Русский",
+    language_en: "English",
+    prayer_title: "В помощь студентам:<br>7 дуа для экзаменов и учебы",
+    names_title: "99 Прекрасных Имён Аллаха",
+    clear_history_popup_title: "Очистить историю",
+    clear_history_popup_text: "Вы точно хотите очистить историю чата?",
+    yes: "Да",
+    no: "Нет",
+    logout_confirm: "Вы уверены, что хотите выйти?",
+    cancel: "Отмена",
+    ok: "ОК",
+    loading_auth: "Авторизация...",
+    main_welcome_line1: "• Ас-саляму ʿАлейкум!",
+    main_welcome_line2: "Добро пожаловать в",
+    major_title: "Главная",
+    major_quote: "«Пусть знания ведут к взаимопониманию»",
+    profile_name_placeholder: "ФИО",
+    major_prayer: "Время<br>намаза",
+    major_mosque: "Мечеть /<br>молельная",
+    major_faq: "Часто задаваемые<br>вопросы",
+    major_halal: "Халяль<br>рядом",
+    prayer_popup_title: "Время намаза",
+    faq_popup_title: "Часто задаваемые вопросы",
+    halal_popup_title: "Халяль рядом",
+    mosque_popup_title: "Мечеть / молельная",
+    chat_placeholder: "Введите сообщение...",
+    today: "Сегодня",
+    net_error: "Ошибка подключения, повторите запрос.",
+    thinking1: "Думаю.",
+    thinking2: "Думаю..",
+    thinking3: "Думаю...",
+    thinking_stage1: "Ищу точный ответ...",
+    thinking_stage2: "Осталось еще немного...",
+    thinking_stage3: "Почти готово...",
+    login_password_hint: "Введите ваш логин и пароль личного кабинета",
+    empty_chat_error: "Пустое сообщение",
+    login_required: "Введите логин",
+    login_too_short: "Логин должен содержать минимум 3 символа",
+    login_too_long: "Логин слишком длинный",
+    login_spaces: "Логин не должен содержать пробелы",
+    login_format: "Логин может содержать только латиницу, цифры и символы . _ -",
+    password_required: "Введите пароль",
+    password_too_short: "Пароль должен содержать минимум 4 символа",
+    password_too_long: "Пароль слишком длинный",
+    password_spaces: "Пароль не должен содержать пробелы",
+    fio_required: "Введите ФИО",
+    fio_invalid: "ФИО вводится на русском через пробелы: Фамилия Имя Отчество",
+    fio_too_long: "ФИО слишком длинное",
+    fio_equals_login: "ФИО не должно совпадать с логином",
+    save_error: "Ошибка сохранения",
+    max_chars_message: "Максимум {n} символов в одном сообщении.",
+    empty_model_response: "Пустой ответ модели.",
+    model_response_error: "Ошибка ответа модели.",
+    mini_error_default: "Ошибка",
+    mini_message_default: "Сообщение",
+    prayer_loading: "Загрузка…",
+    prayer_load_error: "Ошибка при загрузке времени намаза",
+    faq_q1: "1. Что такое Ислам?",
+    faq_a1: "Ислам - мировая религия, основанная на вере в Единого Бога (Аллаха). Мусульмане следуют учению пророка Мухаммада (мир ему).",
+    faq_q2: "2. Какие пять столпов Ислама?",
+    faq_a2_1: "Шахада (вера в Единого Бога)",
+    faq_a2_2: "Намаз (ежедневная молитва)",
+    faq_a2_3: "Ураза (пост в месяц Рамадан)",
+    faq_a2_4: "Закят (обязательная милостыня)",
+    faq_a2_5: "Хадж (паломничество в Мекку)",
+    faq_q3: "3. Во сколько сегодня намаз в Москве?",
+    faq_a3: "Время намаза меняется ежедневно. В нашем приложении есть раздел «Время намаза» с актуальным расписанием.",
+    faq_q4: "4. Где находится ближайшая мечеть?",
+    faq_a4: "В разделе «Мечеть / молельная» вы найдете карту с ближайшими мечетями/молельнями Москвы.",
+    faq_q5: "5. Что значит «халяль»?",
+    faq_a5: "Халяль - всё, что разрешено мусульманам. Обычно термин используется для еды: мясо, забитое по исламским правилам, без свинины и алкоголя.",
+    faq_q6: "6. Где поесть халяль рядом с университетом?",
+    faq_a6: "В разделе «Халяль рядом» есть карта с отмеченными халяль-кафе и ресторанами в районе университета.",
+    faq_q7: "7. На какие вопросы может ответить чат-бот?",
+    faq_a7: "Чат-бот отвечает на вопросы, связанные с исламскими традициями, правилами религиозной практики, халяль-инфраструктурой, адаптацией студентов в университетской среде, а также на общие вопросы о межкультурном взаимодействии и работе сервиса IMuslimEd.",
+    faq_q8: "8. Бесплатно ли использование платформы?",
+    faq_a8: "Да.",
+    faq_q9: "9. Безопасны ли мои данные?",
+    faq_a9: "Да, мы не передаем данные третьим лицам. Логин и пароль хранятся в зашифрованном виде.",
+    faq_q10: "10. Как связаться с разработчиками?",
+    faq_a10: "В разделе «Настройки» выберите пункт «Обратная связь».",
+  },
+  en: {
+    muiv_header: "Moscow Witte University",
+    religion_question: "Is Your Religion Islam?",
+    registration_header: "Registration",
+    auth_title: "Sign In",
+    fio_title: "Enter your full name",
+    login_placeholder: "Login",
+    password_placeholder: "Password",
+    fio_placeholder: "Surname Name Patronymic",
+    login_btn: "Sign In",
+    continue_btn: "Continue",
+    ask_btn: "Ask a Question",
+    home_btn: "Home",
+    menu_home: "Home",
+    menu_chat: "Chat",
+    menu_prayer: "Prayer",
+    menu_names: "99 Names",
+    menu_settings: "Settings",
+    settings_title: "Settings",
+    clear_history: "Clear chat history",
+    about_service: "About service",
+    feedback: "Feedback",
+    about_popup_title: "About service",
+    feedback_popup_title: "Feedback",
+    language: "Language",
+    logout: "Log out",
+    language_popup_title: "Interface language",
+    language_ru: "Russian",
+    language_en: "English",
+    prayer_title: "For students:<br>7 Duas for Exams and Study",
+    names_title: "99 Beautiful Names of Allah",
+    clear_history_popup_title: "Clear history",
+    clear_history_popup_text: "Are you sure you want to clear chat history?",
+    yes: "Yes",
+    no: "No",
+    logout_confirm: "Are you sure you want to log out?",
+    cancel: "Cancel",
+    ok: "OK",
+    loading_auth: "Authorizing...",
+    main_welcome_line1: "• As-salamu alaykum!",
+    main_welcome_line2: "Welcome to",
+    major_title: "Home",
+    major_quote: "\"May knowledge lead to mutual understanding\"",
+    profile_name_placeholder: "Full Name",
+    major_prayer: "Prayer<br>time",
+    major_mosque: "Mosque /<br>prayer room",
+    major_faq: "Frequently asked<br>questions",
+    major_halal: "Halal<br>nearby",
+    prayer_popup_title: "Prayer time",
+    faq_popup_title: "Frequently Asked Questions",
+    halal_popup_title: "Halal Nearby",
+    mosque_popup_title: "Mosque / prayer room",
+    chat_placeholder: "Type a message...",
+    today: "Today",
+    net_error: "Connection error, please retry.",
+    thinking1: "Thinking.",
+    thinking2: "Thinking..",
+    thinking3: "Thinking...",
+    thinking_stage1: "Searching for an accurate answer...",
+    thinking_stage2: "Almost there...",
+    thinking_stage3: "Finalizing...",
+    login_password_hint: "Enter your personal account login and password",
+    empty_chat_error: "Empty message",
+    login_required: "Enter login",
+    login_too_short: "Login must be at least 3 characters",
+    login_too_long: "Login is too long",
+    login_spaces: "Login must not contain spaces",
+    login_format: "Login may contain only Latin letters, digits, and . _ -",
+    password_required: "Enter password",
+    password_too_short: "Password must be at least 4 characters",
+    password_too_long: "Password is too long",
+    password_spaces: "Password must not contain spaces",
+    fio_required: "Enter full name",
+    fio_invalid: "Full name must be in Russian with spaces: Surname Name Patronymic",
+    fio_too_long: "Full name is too long",
+    fio_equals_login: "Full name must not match login",
+    save_error: "Save error",
+    max_chars_message: "Maximum {n} characters per message.",
+    empty_model_response: "Model returned an empty response.",
+    model_response_error: "Model response error.",
+    mini_error_default: "Error",
+    mini_message_default: "Message",
+    prayer_loading: "Loading…",
+    prayer_load_error: "Failed to load prayer times",
+    faq_q1: "1. What is Islam?",
+    faq_a1: "Islam is a world religion based on belief in One God (Allah). Muslims follow the teachings of Prophet Muhammad (peace be upon him).",
+    faq_q2: "2. What are the five pillars of Islam?",
+    faq_a2_1: "Shahada (belief in One God)",
+    faq_a2_2: "Salah (daily prayer)",
+    faq_a2_3: "Sawm (fasting in Ramadan)",
+    faq_a2_4: "Zakat (obligatory charity)",
+    faq_a2_5: "Hajj (pilgrimage to Mecca)",
+    faq_q3: "3. What time is prayer today in Moscow?",
+    faq_a3: "Prayer times change daily. In our app, open the \"Prayer time\" section for the latest schedule.",
+    faq_q4: "4. Where is the nearest mosque?",
+    faq_a4: "In the \"Mosque / prayer room\" section you will find a map of nearby places in Moscow.",
+    faq_q5: "5. What does \"halal\" mean?",
+    faq_a5: "Halal means what is permissible for Muslims. It is often used for food: meat prepared by Islamic rules, without pork and alcohol.",
+    faq_q6: "6. Where can I eat halal food near the university?",
+    faq_a6: "In the \"Halal nearby\" section there is a map with halal cafes and restaurants near the university.",
+    faq_q7: "7. What questions can the chatbot answer?",
+    faq_a7: "The chatbot answers questions about Islamic traditions, religious practice, halal infrastructure, student adaptation, intercultural communication, and IMuslimEd service features.",
+    faq_q8: "8. Is the platform free?",
+    faq_a8: "Yes.",
+    faq_q9: "9. Are my data safe?",
+    faq_a9: "Yes, we do not share data with third parties. Login and password are stored encrypted.",
+    faq_q10: "10. How can I contact the developers?",
+    faq_a10: "Open \"Settings\" and choose \"Feedback\".",
+  }
+};
+
+const ABOUT_CONTENT = {
+  ru: `
+    <section class="about-hero">
+      <h3 class="about-hero-title">IMuslimEd</h3>
+      <div class="about-meta">
+        <span class="about-pill">Образование</span>
+        <span class="about-pill">Диалог</span>
+        <span class="about-pill">Поддержка</span>
+      </div>
+      <p class="about-hero-text">IMuslimEd — это информационный веб-сервис, разработанный для поддержки межкультурных коммуникаций и формирования инклюзивной образовательной среды среди студентов разных конфессий.</p>
+      <p class="about-hero-text">Платформа ориентирована на студентов, исповедующих ислам, а также на всех обучающихся, заинтересованных в межконфессиональном взаимодействии и культурном диалоге.</p>
+    </section>
+    <section class="about-goal">
+      <div class="about-chip">Цель сервиса</div>
+      <p class="about-section-text">Обеспечить удобный доступ к достоверной информации об исламских традициях, религиозной практике и культурных особенностях, а также создать цифровое пространство для комфортного взаимодействия в университетской среде.</p>
+    </section>
+    <section class="about-features">
+      <div class="about-chip">Функциональные возможности</div>
+      <ul class="about-feature-list">
+        <li>Подтверждение, регистрация (ввод логина и пароля, при первом входе — ввод ФИО), приветствие.</li>
+        <li>Отображение актуального времени намазов с ежедневным обновлением.</li>
+        <li>Предоставление точек о местах для совершения молитвы.</li>
+        <li>Халяль-заведения с пометками на картах.</li>
+        <li>Интеллектуальный чат-бот, отвечающий на вопросы религиозного, культурного и образовательного характера.</li>
+        <li>Раздел часто задаваемых вопросов (FAQ) с систематизированными ответами по основным темам.</li>
+        <li>Пользовательские настройки (очистка истории взаимодействия, справка о сервисе, обратная связь).</li>
+        <li>Инструменты обратной связи для направления предложений, замечаний и сообщений о технических ошибках.</li>
+        <li>Адаптивный веб-интерфейс для корректной работы на различных устройствах.</li>
+      </ul>
+    </section>
+    <section class="about-data">
+      <div class="about-chip">Данные и доступ</div>
+      <p class="about-section-text">Пользовательские данные сохраняются на серверной стороне в формате JSON-файла. Обработка информации осуществляется в пределах функционала веб-приложения. Доступ к данным регулируется механизмом авторизации.</p>
+    </section>
+    <section class="about-impact">
+      <div class="about-quote">«Пусть знания ведут к взаимопониманию»</div>
+      <p class="about-section-text">IMuslimEd способствует снижению межкультурных барьеров, развитию общения и поддержке студентов в процессе адаптации к образовательной среде университета.</p>
+    </section>
+  `,
+  en: `
+    <section class="about-hero">
+      <h3 class="about-hero-title">IMuslimEd</h3>
+      <div class="about-meta">
+        <span class="about-pill">Education</span>
+        <span class="about-pill">Dialogue</span>
+        <span class="about-pill">Support</span>
+      </div>
+      <p class="about-hero-text">IMuslimEd is an informational web service designed to support intercultural communication and build an inclusive educational environment for students of different faiths.</p>
+      <p class="about-hero-text">The platform is focused on Muslim students and all learners interested in interfaith interaction and cultural dialogue.</p>
+    </section>
+    <section class="about-goal">
+      <div class="about-chip">Service Goal</div>
+      <p class="about-section-text">To provide convenient access to reliable information about Islamic traditions, religious practice, and cultural aspects, and to create a digital space for comfortable interaction in the university environment.</p>
+    </section>
+    <section class="about-features">
+      <div class="about-chip">Core Features</div>
+      <ul class="about-feature-list">
+        <li>Verification and registration (login/password, and full name on first entry), plus welcome flow.</li>
+        <li>Display of up-to-date prayer times with daily updates.</li>
+        <li>Map points for places suitable for prayer.</li>
+        <li>Halal food places marked on maps.</li>
+        <li>An intelligent chatbot for religious, cultural, and educational questions.</li>
+        <li>FAQ section with structured answers on key topics.</li>
+        <li>User settings (clear history, service info, feedback).</li>
+        <li>Feedback tools for suggestions and technical issue reports.</li>
+        <li>Adaptive web interface for different devices.</li>
+      </ul>
+    </section>
+    <section class="about-data">
+      <div class="about-chip">Data and Access</div>
+      <p class="about-section-text">User data is stored server-side in JSON format. Data processing is limited to the web app functionality. Access is controlled by the authorization mechanism.</p>
+    </section>
+    <section class="about-impact">
+      <div class="about-quote">"May knowledge lead to mutual understanding"</div>
+      <p class="about-section-text">IMuslimEd helps reduce intercultural barriers, supports communication, and assists student adaptation in the university environment.</p>
+    </section>
+  `
+};
+
+const FEEDBACK_CONTENT = {
+  ru: `
+    <p class="feedback-text">
+      Для направления обращений, предложений или сообщений о технических ошибках воспользуйтесь электронной почтой:
+      <a class="feedback-email" href="mailto:support@imuslimed.ru">support@imuslimed.ru</a>.
+    </p>
+    <p class="feedback-text">Все обращения рассматриваются администрацией сервиса в установленном порядке.</p>
+    <p class="feedback-text">Мы ценим ваше мнение и стремимся к постоянному совершенствованию платформы.</p>
+    <p class="feedback-sign">С уважением, IMuslimEd.</p>
+  `,
+  en: `
+    <p class="feedback-text">
+      To send requests, suggestions, or technical issue reports, please use email:
+      <a class="feedback-email" href="mailto:support@imuslimed.ru">support@imuslimed.ru</a>.
+    </p>
+    <p class="feedback-text">All requests are reviewed by the service administration according to established procedures.</p>
+    <p class="feedback-text">We value your feedback and continuously improve the platform.</p>
+    <p class="feedback-sign">Best regards, IMuslimEd.</p>
+  `
+};
+
+const PRAYER_CONTENT = {
+  ru: `
+    <h1 class="menu-full-title" id="prayerWindowTitle">В помощь студентам:<br>7 дуа для экзаменов и учебы</h1>
+    <div class="prayer-intro-card">
+      <p class="prayer-lead">Одна из лучших форм поклонения — дуа. Посредством дуа верующий приближается к Аллаху и имеет возможность обращаться к Нему напрямую.</p>
+      <p class="prayer-quote">«Взывайте ко Мне, и Я отвечу вам». (40:60)</p>
+      <p class="prayer-lead">Посланник Аллаха (ﷺ) сказал:</p>
+      <p class="prayer-quote">«Дуа — это поклонение». (Абу Дауд, Тирмизи)</p>
+      <p class="prayer-lead">Во время учёбы и подготовки к экзаменам особенно важно соединять старание с искренней мольбой. Ниже — дуа из Корана и Сунны, которые можно читать в такие периоды.</p>
+    </div>
+    <article class="dua-card"><h3 class="dua-title">Господи! Приумножь мои знания (20:114)</h3><p class="dua-arabic">رَّبِّ زِدْنِي عِلْمًا</p><p class="dua-translit">Рабби зидни ‘илма</p><p class="dua-meaning">Смысл: «Господи! Приумножь мои знания».</p></article>
+    <article class="dua-card"><h3 class="dua-title">Дуа пророка Мусы (мир ему) (20:25-28)</h3><p class="dua-meaning">«Господи! Раскрой для меня мою грудь! Облегчи мою миссию! Развяжи узел на моем языке, чтобы они могли понять мою речь».</p><p class="dua-arabic">رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي يَفْقَهُوا قَوْلِي</p><p class="dua-translit">Рабби ишрах ли садри ва яссир ли амри вахлюль ‘укдата-м-мин ал-лисани яфкаху каули</p></article>
+    <article class="dua-card"><h3 class="dua-title">О полезном знании и благом уделе</h3><p class="dua-meaning">«О Аллах! Поистине, я прошу у Тебя полезного знания, благого удела и такого дела, которое будет принято».</p><p class="dua-arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلًا مُتَقَبَّلًا</p><p class="dua-translit">Аллахумма инни ас’алюка ‘ильман нафи‘ан ва ризкан таййибан ва ‘амалян мутакаббалян</p></article>
+    <article class="dua-card"><h3 class="dua-title">Дуа ангелов о знании (2:32)</h3><p class="dua-meaning">«Преславен Ты! Мы знаем только то, чему Ты научил нас. Воистину, Ты — Знающий, Мудрый».</p><p class="dua-arabic">سُبْحَانَكَ لاَ عِلْمَ لَنَا إِلاَّ مَا عَلَّمْتَنَا إِنَّكَ أَنتَ الْعَلِيمُ الْحَكِيمُ</p><p class="dua-translit">Субханака ла ‘илма лана илла ма ‘алламтана; иннака антал-’Алимуль-Хаким</p></article>
+    <article class="dua-card"><h3 class="dua-title">Об облегчении и благом завершении (Тирмизи)</h3><p class="dua-meaning">«Господь мой! Облегчи для меня это дело и не усложняй его. Господь мой! Даруй мне благое завершение».</p><p class="dua-arabic">رَبِّ يَسِّرْ وَلَا تُعَسِّرْ، رَبِّ تَمِّمْ بِالْخَيْرِ</p><p class="dua-translit">Рабби йассир ва ля ту‘ассир. Рабби таммим биль-хайр</p></article>
+    <article class="dua-card"><h3 class="dua-title">Нет лёгкого, кроме того, что Ты сделал лёгким</h3><p class="dua-meaning">«О Аллах, нет ничего лёгкого, кроме того, что Ты сделал лёгким, и если Ты пожелаешь, то сделаешь это затруднение лёгким».</p><p class="dua-arabic">اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا</p><p class="dua-translit">Аллахумма ля сахля илля ма джа’альтаху сахлян, ва Анта тадж’алюль-хазна иза ши’та сахлян</p></article>
+    <article class="dua-card"><h3 class="dua-title">Защита от бесполезного знания</h3><p class="dua-meaning">«О Аллах, убереги меня от бесполезных знаний, несмиренного сердца, ненасыщающегося нафса и мольбы, которая остаётся без ответа».</p><p class="dua-arabic">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عِلْمٍ لَا يَنْفَعُ وَمِنْ قَلْبٍ لَا يَخْشَعُ وَمِنْ نَفْسٍ لَا تَشْبَعُ وَمِنْ دَعْوَةٍ لَا يُسْتَجَابُ لَهَا</p><p class="dua-translit">Аллахумма инни а‘узу бика мин ‘ильмин ля янфа‘, ва мин кальбин ля яхша‘, ва мин нафсин ля ташба‘, ва мин да‘ватин ля юстаджабу ляха</p></article>
+    <div class="prayer-outro-card">Каждый студент должен помнить: дуа сопровождается усердием и дисциплиной в учёбе. Знание в Исламе имеет особую ценность, поэтому важно серьёзно относиться к обучению.</div>
+  `,
+  en: `
+    <h1 class="menu-full-title" id="prayerWindowTitle">For students:<br>7 Duas for Exams and Study</h1>
+    <div class="prayer-intro-card">
+      <p class="prayer-lead">One of the best forms of worship is dua. Through dua, a believer draws closer to Allah and can call upon Him directly.</p>
+      <p class="prayer-quote">"Call upon Me, and I will answer you." (40:60)</p>
+      <p class="prayer-lead">The Messenger of Allah (ﷺ) said:</p>
+      <p class="prayer-quote">"Dua is worship." (Abu Dawud, Tirmidhi)</p>
+      <p class="prayer-lead">During study and exam preparation, it is important to combine effort with sincere supplication. Below are duas from the Quran and Sunnah that can be read in these periods.</p>
+    </div>
+    <article class="dua-card"><h3 class="dua-title">My Lord, Increase Me in Knowledge (20:114)</h3><p class="dua-arabic">رَّبِّ زِدْنِي عِلْمًا</p><p class="dua-translit">Rabbi zidni 'ilma</p><p class="dua-meaning">Meaning: "My Lord, increase me in knowledge."</p></article>
+    <article class="dua-card"><h3 class="dua-title">Dua of Prophet Musa (peace be upon him) (20:25-28)</h3><p class="dua-meaning">"My Lord, expand my chest, ease my task for me, and untie the knot from my tongue so that they may understand my speech."</p><p class="dua-arabic">رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي يَفْقَهُوا قَوْلِي</p><p class="dua-translit">Rabbi ishrah li sadri wa yassir li amri wahlul 'uqdatan min lisani yafqahu qawli</p></article>
+    <article class="dua-card"><h3 class="dua-title">For Beneficial Knowledge and Blessed Provision</h3><p class="dua-meaning">"O Allah, I ask You for beneficial knowledge, good provision, and accepted deeds."</p><p class="dua-arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلًا مُتَقَبَّلًا</p><p class="dua-translit">Allahumma inni as'aluka 'ilman nafi'an wa rizqan tayyiban wa 'amalan mutaqabbalan</p></article>
+    <article class="dua-card"><h3 class="dua-title">Angels' Dua About Knowledge (2:32)</h3><p class="dua-meaning">"Glory be to You. We have no knowledge except what You have taught us. Indeed, You are the All-Knowing, All-Wise."</p><p class="dua-arabic">سُبْحَانَكَ لاَ عِلْمَ لَنَا إِلاَّ مَا عَلَّمْتَنَا إِنَّكَ أَنتَ الْعَلِيمُ الْحَكِيمُ</p><p class="dua-translit">Subhanaka la 'ilma lana illa ma 'allamtana innaka anta al-'Alim al-Hakim</p></article>
+    <article class="dua-card"><h3 class="dua-title">For Ease and Good Completion (Tirmidhi)</h3><p class="dua-meaning">"My Lord, make it easy and do not make it difficult. My Lord, grant good completion."</p><p class="dua-arabic">رَبِّ يَسِّرْ وَلَا تُعَسِّرْ، رَبِّ تَمِّمْ بِالْخَيْرِ</p><p class="dua-translit">Rabbi yassir wa la tu'assir, Rabbi tammim bil-khayr</p></article>
+    <article class="dua-card"><h3 class="dua-title">Nothing Is Easy Except What You Make Easy</h3><p class="dua-meaning">"O Allah, nothing is easy except what You make easy, and You can make hardship easy if You will."</p><p class="dua-arabic">اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا</p><p class="dua-translit">Allahumma la sahla illa ma ja'altahu sahla, wa anta taj'alu al-hazna idha shi'ta sahla</p></article>
+    <article class="dua-card"><h3 class="dua-title">Protection from Useless Knowledge</h3><p class="dua-meaning">"O Allah, I seek refuge in You from knowledge that does not benefit, from a heart that does not humble itself, from a soul that is never satisfied, and from a supplication that is not answered."</p><p class="dua-arabic">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عِلْمٍ لَا يَنْفَعُ وَمِنْ قَلْبٍ لَا يَخْشَعُ وَمِنْ نَفْسٍ لَا تَشْبَعُ وَمِنْ دَعْوَةٍ لَا يُسْتَجَابُ لَهَا</p><p class="dua-translit">Allahumma inni a'udhu bika min 'ilmin la yanfa', wa min qalbin la yakhsha', wa min nafsin la tashba', wa min da'watin la yustajabu laha</p></article>
+    <div class="prayer-outro-card">Every student should remember: dua goes together with effort and discipline in study. Knowledge has high value in Islam, so learning should be treated with seriousness and care.</div>
+  `
+};
 
 const ALLAH_99_NAMES = [
   ["Аллах", "الله", "Единственный Бог, Обладатель божественности"],
@@ -236,6 +604,125 @@ function getRememberedAuthorizedWindow() {
   return getWindowByKey(localStorage.getItem(LAST_AUTH_WINDOW_KEY) || "");
 }
 
+function t(key) {
+  return (UI_TEXT[currentLanguage] && UI_TEXT[currentLanguage][key]) || (UI_TEXT.ru && UI_TEXT.ru[key]) || key;
+}
+
+function applyLanguage(lang) {
+  currentLanguage = (String(lang || "").toLowerCase().startsWith("en")) ? "en" : "ru";
+  localStorage.setItem(APP_LANGUAGE_KEY, currentLanguage);
+  document.documentElement.lang = currentLanguage;
+
+  const setText = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+  };
+  const setHtml = (id, value) => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = value;
+  };
+  const setTextBySelector = (selector, value) => {
+    document.querySelectorAll(selector).forEach((el) => {
+      el.textContent = value;
+    });
+  };
+
+  setTextBySelector(".muiv-header-text", t("muiv_header"));
+  setText("religionQuestionText", t("religion_question"));
+  setText("registrationHeaderText", t("registration_header"));
+  setText("authTitleText", t("auth_title"));
+  setText("fioTitleText", t("fio_title"));
+  setText("loginBtn", t("login_btn"));
+  setText("saveFioBtn", t("continue_btn"));
+  setText("askQuestionBtn", t("ask_btn"));
+  setText("openMajorBtn", t("home_btn"));
+  setText("menuHomeText", t("menu_home"));
+  setText("menuChatText", t("menu_chat"));
+  setText("menuPrayerText", t("menu_prayer"));
+  setText("menuNamesText", t("menu_names"));
+  setText("menuSettingsText", t("menu_settings"));
+  setText("settingsMainTitleText", t("settings_title"));
+  setText("clearHistoryText", t("clear_history"));
+  setText("aboutServiceText", t("about_service"));
+  setText("feedbackText", t("feedback"));
+  setText("aboutPopupTitleText", t("about_popup_title"));
+  setText("feedbackPopupTitleText", t("feedback_popup_title"));
+  setText("languageText", t("language"));
+  setText("logoutText", t("logout"));
+  setText("languagePopupTitle", t("language_popup_title"));
+  setText("languageRuBtn", t("language_ru"));
+  setText("languageEnBtn", t("language_en"));
+  const prayerTitleEl = document.getElementById("prayerWindowTitle");
+  if (prayerTitleEl) prayerTitleEl.innerHTML = t("prayer_title");
+  const namesTitleEl = document.getElementById("namesWindowTitle");
+  if (namesTitleEl) namesTitleEl.textContent = t("names_title");
+  setText("clearHistoryPopupTitle", t("clear_history_popup_title"));
+  setText("clearHistoryPopupText", t("clear_history_popup_text"));
+  setText("confirmClearHistoryNo", t("no"));
+  setText("confirmClearHistoryYes", t("yes"));
+  setText("logoutConfirmText", t("logout_confirm"));
+  setText("cancelLogoutBtn", t("cancel"));
+  setText("confirmLogoutBtn", t("ok"));
+  setText("loadingText", t("loading_auth"));
+  setText("mainWelcomeLine1", t("main_welcome_line1"));
+  setText("mainWelcomeLine2", t("main_welcome_line2"));
+  setText("majorTitleText", t("major_title"));
+  setText("majorQuoteText", t("major_quote"));
+  const majorQuoteEl = document.getElementById("majorQuoteText");
+  if (majorQuoteEl) {
+    majorQuoteEl.classList.toggle("is-en", currentLanguage === "en");
+  }
+  setHtml("majorPrayerText", t("major_prayer"));
+  setHtml("majorMosqueText", t("major_mosque"));
+  setHtml("majorFaqText", t("major_faq"));
+  setHtml("majorHalalText", t("major_halal"));
+  setText("prayerPopupTitleText", t("prayer_popup_title"));
+  setText("faqPopupTitleText", t("faq_popup_title"));
+  setText("halalPopupTitleText", t("halal_popup_title"));
+  setText("mosquePopupTitleText", t("mosque_popup_title"));
+  setText("miniAlertOk", t("ok"));
+  if (miniAlertText && (miniAlertText.textContent === UI_TEXT.ru.mini_message_default || miniAlertText.textContent === UI_TEXT.en.mini_message_default)) {
+    miniAlertText.textContent = t("mini_message_default");
+  }
+
+  if (loginInput) loginInput.placeholder = t("login_placeholder");
+  if (passwordInput) passwordInput.placeholder = t("password_placeholder");
+  if (fioInput) fioInput.placeholder = t("fio_placeholder");
+  if (chatInput) chatInput.placeholder = t("chat_placeholder");
+  updateProfileNameLabel();
+
+  if (languageRuBtn) languageRuBtn.classList.toggle("active", currentLanguage === "ru");
+  if (languageEnBtn) languageEnBtn.classList.toggle("active", currentLanguage === "en");
+
+  updateChatDateLabel();
+  renderPrayerContentByLanguage();
+  renderFaqByLanguage();
+  renderSettingsContentByLanguage();
+}
+
+function updateProfileNameLabel() {
+  if (!profileName) return;
+  const savedFio = (localStorage.getItem("fio") || "").trim();
+  const low = savedFio.toLowerCase();
+  const isPlaceholder = !savedFio || low === "фио" || low === "full name";
+  const value = isPlaceholder ? t("profile_name_placeholder") : savedFio;
+  profileName.textContent = currentLanguage === "en" ? translitRuToLat(value) : value;
+}
+
+function translitRuToLat(text) {
+  const map = {
+    а: "a", б: "b", в: "v", г: "g", д: "d", е: "e", ё: "yo", ж: "zh", з: "z", и: "i", й: "y",
+    к: "k", л: "l", м: "m", н: "n", о: "o", п: "p", р: "r", с: "s", т: "t", у: "u", ф: "f",
+    х: "kh", ц: "ts", ч: "ch", ш: "sh", щ: "shch", ъ: "", ы: "y", ь: "", э: "e", ю: "yu", я: "ya"
+  };
+  return String(text || "").replace(/[А-Яа-яЁё]/g, (ch) => {
+    const lower = ch.toLowerCase();
+    const lat = map[lower] ?? ch;
+    if (ch === lower) return lat;
+    return lat ? lat[0].toUpperCase() + lat.slice(1) : "";
+  });
+}
+
 function updateChatDateLabel() {
   if (!chatDateEl) return;
   const now = new Date();
@@ -252,7 +739,7 @@ function updateChatDateLabel() {
   }
 
   if (!lastDate) {
-    chatDateEl.textContent = "Сегодня";
+    chatDateEl.textContent = t("today");
     return;
   }
 
@@ -262,11 +749,11 @@ function updateChatDateLabel() {
     lastDate.getDate() === now.getDate();
 
   if (isToday) {
-    chatDateEl.textContent = "Сегодня";
+    chatDateEl.textContent = t("today");
     return;
   }
 
-  chatDateEl.textContent = lastDate.toLocaleDateString("ru-RU", {
+  chatDateEl.textContent = lastDate.toLocaleDateString(currentLanguage === "en" ? "en-US" : "ru-RU", {
     day: "numeric",
     month: "long"
   });
@@ -309,6 +796,7 @@ function hasBlockingChildPopupOpen() {
     feedbackPopupEl,
     clearHistoryConfirmPopupEl,
     logoutConfirmPopupEl,
+    languagePopupEl,
     miniAlertPopup,
     menuPrayerPopupEl,
     menuNames99PopupEl
@@ -395,7 +883,7 @@ function initNames99Grid() {
 function updateParentWindowEffects() {
   const majorChildOpen = [prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl]
     .some((popup) => popup && popup.style.display === 'block');
-  const settingsChildOpen = [aboutPopupEl, feedbackPopupEl]
+  const settingsChildOpen = [aboutPopupEl, feedbackPopupEl, languagePopupEl]
     .some((popup) => popup && popup.style.display === 'block');
   const settingsConfirmOpen = (
     (clearHistoryConfirmPopupEl && clearHistoryConfirmPopupEl.style.display === 'block') ||
@@ -482,7 +970,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
+    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
   ];
   
   allPopups.forEach(popup => {
@@ -587,7 +1075,7 @@ function initEventListeners() {
       }
       
       // ========== 2. авторизован ==========
-      if (profileName) profileName.textContent = savedFio;
+      updateProfileNameLabel();
       
       // все основные окна авторизованного пользователя
       const mainUserWindows = [mainWindow, majorWindow, chatWindow, settingsWindow, menuWindow, menuPrayerWindow, menuNames99Window];
@@ -852,19 +1340,6 @@ function initEventListeners() {
     });
   }
 
-  // FAQ
-  const faqQuestionButtons = document.querySelectorAll(".faq-question");
-  if (faqQuestionButtons.length > 0) {
-    faqQuestionButtons.forEach((btn) => {
-      btn.addEventListener("click", function(e) {
-        e.stopPropagation();
-        const faqItem = this.closest(".faq-item");
-        if (!faqItem) return;
-        faqItem.classList.toggle("open");
-      });
-    });
-  }
-  
   // халяль рядом 
   const halalBtn = document.getElementById("halalNearby");
   if (halalBtn && halalPopupEl && closeHalalBtn) {
@@ -991,6 +1466,31 @@ function initEventListeners() {
       hidePopup(feedbackPopupEl);
     });
   }
+
+  // язык
+  languageSettingsBtn?.addEventListener("click", function(e) {
+    if (hasBlockingChildPopupOpen()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    showChildPopup(languagePopupEl);
+  });
+
+  closeLanguagePopupBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    hidePopup(languagePopupEl);
+  });
+
+  languageRuBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    applyLanguage("ru");
+    hidePopup(languagePopupEl);
+  });
+
+  languageEnBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    applyLanguage("en");
+    hidePopup(languagePopupEl);
+  });
   
   function performLogout() {
     localStorage.removeItem("fio");
@@ -1010,7 +1510,7 @@ function initEventListeners() {
     if (fioInput) fioInput.value = "";
 
     if (profileName) {
-      profileName.textContent = "";
+      profileName.textContent = t("profile_name_placeholder");
     }
 
     if (toggle) {
@@ -1119,7 +1619,7 @@ function getActiveHostWindowForMiniAlert() {
 
 function showMiniAlert(message) {
   if (!miniAlertPopup || !miniAlertText || !miniAlertBox) return;
-  miniAlertText.textContent = message || "Ошибка";
+  miniAlertText.textContent = message || t("mini_error_default");
   const host = getActiveHostWindowForMiniAlert();
   if (host) {
     const rect = host.getBoundingClientRect();
@@ -1141,33 +1641,31 @@ function hideMiniAlert() {
   }
 }
 
-const LOGIN_PASSWORD_HINT = "Введите ваш логин и пароль личного кабинета";
-
 function validateLoginValue(login) {
-  if (!login) return "Введите логин";
-  if (login.length < 3) return "Логин должен содержать минимум 3 символа";
-  if (login.length > 30) return "Логин слишком длинный";
-  if (/\s/.test(login)) return "Логин не должен содержать пробелы";
+  if (!login) return t("login_required");
+  if (login.length < 3) return t("login_too_short");
+  if (login.length > 30) return t("login_too_long");
+  if (/\s/.test(login)) return t("login_spaces");
   if (!/^[A-Za-z0-9._-]+$/.test(login)) {
-    return "Логин может содержать только латиницу, цифры и символы . _ -";
+    return t("login_format");
   }
   return "";
 }
 
 function validatePasswordValue(password) {
-  if (!password) return "Введите пароль";
-  if (password.length < 4) return "Пароль должен содержать минимум 4 символа";
-  if (password.length > 64) return "Пароль слишком длинный";
-  if (/\s/.test(password)) return "Пароль не должен содержать пробелы";
+  if (!password) return t("password_required");
+  if (password.length < 4) return t("password_too_short");
+  if (password.length > 64) return t("password_too_long");
+  if (/\s/.test(password)) return t("password_spaces");
   return "";
 }
 
 function validateFioValue(fio) {
-  if (!fio) return "Введите ФИО";
+  if (!fio) return t("fio_required");
   const normalized = fio.trim().replace(/\s+/g, " ");
   const fioRegex = /^[А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)?(?: [А-Яа-яЁё]+(?:-[А-Яа-яЁё]+)?){1,2}$/;
   if (!fioRegex.test(normalized)) {
-    return "ФИО вводится на русском через пробелы: Фамилия Имя Отчество";
+    return t("fio_invalid");
   }
   return "";
 }
@@ -1178,18 +1676,18 @@ async function handleLogin() {
 
   const loginError = validateLoginValue(login);
   if (loginError) {
-    showMiniAlert(LOGIN_PASSWORD_HINT);
+    showMiniAlert(t("login_password_hint"));
     return;
   }
 
   const passwordError = validatePasswordValue(password);
   if (passwordError) {
-    showMiniAlert(LOGIN_PASSWORD_HINT);
+    showMiniAlert(t("login_password_hint"));
     return;
   }
 
   if (login === password) {
-    showMiniAlert(LOGIN_PASSWORD_HINT);
+    showMiniAlert(t("login_password_hint"));
     return;
   }
 
@@ -1202,7 +1700,7 @@ async function handleLogin() {
     const response = await fetch("/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ login, password })
+      body: JSON.stringify({ login, password, language: currentLanguage })
     });
 
     const result = await response.json();
@@ -1221,7 +1719,7 @@ async function handleLogin() {
 
         if (result.fio) {
           localStorage.setItem("fio", result.fio);
-          if (profileName) profileName.textContent = result.fio;
+          updateProfileNameLabel();
         }
 
         loginInput.value = "";
@@ -1232,11 +1730,11 @@ async function handleLogin() {
         renderChatHistory(result.chat_history || []);
       }
     } else {
-      showMiniAlert(LOGIN_PASSWORD_HINT);
+      showMiniAlert(t("login_password_hint"));
     }
   } catch (error) {
     hidePopup(authLoading);
-    showMiniAlert("Ошибка сети");
+    showMiniAlert(t("net_error"));
   }
 }
 
@@ -1250,12 +1748,12 @@ async function handleSaveFio() {
   }
 
   if (fio.length > 100) {
-    showMiniAlert("ФИО слишком длинное");
+    showMiniAlert(t("fio_too_long"));
     return;
   }
 
   if (currentLogin && fio.toLowerCase() === currentLogin.toLowerCase()) {
-    showMiniAlert("ФИО не должно совпадать с логином");
+    showMiniAlert(t("fio_equals_login"));
     return;
   }
 
@@ -1268,7 +1766,8 @@ async function handleSaveFio() {
       body: JSON.stringify({
         login: currentLogin,
         password: currentPassword,
-        fio: fio
+        fio: fio,
+        language: currentLanguage
       })
     });
 
@@ -1283,7 +1782,7 @@ async function handleSaveFio() {
         localStorage.setItem("currentUserId", currentUserId);
       }
 
-      if (profileName) profileName.textContent = fio;
+      updateProfileNameLabel();
 
       fioInput.value = "";
       loginInput.value = "";
@@ -1293,19 +1792,22 @@ async function handleSaveFio() {
       rememberAuthorizedWindow(mainWindow);
       renderChatHistory(result.chat_history || []);
     } else {
-      showMiniAlert(result.error || "Ошибка сохранения");
+      showMiniAlert(result.error || t("save_error"));
     }
   } catch (error) {
     hidePopup(authLoading);
-    showMiniAlert("Ошибка сети");
+    showMiniAlert(t("net_error"));
   }
 }
 
 async function sendMessage() {
   let msg = chatInput.value.trim();
-  if (!msg) return;
+  if (!msg) {
+    showMiniAlert(t("empty_chat_error"));
+    return;
+  }
   if (msg.length > MAX_CHAT_MESSAGE_LENGTH) {
-    showMiniAlert(`Максимум ${MAX_CHAT_MESSAGE_LENGTH} символов в одном сообщении.`);
+    showMiniAlert(t("max_chars_message").replace("{n}", String(MAX_CHAT_MESSAGE_LENGTH)));
     return;
   }
   
@@ -1327,7 +1829,7 @@ async function sendMessage() {
   
   let botDiv = document.createElement("div");
   botDiv.classList.add("message-bot");
-  botDiv.textContent = "Думаю";
+  botDiv.textContent = t("thinking1");
   messageContainer.appendChild(botDiv);
   if (keepScrollAtBottom) scrollChatToBottom();
   const stopThinking = startThinkingAnimation(botDiv);
@@ -1336,13 +1838,13 @@ async function sendMessage() {
     const response = await fetch("/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: msg }),
+      body: JSON.stringify({ message: msg, language: currentLanguage }),
     });
     const result = await response.json();
 
     const rawBotText = result.success
-      ? (result.response || "Пустой ответ модели.")
-      : (result.error || "Ошибка ответа модели.");
+      ? (result.response || t("empty_model_response"))
+      : (result.error || t("model_response_error"));
     const botText = sanitizeBotText(rawBotText);
 
     stopThinking();
@@ -1355,23 +1857,23 @@ async function sendMessage() {
     if (keepScrollAtBottom) scrollChatToBottom();
   } catch (error) {
     stopThinking();
-    botDiv.textContent = "Ошибка сети при обращении к модели.";
+    botDiv.textContent = t("net_error");
     const botErrorCreatedAt = new Date().toISOString();
-    chatMessages.push({ type: 'bot', text: "Ошибка сети при обращении к модели.", created_at: botErrorCreatedAt });
+    chatMessages.push({ type: 'bot', text: t("net_error"), created_at: botErrorCreatedAt });
     updateChatDateLabel();
     saveChatHistory();
   }
 }
 
 function startThinkingAnimation(el) {
-  const frames = ["Думаю.", "Думаю..", "Думаю..."];
+  const frames = [t("thinking1"), t("thinking2"), t("thinking3")];
   let idx = 0;
   el.textContent = frames[idx];
 
   const statusStages = [
-    { ms: 4000, text: "Ищу точный ответ..." },
-    { ms: 8000, text: "Осталось еще немного..." },
-    { ms: 12000, text: "Почти готово..." }
+    { ms: 4000, text: t("thinking_stage1") },
+    { ms: 8000, text: t("thinking_stage2") },
+    { ms: 12000, text: t("thinking_stage3") }
   ];
   const stageTimers = statusStages.map((stage) =>
     setTimeout(() => {
@@ -1382,7 +1884,7 @@ function startThinkingAnimation(el) {
 
   const timer = setInterval(() => {
     const currentText = el.textContent || "";
-    const isBase = currentText.startsWith("Думаю");
+    const isBase = frames.includes(currentText);
     if (isBase) {
       idx = (idx + 1) % frames.length;
       el.textContent = frames[idx];
@@ -1437,6 +1939,10 @@ function sanitizeBotText(raw) {
     "есть ли какой-то конкретный аспект",
     "о котором вы хотели бы узнать",
     "нужна помощь с планированием",
+    "would you like to know",
+    "if you have any other questions",
+    "i hope this information",
+    "do you want to know",
   ];
 
   const cleaned = lines.filter((line) => {
@@ -1597,7 +2103,7 @@ async function saveChatHistoryToServer() {
 async function loadPrayerTimes() {
   if (!prayerTimesContainer) return;
 
-  prayerTimesContainer.textContent = "загрузка…";
+  prayerTimesContainer.textContent = t("prayer_loading");
 
   const lat = 55.700283;
   const lon = 37.654942;
@@ -1621,13 +2127,21 @@ async function loadPrayerTimes() {
 
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-    const prayers = [
-      { name: "Фаджр", time: timings.Fajr },
-      { name: "Зухр", time: timings.Dhuhr },
-      { name: "Аср", time: timings.Asr },
-      { name: "Магриб", time: timings.Maghrib },
-      { name: "Иша", time: timings.Isha }
-    ];
+    const prayers = currentLanguage === "en"
+      ? [
+          { name: "Fajr", time: timings.Fajr },
+          { name: "Dhuhr", time: timings.Dhuhr },
+          { name: "Asr", time: timings.Asr },
+          { name: "Maghrib", time: timings.Maghrib },
+          { name: "Isha", time: timings.Isha }
+        ]
+      : [
+          { name: "Фаджр", time: timings.Fajr },
+          { name: "Зухр", time: timings.Dhuhr },
+          { name: "Аср", time: timings.Asr },
+          { name: "Магриб", time: timings.Maghrib },
+          { name: "Иша", time: timings.Isha }
+        ];
 
     let activeIndex = 0;
 
@@ -1650,8 +2164,95 @@ async function loadPrayerTimes() {
 
   } catch (err) {
     console.error(err);
-    prayerTimesContainer.textContent = "ошибка при загрузке времени намаза";
+    prayerTimesContainer.textContent = t("prayer_load_error");
   }
+}
+
+function renderFaqByLanguage() {
+  const container = document.querySelector("#faqPopup .faq-scroll-content");
+  if (!container) return;
+  container.innerHTML = `
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q1")}</button>
+      <div class="faq-answer">${t("faq_a1")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q2")}</button>
+      <div class="faq-answer">
+        <ol class="faq-list">
+          <li>${t("faq_a2_1")}</li>
+          <li>${t("faq_a2_2")}</li>
+          <li>${t("faq_a2_3")}</li>
+          <li>${t("faq_a2_4")}</li>
+          <li>${t("faq_a2_5")}</li>
+        </ol>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q3")}</button>
+      <div class="faq-answer">${t("faq_a3")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q4")}</button>
+      <div class="faq-answer">${t("faq_a4")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q5")}</button>
+      <div class="faq-answer">${t("faq_a5")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q6")}</button>
+      <div class="faq-answer">${t("faq_a6")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q7")}</button>
+      <div class="faq-answer">${t("faq_a7")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q8")}</button>
+      <div class="faq-answer">${t("faq_a8")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q9")}</button>
+      <div class="faq-answer">${t("faq_a9")}</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" type="button">${t("faq_q10")}</button>
+      <div class="faq-answer">${t("faq_a10")}</div>
+    </div>
+  `;
+  initFaqToggleHandlers();
+}
+
+function renderSettingsContentByLanguage() {
+  const aboutLayout = document.getElementById("aboutLayoutContent");
+  if (aboutLayout) {
+    aboutLayout.innerHTML = ABOUT_CONTENT[currentLanguage] || ABOUT_CONTENT.ru;
+  }
+  const feedbackCard = document.getElementById("feedbackCardContent");
+  if (feedbackCard) {
+    feedbackCard.innerHTML = FEEDBACK_CONTENT[currentLanguage] || FEEDBACK_CONTENT.ru;
+  }
+}
+
+function renderPrayerContentByLanguage() {
+  const prayerContent = document.getElementById("prayerWindowContent");
+  if (prayerContent) {
+    prayerContent.innerHTML = PRAYER_CONTENT[currentLanguage] || PRAYER_CONTENT.ru;
+  }
+}
+
+function initFaqToggleHandlers() {
+  const faqQuestionButtons = document.querySelectorAll(".faq-question");
+  if (faqQuestionButtons.length === 0) return;
+  faqQuestionButtons.forEach((btn) => {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      const faqItem = this.closest(".faq-item");
+      if (!faqItem) return;
+      faqItem.classList.toggle("open");
+    });
+  });
 }
 
 // карты 
@@ -1697,13 +2298,21 @@ function initHalalMap() {
             }).addTo(halalMap);
             
             // маркеры
-            const places = [
-                { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
-                { name: "Кафе 'Non gusht'", lat: 55.700903, lon: 37.651461 },
-                { name: "Кафе 'Сочный вертел'", lat: 55.694225, lon: 37.665306 },
-                { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
-                { name: "Кофейня 'Здрасте'", lat: 55.690114, lon: 37.654806 },
-            ];
+            const places = currentLanguage === "en"
+                ? [
+                    { name: "Shafran Restaurant", lat: 55.699634, lon: 37.657776 },
+                    { name: "Non Gusht Cafe", lat: 55.700903, lon: 37.651461 },
+                    { name: "Sochny Vertel Cafe", lat: 55.694225, lon: 37.665306 },
+                    { name: "Plov&Burger Cafe", lat: 55.700121, lon: 37.657538 },
+                    { name: "Zdraste Coffee Shop", lat: 55.690114, lon: 37.654806 },
+                  ]
+                : [
+                    { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
+                    { name: "Кафе 'Non gusht'", lat: 55.700903, lon: 37.651461 },
+                    { name: "Кафе 'Сочный вертел'", lat: 55.694225, lon: 37.665306 },
+                    { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
+                    { name: "Кофейня 'Здрасте'", lat: 55.690114, lon: 37.654806 },
+                  ];
             
             places.forEach(place => {
                 L.marker([place.lat, place.lon])
@@ -1767,16 +2376,25 @@ function initMosqueMap() {
             }).addTo(mosqueMap);
             
             // маркеры мечетей
-            const mosques = [
-               { name: "Наследие Ислама", lat: 55.7176, lon: 37.6375 },
-               { name: "Мечеть 'Соборная'", lat: 55.779167, lon: 37.626944 },
-               { name: "Мечеть 'Ярдэм'", lat: 55.856667, lon: 37.592222 },
-               { name: "Мечеть 'Мемориальная'", lat: 55.725377, lon: 37.497144 },
-               { name: "Мечеть 'Историческая'", lat: 55.738803, lon: 37.632483 },
-               { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
-               { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
-
-             ];
+            const mosques = currentLanguage === "en"
+               ? [
+                   { name: "Heritage of Islam", lat: 55.7176, lon: 37.6375 },
+                   { name: "Cathedral Mosque", lat: 55.779167, lon: 37.626944 },
+                   { name: "Yardem Mosque", lat: 55.856667, lon: 37.592222 },
+                   { name: "Memorial Mosque", lat: 55.725377, lon: 37.497144 },
+                   { name: "Historical Mosque", lat: 55.738803, lon: 37.632483 },
+                   { name: "Shafran Restaurant", lat: 55.699634, lon: 37.657776 },
+                   { name: "Plov&Burger Cafe", lat: 55.700121, lon: 37.657538 },
+                 ]
+               : [
+                   { name: "Наследие Ислама", lat: 55.7176, lon: 37.6375 },
+                   { name: "Мечеть 'Соборная'", lat: 55.779167, lon: 37.626944 },
+                   { name: "Мечеть 'Ярдэм'", lat: 55.856667, lon: 37.592222 },
+                   { name: "Мечеть 'Мемориальная'", lat: 55.725377, lon: 37.497144 },
+                   { name: "Мечеть 'Историческая'", lat: 55.738803, lon: 37.632483 },
+                   { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
+                   { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
+                 ];
             
             mosques.forEach(mosque => {
                 L.marker([mosque.lat, mosque.lon])
@@ -1874,6 +2492,7 @@ function formatFIO(fio) {
 document.addEventListener('DOMContentLoaded', function() {
   console.log("dom fully loaded");
   hideAllPopups();
+  applyLanguage(currentLanguage);
   updateChatDateLabel();
   initNames99Grid();
   setInterval(updateChatDateLabel, 60000);
@@ -1884,7 +2503,7 @@ document.addEventListener('DOMContentLoaded', function() {
   currentUserId = localStorage.getItem("currentUserId") || "";
 
   if (isAuthorized === "true" && savedFio) {
-    profileName.textContent = savedFio;
+    updateProfileNameLabel();
     activeMainWindow = getRememberedAuthorizedWindow();
     loadChatHistoryFromServer();
   }
@@ -1911,6 +2530,7 @@ document.addEventListener('click', (e) => {
     { popup: faqPopupEl, btn: document.getElementById('faq') },
     { popup: aboutPopupEl, btn: document.getElementById('aboutService') },
     { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
+    { popup: languagePopupEl, btn: document.getElementById('languageSettings') },
     { popup: menuPrayerPopupEl, btn: menuPrayer },
     { popup: menuNames99PopupEl, btn: menuNames99 },
     { popup: clearHistoryConfirmPopupEl, btn: document.getElementById('clearChatHistory') },
@@ -1936,7 +2556,7 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
       const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;

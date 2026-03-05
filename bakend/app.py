@@ -14,25 +14,23 @@ KIE_API_URL = "https://api.kie.ai/gemini-3-flash/v1/chat/completions"
 MAX_HISTORY_MESSAGES = 300
 MAX_HISTORY_TEXT_LEN = 2000
 
-SYSTEM_PROMPT = (
-    "Ты ассистент IMuslimEd. Отвечай по-русски, нейтрально, кратко и структурированно. "
-    "Темы: исламские традиции, 4 суннитских мазхаба, студенческая адаптация, халяль-инфраструктура, "
-    "межкультурное взаимодействие, функции сервиса. "
+SYSTEM_PROMPT_BASE = (
+    "Ты ассистент IMuslimEd. "
+    "IMuslimEd — это цифровой информационный сервис для поддержки мусульманских студентов "
+    "и развития межкультурных коммуникаций в инклюзивной образовательной среде. "
+    "Темы: исламские традиции, религиозная практика, 4 суннитских мазхаба, "
+    "студенческая адаптация, халяль-инфраструктура, межкультурное взаимодействие, функции сервиса. "
+    "Ты не ученый и не выдаешь фетвы: давай только общую справочную информацию. "
+    "Не давай медицинских, юридических, финансовых консультаций, не поддерживай радикальные или конфликтные трактовки. "
     "Если есть разногласия между мазхабами, перечисли позиции: ханафитский, маликитский, шафиитский, ханбалитский. "
-    "Не выноси личные фетвы и не давай мед/юр/фин консультации. "
-    "Если вопрос вне компетенции, напиши: "
-    "«Данный вопрос требует консультации с квалифицированным специалистом или религиозным наставником. "
-    "Сервис IMuslimEd предоставляет справочную информацию общего характера.» "
     "Формат: допускается обычный текст, списки и markdown-таблицы, когда это улучшает понятность ответа. "
     "Допускается арабский текст с переводом и транскрипцией при религиозных вопросах. "
-    "Не упоминай название модели, провайдера, слово нейросеть или ИИ. "
-    "Не задавай встречных вопросов в конце ответа. Пиши: Мухаммад (не Мухаммед). "
-    "Начинай сразу с ответа, без приветствий, в конце не пиши никаких дополнений, только ответ на вопрос. "
-    "Отвечай кратко и завершённо. "
+    "Не упоминай название модели, провайдера, слова нейросеть или ИИ. "
+    "Начинай сразу с ответа, без приветствий. "
+    "Отвечай кратко, по делу, завершённо. "
     "Если ответ не помещается, сокращай формулировки, но не обрывай мысль. "
     "Всегда заканчивай ответ итоговым предложением. "
-    "Не задавай вопросов в конце. "
-    "Если вопрос короткий и прямой, отвечай максимально по факту: 1-3 коротких предложения без лишних деталей."
+    "Не задавай вопросов в конце."
 )
 
 
@@ -148,6 +146,41 @@ def get_kie_api_key():
     return (os.environ.get("KIE_API_KEY") or "").strip()
 
 
+def normalize_language(value):
+    return "en" if str(value or "").strip().lower().startswith("en") else "ru"
+
+
+def get_text_by_lang(lang, ru_text, en_text):
+    return en_text if normalize_language(lang) == "en" else ru_text
+
+
+def get_request_language(default="ru"):
+    data = request.json if request.is_json else None
+    query_lang = request.args.get("language")
+    body_lang = data.get("language") if isinstance(data, dict) else None
+    header_lang = request.headers.get("Accept-Language", "")
+    return normalize_language(query_lang or body_lang or header_lang or default)
+
+
+def build_system_prompt(lang):
+    normalized = normalize_language(lang)
+    if normalized == "en":
+        return (
+            SYSTEM_PROMPT_BASE + " "
+            "Answer in English only. "
+            "Use Muhammad spelling. "
+            "If the question is outside your competence, reply exactly: "
+            "“I cannot answer this question.”"
+        )
+    return (
+        SYSTEM_PROMPT_BASE + " "
+        "Отвечай только на русском языке. "
+        "Пиши: Мухаммад (не Мухаммед). "
+        "Если вопрос вне компетенции, напиши ровно: "
+        "«Я не могу ответить на этот вопрос.»"
+    )
+
+
 def choose_response_max_tokens(user_message):
     text = (user_message or "").strip()
     if not text:
@@ -165,7 +198,7 @@ def choose_response_max_tokens(user_message):
     return MAX_OUTPUT_TOKENS
 
 
-def rule_based_navigation_answer(user_message):
+def rule_based_navigation_answer(user_message, lang="ru"):
     text = (user_message or "").strip().lower()
     if not text:
         return ""
@@ -190,23 +223,33 @@ def rule_based_navigation_answer(user_message):
         )
     )
     if is_prayer_time_question or is_general_prayer_time_question:
-        return (
+        return get_text_by_lang(lang,
             "Я не показываю точное время намаза в чате, чтобы не дать неверные данные. "
-            "Откройте раздел «Время намаза» — там актуальное расписание на сегодня."
+            "Откройте раздел «Время намаза» — там актуальное расписание на сегодня.",
+            "I do not provide exact prayer time in chat to avoid incorrect data. "
+            "Open the “Prayer Time” section for today's schedule."
         )
 
     if (
         (
             has_any("халяль", "halal", "халял", "халель") and
-            has_any("где поесть", "поесть", "еда", "кафе", "ресторан", "рядом", "около", "поблизости", "где поесть рядом")
+            has_any(
+                "где поесть", "поесть", "еда", "кафе", "ресторан", "рядом", "около", "поблизости", "где поесть рядом",
+                "where to eat", "eat", "food", "cafe", "restaurant", "near", "nearby", "close to"
+            )
         )
         or (
-            has_any("около уника", "около универа", "рядом с универом", "рядом с вузом", "около университета") and
+            has_any(
+                "около уника", "около универа", "рядом с универом", "рядом с вузом", "около университета",
+                "near university", "near uni", "near campus", "around campus", "close to university"
+            ) and
             has_any("халяль", "halal", "халял")
         )
     ):
-        return (
-            "Откройте раздел «Халяль рядом» — там отмечены халяль-кафе и рестораны рядом с университетом."
+        return get_text_by_lang(
+            lang,
+            "Откройте раздел «Халяль рядом» — там отмечены халяль-кафе и рестораны рядом с университетом.",
+            "Open the “Halal Nearby” section — it contains halal cafes and restaurants near the university."
         )
 
     if (
@@ -216,62 +259,83 @@ def rule_based_navigation_answer(user_message):
             "где совершить намаз", "ближайшая мечеть", "мечеть рядом", "где молитвенная"
         )
     ):
-        return (
-            "Откройте раздел «Мечеть / молельная» — там карта ближайших мест для молитвы."
+        return get_text_by_lang(
+            lang,
+            "Откройте раздел «Мечеть / молельная» — там карта ближайших мест для молитвы.",
+            "Open the “Mosque / Prayer Room” section — it has a map of nearby prayer places."
         )
 
     if has_any("часто задаваем", "faq", "чаво", "вопросы и ответы", "популярные вопросы"):
-        return (
-            "Откройте раздел «Часто задаваемые вопросы» на главной — там собраны основные ответы по сервису и теме Ислама."
+        return get_text_by_lang(
+            lang,
+            "Откройте раздел «Часто задаваемые вопросы» на главной — там собраны основные ответы по сервису и теме Ислама.",
+            "Open the “FAQ” section on Home — it contains key answers about the service and Islam."
         )
 
     if (has_any("соц", "соцсети", "vk", "вк", "telegram", "телеграм", "тг") and is_university_context) or (
         has_any("где соцсети", "ссылки на соцсети", "ссылки муив", "где вк", "где тг") and is_university_context
     ):
-        return (
+        return get_text_by_lang(
+            lang,
             "Соцсети МУИВ указаны иконками на «Главной»: VK и Telegram. "
-            "Также ссылки: VK — https://vk.com/mosvitte, Telegram — https://t.me/mosvitte."
+            "Также ссылки: VK — https://vk.com/mosvitte, Telegram — https://t.me/mosvitte.",
+            "MUIV social media are shown with icons on “Home”: VK and Telegram. "
+            "Links: VK — https://vk.com/mosvitte, Telegram — https://t.me/mosvitte."
         )
 
     if is_university_context and not has_any("ислам", "религ", "намаз", "халяль", "мечет"):
-        return (
-            "Речь о МУИВ — Московском университете имени С.Ю. Витте."
+        return get_text_by_lang(
+            lang,
+            "Речь о МУИВ — Московском университете имени С.Ю. Витте.",
+            "This refers to MUIV — Moscow Witte University."
         )
 
-    if has_any("обратн", "куда обратиться", "связаться", "техподдержка", "поддержка", "support", "ошибка в приложении"):
-        return (
-            "Откройте «Настройки» → «Обратная связь» "
-        )
+    if has_any(
+        "обратн", "куда обратиться", "связаться", "техподдержка", "поддержка", "support", "ошибка в приложении",
+        "feedback", "contact", "how to contact", "technical support", "app issue", "bug", "report issue"
+    ):
+        return get_text_by_lang(lang, "Откройте «Настройки» → «Обратная связь».", "Open “Settings” → “Feedback”.")
 
-    if has_any("о сервисе", "расскажи о сервисе", "что за сервис", "что это за платформа", "imuslimed"):
-        return (
+    if has_any(
+        "о сервисе", "расскажи о сервисе", "что за сервис", "что это за платформа", "imuslimed",
+        "about service", "about the service", "tell me about the service", "what is this platform", "about imuslimed"
+    ):
+        return get_text_by_lang(
+            lang,
             "Откройте «Настройки» → «О сервисе». Там описание целей платформы IMuslimEd, функций и принципов работы."
+            ,
+            "Open “Settings” → “About Service”. It explains IMuslimEd goals, features, and principles."
         )
 
-    if has_any("главная", "открыть главную", "перейти на главную", "домой"):
-        return "Откройте раздел «Главная» через меню."
+    if has_any("главная", "открыть главную", "перейти на главную", "домой", "home", "open home", "go to home"):
+        return get_text_by_lang(lang, "Откройте раздел «Главная» через меню.", "Open “Home” from the menu.")
 
-    if has_any("настройки", "открыть настройки", "параметры"):
-        return "Откройте раздел «Настройки» через меню."
+    if has_any("настройки", "открыть настройки", "параметры", "settings", "open settings", "preferences"):
+        return get_text_by_lang(lang, "Откройте раздел «Настройки» через меню.", "Open “Settings” from the menu.")
 
-    if has_any("чат", "открыть чат", "задать вопрос", "перейти в чат"):
-        return "Откройте раздел «Чат» через меню или кнопку «Задать вопрос»."
+    if has_any("чат", "открыть чат", "задать вопрос", "перейти в чат", "chat", "open chat", "ask question", "go to chat"):
+        return get_text_by_lang(lang, "Откройте раздел «Чат» через меню или кнопку «Задать вопрос».", "Open “Chat” from the menu or by pressing “Ask a Question”.")
 
-    if has_any("очистить историю", "удалить переписку", "стереть историю"):
-        return "Очистка выполняется в разделе «Настройки» через пункт «Очистить историю чата»."
+    if has_any("очистить историю", "удалить переписку", "стереть историю", "clear history", "delete chat", "erase history", "clear chat history"):
+        return get_text_by_lang(
+            lang,
+            "Очистка выполняется в разделе «Настройки» через пункт «Очистить историю чата».",
+            "You can clear chat history in “Settings” via “Clear Chat History”."
+        )
 
     return ""
 
 
-def ask_kie_gemini(user_message):
-    rb = rule_based_navigation_answer(user_message)
+def ask_kie_gemini(user_message, lang="ru"):
+    normalized_lang = normalize_language(lang)
+    rb = rule_based_navigation_answer(user_message, normalized_lang)
     if rb:
         return rb
 
     api_key = get_kie_api_key()
     if not api_key:
         print("[chat] missing API key")
-        return "Ошибка подключения, повторите запрос."
+        return get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
 
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -304,22 +368,22 @@ def ask_kie_gemini(user_message):
 
     def extract_text_and_reason(response):
         if response is None:
-            return "", "", "Ошибка подключения, повторите запрос."
+            return "", "", get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
 
         if response.status_code != 200:
             body_preview = (response.text or "").strip().replace("\n", " ")[:240]
             print(f"[chat] upstream status={response.status_code} body={body_preview}")
-            return "", "", "Ошибка подключения, повторите запрос."
+            return "", "", get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
 
         try:
             data = response.json()
         except ValueError as e:
             print(f"[chat] invalid JSON: {e}; raw={response.text[:240] if response.text else ''}")
-            return "", "", "Ошибка подключения, повторите запрос."
+            return "", "", get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
 
         choices = data.get("choices") or []
         if not choices:
-            return "", "", "Пустой ответ от модели."
+            return "", "", get_text_by_lang(normalized_lang, "Пустой ответ от модели.", "Empty response from model.")
 
         first_choice = choices[0] if isinstance(choices[0], dict) else {}
         finish_reason = str(first_choice.get("finish_reason") or "").lower()
@@ -334,7 +398,7 @@ def ask_kie_gemini(user_message):
             content = " ".join(text_parts).strip()
 
         if not isinstance(content, str) or not content.strip():
-            return "", "", "Модель не вернула текстовый ответ."
+            return "", "", get_text_by_lang(normalized_lang, "Модель не вернула текстовый ответ.", "Model did not return a text response.")
         return content.strip(), finish_reason, ""
 
     def strip_unwanted_tail(text):
@@ -350,6 +414,13 @@ def ask_kie_gemini(user_message):
             "нужна помощь с планированием",
             "есть ли какой-то конкретный аспект",
             "я надеюсь",
+            "would you like",
+            "if you have any",
+            "do you want to know",
+            "which you would like to know",
+            "need help with planning",
+            "is there any specific aspect",
+            "i hope",
         )
 
         while lines:
@@ -365,7 +436,7 @@ def ask_kie_gemini(user_message):
         "max_tokens": response_max_tokens,
         "temperature": KIE_TEMPERATURE,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": build_system_prompt(normalized_lang)},
             {"role": "user", "content": user_message},
         ],
         "stream": False,
@@ -384,7 +455,7 @@ def ask_kie_gemini(user_message):
             text += "…"
 
     text = strip_unwanted_tail(text)
-    return text or "Не удалось сформировать корректный ответ."
+    return text or get_text_by_lang(normalized_lang, "Не удалось сформировать корректный ответ.", "Failed to produce a valid response.")
 
 
 @app.route('/')
@@ -395,11 +466,12 @@ def home():
 @app.route('/auth', methods=['POST'])
 def auth():
     data = request.json
+    lang = get_request_language()
     login = data.get("login")
     password = data.get("password")
 
     if not login or not password:
-        return jsonify({"success": False, "error": "Введите логин и пароль"})
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Введите логин и пароль", "Enter login and password")})
 
     users = load_users()
     hashed_login = hash_value(login)
@@ -424,14 +496,14 @@ def auth():
         else:
             return jsonify({
                 "success": False,
-                "error": "Неверный пароль"
+                "error": get_text_by_lang(lang, "Неверный пароль", "Incorrect password")
             })
 
     # новый пользователь
     if len(login) < 3:
-        return jsonify({"success": False, "error": "Логин должен содержать минимум 3 символа"})
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Логин должен содержать минимум 3 символа", "Login must be at least 3 characters")})
     if len(password) < 4:
-        return jsonify({"success": False, "error": "Пароль должен содержать минимум 4 символа"})
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Пароль должен содержать минимум 4 символа", "Password must be at least 4 characters")})
 
     return jsonify({
         "success": True,
@@ -443,19 +515,20 @@ def auth():
 @app.route('/save_fio', methods=['POST'])
 def save_fio():
     data = request.json
+    lang = get_request_language()
     login = data.get("login")
     fio = data.get("fio")
     password = data.get("password")
 
     if not all([login, fio, password]):
-        return jsonify({"success": False, "error": "Не все данные предоставлены"})
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Не все данные предоставлены", "Not all required fields are provided")})
 
     # безопасная обработка ФИО
     fio = html.escape(re.sub(r"\s+", " ", fio.strip()))
     if not is_valid_fio(fio):
         return jsonify({
             "success": False,
-            "error": "ФИО вводится на русском через пробелы: Фамилия Имя Отчество"
+            "error": get_text_by_lang(lang, "ФИО вводится на русском через пробелы: Фамилия Имя Отчество", "Full name must be in Russian with spaces: Surname Name Patronymic")
         })
     
     users = load_users()
@@ -464,7 +537,7 @@ def save_fio():
 
     # проверка, что пользователь еще не зарегистрирован
     if hashed_login in users:
-        return jsonify({"success": False, "error": "Пользователь уже зарегистрирован"})
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Пользователь уже зарегистрирован", "User is already registered")})
 
     # сохранение нового пользователя
     users[hashed_login] = {
@@ -486,14 +559,15 @@ def check_auth():
 
 @app.route('/chat_history', methods=['GET'])
 def get_chat_history():
+    lang = get_request_language()
     user_id = (request.args.get("user_id") or "").strip()
     if not user_id:
-        return jsonify({"success": False, "error": "Не указан user_id"}), 400
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Не указан user_id", "user_id is required")}), 400
 
     users = load_users()
     user_data = users.get(user_id)
     if not user_data:
-        return jsonify({"success": False, "error": "Пользователь не найден"}), 404
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Пользователь не найден", "User not found")}), 404
 
     history = sanitize_history(user_data.get("chat_history", []))
     account_created_at = normalize_iso_datetime(user_data.get("created_at", ""))
@@ -517,16 +591,17 @@ def get_chat_history():
 @app.route('/chat_history', methods=['POST'])
 def save_chat_history_endpoint():
     data = request.json or {}
+    lang = get_request_language()
     user_id = (data.get("user_id") or "").strip()
     history = data.get("history")
 
     if not user_id:
-        return jsonify({"success": False, "error": "Не указан user_id"}), 400
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Не указан user_id", "user_id is required")}), 400
 
     users = load_users()
     user_data = users.get(user_id)
     if not user_data:
-        return jsonify({"success": False, "error": "Пользователь не найден"}), 404
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Пользователь не найден", "User not found")}), 404
 
     cleaned_history = sanitize_history(history)
     user_data["chat_history"] = cleaned_history
@@ -537,14 +612,15 @@ def save_chat_history_endpoint():
 @app.route('/clear_chat_history', methods=['POST'])
 def clear_chat_history():
     data = request.json or {}
+    lang = get_request_language()
     user_id = (data.get("user_id") or "").strip()
     if not user_id:
-        return jsonify({"success": False, "error": "Не указан user_id"}), 400
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Не указан user_id", "user_id is required")}), 400
 
     users = load_users()
     user_data = users.get(user_id)
     if not user_data:
-        return jsonify({"success": False, "error": "Пользователь не найден"}), 404
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Пользователь не найден", "User not found")}), 404
 
     user_data["chat_history"] = []
     save_users(users)
@@ -555,16 +631,17 @@ def clear_chat_history():
 def chat():
     data = request.json or {}
     message = (data.get("message") or "").strip()
+    lang = normalize_language(data.get("language"))
 
     if not message:
-        return jsonify({"success": False, "error": "Пустое сообщение"}), 400
+        return jsonify({"success": False, "error": get_text_by_lang(lang, "Пустое сообщение", "Empty message")}), 400
     if len(message) > MAX_USER_CHARS:
         return jsonify({
             "success": False,
-            "error": f"Сообщение слишком длинное. Максимум {MAX_USER_CHARS} символов."
+            "error": get_text_by_lang(lang, f"Сообщение слишком длинное. Максимум {MAX_USER_CHARS} символов.", f"Message is too long. Maximum {MAX_USER_CHARS} characters.")
         }), 400
 
-    reply = ask_kie_gemini(message)
+    reply = ask_kie_gemini(message, lang)
     return jsonify({"success": True, "response": reply})
 
 
