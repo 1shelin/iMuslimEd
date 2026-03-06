@@ -21,6 +21,12 @@ const closePopup = document.getElementById("closePopup");
 const authPopup = document.getElementById("authPopup");
 const closeAuth = document.getElementById("closeAuth");
 const toggle = document.getElementById("religionToggle");
+const islamPopupBody = islamPopup ? islamPopup.querySelector(".popup-body") : null;
+const quickLanguageBtn = document.getElementById("quickLanguageBtn");
+const quickLanguagePopupEl = document.getElementById("quickLanguagePopup");
+const quickLanguageTitleEl = document.getElementById("quickLanguageTitle");
+const quickLanguageRuBtn = document.getElementById("quickLanguageRuBtn");
+const quickLanguageEnBtn = document.getElementById("quickLanguageEnBtn");
 
 const loginBtn = document.getElementById("loginBtn");
 const loginInput = document.getElementById("loginInput");
@@ -764,6 +770,9 @@ function applyLanguage(lang) {
   setText("languagePopupTitle", t("language_popup_title"));
   setText("languageRuBtn", t("language_ru"));
   setText("languageEnBtn", t("language_en"));
+  if (quickLanguageTitleEl) quickLanguageTitleEl.textContent = t("language");
+  setText("quickLanguageRuBtn", t("language_ru"));
+  setText("quickLanguageEnBtn", t("language_en"));
   const prayerTitleEl = document.getElementById("prayerWindowTitle");
   if (prayerTitleEl) prayerTitleEl.innerHTML = t("prayer_title");
   const namesTitleEl = document.getElementById("namesWindowTitle");
@@ -805,6 +814,8 @@ function applyLanguage(lang) {
 
   if (languageRuBtn) languageRuBtn.classList.toggle("active", currentLanguage === "ru");
   if (languageEnBtn) languageEnBtn.classList.toggle("active", currentLanguage === "en");
+  if (quickLanguageRuBtn) quickLanguageRuBtn.classList.toggle("active", currentLanguage === "ru");
+  if (quickLanguageEnBtn) quickLanguageEnBtn.classList.toggle("active", currentLanguage === "en");
 
   updateChatDateLabel();
   renderPrayerContentByLanguage();
@@ -910,11 +921,17 @@ function hasBlockingChildPopupOpen() {
     clearHistoryConfirmPopupEl,
     logoutConfirmPopupEl,
     languagePopupEl,
+    quickLanguagePopupEl,
     miniAlertPopup,
     menuPrayerPopupEl,
     menuNames99PopupEl
   ];
   return childPopups.some((popup) => popup && popup.style.display === 'block');
+}
+
+function setQuickLanguageOpenState(isOpen) {
+  if (!islamPopupBody) return;
+  islamPopupBody.classList.toggle("quick-language-open", !!isOpen);
 }
 
 function positionLogoutConfirmPopup() {
@@ -1084,7 +1101,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
+    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, quickLanguagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
   ];
   
   allPopups.forEach(popup => {
@@ -1092,6 +1109,7 @@ function hideAllPopups() {
       hidePopup(popup);
     }
   });
+  setQuickLanguageOpenState(false);
 }
 
 // функция переключения главных окон
@@ -1137,6 +1155,9 @@ function initEventListeners() {
       e.stopPropagation();
       e.preventDefault();
       console.log("луна нажата");
+      setQuickLanguageOpenState(false);
+      hidePopup(logoutConfirmPopupEl);
+      hidePopup(quickLanguagePopupEl);
 
       const isAuthorized = localStorage.getItem("isAuthorized");
       const savedFio = localStorage.getItem("fio");
@@ -1148,6 +1169,8 @@ function initEventListeners() {
         if (!islamConfirmed) {
           // если ислам не подтвержден — работаем с красным окном
           if (islamPopup.style.display === 'block') {
+            setQuickLanguageOpenState(false);
+            hidePopup(quickLanguagePopupEl);
             hidePopup(islamPopup);
           } else {
             showPopup(islamPopup);
@@ -1231,7 +1254,11 @@ function initEventListeners() {
   }
   
   // кнопки закрытия
-  if (closePopup) closePopup.addEventListener("click", () => hidePopup(islamPopup));
+  if (closePopup) closePopup.addEventListener("click", () => {
+    setQuickLanguageOpenState(false);
+    hidePopup(quickLanguagePopupEl);
+    hidePopup(islamPopup);
+  });
   if (closeAuth) closeAuth.addEventListener("click", () => hidePopup(authPopup));
   if (closeLoading) closeLoading.addEventListener("click", () => hidePopup(authLoading));
   if (closeMain) closeMain.addEventListener("click", () => {
@@ -1242,6 +1269,33 @@ function initEventListeners() {
   if (closeFio) closeFio.addEventListener("click", () => {
     hidePopup(fioPopup);
     console.log("окно фио закрыто, данные сохранены");
+  });
+
+  quickLanguageBtn?.addEventListener("click", function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!quickLanguagePopupEl) return;
+    if (quickLanguagePopupEl.style.display === "block") {
+      setQuickLanguageOpenState(false);
+      hidePopup(quickLanguagePopupEl);
+      return;
+    }
+    setQuickLanguageOpenState(true);
+    showChildPopup(quickLanguagePopupEl);
+  });
+
+  quickLanguageRuBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    applyLanguage("ru");
+    setQuickLanguageOpenState(false);
+    hidePopup(quickLanguagePopupEl);
+  });
+
+  quickLanguageEnBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    applyLanguage("en");
+    setQuickLanguageOpenState(false);
+    hidePopup(quickLanguagePopupEl);
   });
   
   // переключатель  
@@ -1254,6 +1308,8 @@ function initEventListeners() {
         this.disabled = true;
         
         setTimeout(() => {
+          setQuickLanguageOpenState(false);
+          hidePopup(quickLanguagePopupEl);
           hidePopup(islamPopup);
           setTimeout(() => showPopup(authPopup), 200);
         }, 400);
@@ -2224,70 +2280,101 @@ async function saveChatHistoryToServer() {
 // время намаза 
 async function loadPrayerTimes() {
   if (!prayerTimesContainer) return;
-
   prayerTimesContainer.textContent = t("prayer_loading");
+  const CACHE_SIGNATURE = "server:prayer_times:dumrf";
+  const now = new Date();
+  const moscowDateParts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Moscow",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(now);
+  const y = moscowDateParts.find((p) => p.type === "year")?.value || "0000";
+  const m = moscowDateParts.find((p) => p.type === "month")?.value || "01";
+  const d = moscowDateParts.find((p) => p.type === "day")?.value || "01";
+  const today = `${y}-${m}-${d}`;
+  const cached = localStorage.getItem("prayerCache");
+  let timings;
 
-  const lat = 55.700283;
-  const lon = 37.654942;
-
-  try {
-    const url = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=2`;
-    const res = await fetch(url);
-    const json = await res.json();
-
-    if (!json || !json.data || !json.data.timings) {
-      throw new Error("неверный ответ api");
-    }
-
-    const timings = json.data.timings;
-    const now = new Date();
-
-    function toMinutes(t) {
-      const [h, m] = t.split(":").map(Number);
-      return h * 60 + m;
-    }
-
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-    const prayers = currentLanguage === "en"
-      ? [
-          { name: "Fajr", time: timings.Fajr },
-          { name: "Dhuhr", time: timings.Dhuhr },
-          { name: "Asr", time: timings.Asr },
-          { name: "Maghrib", time: timings.Maghrib },
-          { name: "Isha", time: timings.Isha }
-        ]
-      : [
-          { name: "Фаджр", time: timings.Fajr },
-          { name: "Зухр", time: timings.Dhuhr },
-          { name: "Аср", time: timings.Asr },
-          { name: "Магриб", time: timings.Maghrib },
-          { name: "Иша", time: timings.Isha }
-        ];
-
-    let activeIndex = 0;
-
-    for (let i = 0; i < prayers.length; i++) {
-      const cur = toMinutes(prayers[i].time);
-      const next = prayers[i + 1] ? toMinutes(prayers[i + 1].time) : 24 * 60;
-
-      if (currentMinutes >= cur && currentMinutes < next) {
-        activeIndex = i;
-        break;
+  if (cached) {
+    try {
+      const parsed = JSON.parse(cached);
+      if (parsed && parsed.date === today && parsed.signature === CACHE_SIGNATURE) {
+        timings = parsed.data;
       }
+    } catch (e) {
+      localStorage.removeItem("prayerCache");
     }
-
-    prayerTimesContainer.innerHTML = prayers.map((p, i) => `
-      <div class="prayer-row ${i === activeIndex ? 'active-prayer' : ''}">
-        <span>${p.name}</span>
-        <span>${p.time}</span>
-      </div>
-    `).join("");
-
-  } catch (err) {
-    console.error(err);
-    prayerTimesContainer.textContent = t("prayer_load_error");
   }
+
+  if (!timings) {
+    try {
+      const res = await fetch("/prayer_times");
+      const json = await res.json();
+      if (!json?.success) throw new Error("server parse error");
+      timings = json;
+      localStorage.setItem("prayerCache", JSON.stringify({
+        date: today,
+        signature: CACHE_SIGNATURE,
+        data: timings
+      }));
+    } catch (err) {
+      console.error(err);
+      prayerTimesContainer.textContent = t("prayer_load_error");
+      return;
+    }
+  }
+
+  function toMinutes(str) {
+    const clean = String(str || "").slice(0, 5);
+    const [h, m] = clean.split(":").map(Number);
+    return h * 60 + m;
+  }
+
+  const moscowParts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Moscow",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+  }).formatToParts(now);
+  const moscowHour = Number(moscowParts.find((p) => p.type === "hour")?.value || "0");
+  const moscowMinute = Number(moscowParts.find((p) => p.type === "minute")?.value || "0");
+  const currentMinutes = moscowHour * 60 + moscowMinute;
+
+  const prayers = currentLanguage === "en"
+    ? [
+        { name: "Fajr", time: timings.Fajr, isPrayer: true },
+        { name: "Sunrise", time: timings.Sunrise, isPrayer: false },
+        { name: "Dhuhr", time: timings.Dhuhr, isPrayer: true },
+        { name: "Asr", time: timings.Asr, isPrayer: true },
+        { name: "Maghrib", time: timings.Maghrib, isPrayer: true },
+        { name: "Isha", time: timings.Isha, isPrayer: true },
+      ]
+    : [
+        { name: "Фаджр", time: timings.Fajr, isPrayer: true },
+        { name: "Восход", time: timings.Sunrise, isPrayer: false },
+        { name: "Зухр", time: timings.Dhuhr, isPrayer: true },
+        { name: "Аср", time: timings.Asr, isPrayer: true },
+        { name: "Магриб", time: timings.Maghrib, isPrayer: true },
+        { name: "Иша", time: timings.Isha, isPrayer: true },
+      ];
+
+  let activeIndex = -1;
+  for (let i = 0; i < prayers.length; i++) {
+    const cur = toMinutes(prayers[i].time);
+    const next = prayers[i + 1] ? toMinutes(prayers[i + 1].time) : 24 * 60;
+    if (currentMinutes >= cur && currentMinutes < next) {
+      activeIndex = prayers[i].isPrayer ? i : -1;
+      break;
+    }
+  }
+
+  prayerTimesContainer.innerHTML = prayers.map((p, i) => `
+    <div class="prayer-row ${i === activeIndex ? "active-prayer" : ""}">
+      <span>${p.name}</span>
+      <span>${p.time}</span>
+    </div>
+  `).join("");
 }
 
 function renderFaqByLanguage() {
@@ -2688,6 +2775,7 @@ document.addEventListener('click', (e) => {
     { popup: aboutPopupEl, btn: document.getElementById('aboutService') },
     { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
     { popup: languagePopupEl, btn: document.getElementById('languageSettings') },
+    { popup: quickLanguagePopupEl, btn: quickLanguageBtn },
     { popup: menuPrayerPopupEl, btn: menuPrayer },
     { popup: menuNames99PopupEl, btn: menuNames99 },
     { popup: clearHistoryConfirmPopupEl, btn: document.getElementById('clearChatHistory') },
@@ -2698,7 +2786,9 @@ document.addEventListener('click', (e) => {
   
   popups.forEach(({ popup, btn }) => {
     if (popup && popup.style.display === 'block') {
-      const isClickInside = popup.contains(e.target);
+      const isClickInside = (popup === logoutConfirmPopupEl && logoutMiniBox)
+        ? logoutMiniBox.contains(e.target)
+        : popup.contains(e.target);
       
       // проверка, является ли клик по кнопке открытия
       let isButtonClick = false;
@@ -2713,12 +2803,19 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, quickLanguagePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
       const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;
       
       if (!isClickInside && !isButtonClick && !(isChildPopup && isClickOnParent)) {
+        if (popup === logoutConfirmPopupEl) {
+          setQuickLanguageOpenState(false);
+          hidePopup(quickLanguagePopupEl);
+        }
+        if (popup === quickLanguagePopupEl) {
+          setQuickLanguageOpenState(false);
+        }
         hidePopup(popup);
       }
     }
