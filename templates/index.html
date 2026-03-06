@@ -28,6 +28,16 @@
         <input type="checkbox" id="religionToggle">
         <span class="slider round"></span>
       </label>
+      <button id="quickLanguageBtn" class="quick-language-btn" type="button" aria-label="Language">
+        <img src="{{ url_for('static', filename='Language red.png') }}" alt="Language">
+      </button>
+      <div id="quickLanguagePopup" class="quick-language-popup">
+        <div class="quick-language-title" id="quickLanguageTitle">Язык</div>
+        <div class="quick-language-options">
+          <button id="quickLanguageRuBtn" class="quick-language-option" type="button">Русский</button>
+          <button id="quickLanguageEnBtn" class="quick-language-option" type="button">English</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -523,7 +533,10 @@
 
   <!-- подтверждение очистки истории -->
   <div id="clearHistoryConfirmPopup" class="clear-history-confirm-popup">
-    <div class="clear-history-confirm-title" id="clearHistoryPopupTitle">Очистить историю</div>
+    <div class="clear-history-confirm-title">
+      <span id="clearHistoryPopupTitle">Очистить историю</span>
+      <button id="closeClearHistoryPopup" class="clear-history-confirm-close">✕</button>
+    </div>
     <div class="clear-history-confirm-card">
       <div class="clear-history-confirm-text" id="clearHistoryPopupText">Вы точно хотите очистить историю чата?</div>
       <div class="clear-history-confirm-actions">

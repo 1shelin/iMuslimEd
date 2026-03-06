@@ -4,8 +4,10 @@ import os
 import json
 import re
 from datetime import datetime
+from zoneinfo import ZoneInfo
 import html
 import requests
+from bs4 import BeautifulSoup
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 
@@ -60,6 +62,7 @@ load_env_file()
 MAX_USER_CHARS = int(os.environ.get("MAX_USER_CHARS", "400"))
 MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "220"))
 KIE_TEMPERATURE = float(os.environ.get("KIE_TEMPERATURE", "0.2"))
+PRAYER_CACHE = {}
 
 
 def hash_value(value):
@@ -458,6 +461,38 @@ def ask_kie_gemini(user_message, lang="ru"):
     return text or get_text_by_lang(normalized_lang, "Не удалось сформировать корректный ответ.", "Failed to produce a valid response.")
 
 
+def get_moscow_today():
+    return datetime.now(ZoneInfo("Europe/Moscow")).strftime("%Y-%m-%d")
+
+
+def parse_prayer_times_from_dumrf(raw_html):
+    soup = BeautifulSoup(raw_html or "", "html.parser")
+    text = soup.get_text(" ", strip=True)
+    text = re.sub(r"\s+", " ", text)
+
+    pattern = (
+        r"Фаджр\s*(\d{2}:\d{2}).*?"
+        r"(?:Шурук|Восход)\s*(\d{2}:\d{2}).*?"
+        r"Зухр\s*(\d{2}:\d{2}).*?"
+        r"Аср\s*(\d{2}:\d{2}).*?"
+        r"Магриб\s*(\d{2}:\d{2}).*?"
+        r"Иша\s*(\d{2}:\d{2})"
+    )
+    match = re.search(pattern, text, re.IGNORECASE)
+    if not match:
+        return None
+
+    return {
+        "success": True,
+        "Fajr": match.group(1),
+        "Sunrise": match.group(2),
+        "Dhuhr": match.group(3),
+        "Asr": match.group(4),
+        "Maghrib": match.group(5),
+        "Isha": match.group(6),
+    }
+
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -555,6 +590,41 @@ def save_fio():
 def check_auth():
     """Проверка статуса авторизации (необязательно, можно использовать для проверки сессии)"""
     return jsonify({"authenticated": False})
+
+
+@app.route('/prayer_times', methods=['GET'])
+def prayer_times():
+    lang = get_request_language()
+    today = get_moscow_today()
+
+    if PRAYER_CACHE.get("date") == today and isinstance(PRAYER_CACHE.get("data"), dict):
+        return jsonify(PRAYER_CACHE["data"])
+
+    try:
+        response = requests.get(
+            "https://dumrf.ru/",
+            timeout=8,
+            headers={"User-Agent": "Mozilla/5.0"},
+        )
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"[prayer_times] network error: {e}")
+        return jsonify({
+            "success": False,
+            "error": get_text_by_lang(lang, "Ошибка получения данных намаза", "Failed to load prayer times")
+        }), 502
+
+    parsed = parse_prayer_times_from_dumrf(response.text)
+    if not parsed:
+        print("[prayer_times] parse error")
+        return jsonify({
+            "success": False,
+            "error": get_text_by_lang(lang, "Не удалось разобрать данные намаза", "Failed to parse prayer times")
+        }), 500
+
+    PRAYER_CACHE["date"] = today
+    PRAYER_CACHE["data"] = parsed
+    return jsonify(parsed)
 
 
 @app.route('/chat_history', methods=['GET'])
