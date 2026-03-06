@@ -95,6 +95,7 @@ const closeFaqBtn = document.getElementById("closeFaq");
 const clearHistoryConfirmPopupEl = document.getElementById("clearHistoryConfirmPopup");
 const clearHistoryConfirmYesBtn = document.getElementById("confirmClearHistoryYes");
 const clearHistoryConfirmNoBtn = document.getElementById("confirmClearHistoryNo");
+const closeClearHistoryPopupBtn = document.getElementById("closeClearHistoryPopup");
 const logoutConfirmPopupEl = document.getElementById("logoutConfirmPopup");
 const logoutMiniBox = document.querySelector("#logoutConfirmPopup .logout-mini-box");
 const cancelLogoutBtn = document.getElementById("cancelLogoutBtn");
@@ -1524,6 +1525,14 @@ function initEventListeners() {
     });
   }
 
+  if (closeClearHistoryPopupBtn) {
+    closeClearHistoryPopupBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      hidePopup(clearHistoryConfirmPopupEl);
+      if (clearChatCheckbox) clearChatCheckbox.checked = false;
+    });
+  }
+
   if (clearHistoryConfirmYesBtn) {
     clearHistoryConfirmYesBtn.addEventListener('click', async function(e) {
       e.stopPropagation();
@@ -2372,6 +2381,25 @@ function initFaqToggleHandlers() {
 let halalMap = null;
 let mosqueMap = null;
 
+function getDarkGreenLeafletIcon() {
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="42" viewBox="0 0 28 42">
+        <path d="M14 0C6.8 0 1 5.8 1 13c0 10.2 13 28.5 13 28.5S27 23.2 27 13C27 5.8 21.2 0 14 0z" fill="#0A5A25" stroke="#063B18" stroke-width="1.4"/>
+        <circle cx="14" cy="13" r="5.2" fill="#EAF3EA" stroke="#0A5A25" stroke-width="1.2"/>
+      </svg>
+    `.trim();
+    const iconUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    return L.icon({
+        iconUrl,
+        iconSize: [28, 42],
+        iconAnchor: [14, 41],
+        popupAnchor: [0, -34],
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        shadowSize: [41, 41],
+        shadowAnchor: [13, 41]
+    });
+}
+
 function initHalalMap() {
     console.log("инициализация карты халяль...");
     
@@ -2427,10 +2455,18 @@ function initHalalMap() {
                     { name: "Кофейня 'Здрасте'", lat: 55.690114, lon: 37.654806 },
                   ];
             
+            const darkGreenIcon = getDarkGreenLeafletIcon();
             places.forEach(place => {
                 L.marker([place.lat, place.lon])
+                    .setIcon(darkGreenIcon)
                     .addTo(halalMap)
-                    .bindPopup(place.name);
+                    .bindPopup(
+                        `<div class="map-place-card map-place-card-halal">
+                           <div class="map-place-badge">HALAL</div>
+                           <div class="map-place-title">${place.name}</div>
+                         </div>`,
+                        { className: "imuslim-map-popup" }
+                    );
             });
             
             // обновление размера карты
@@ -2509,10 +2545,18 @@ function initMosqueMap() {
                    { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
                  ];
             
+            const darkGreenIcon = getDarkGreenLeafletIcon();
             mosques.forEach(mosque => {
                 L.marker([mosque.lat, mosque.lon])
+                    .setIcon(darkGreenIcon)
                     .addTo(mosqueMap)
-                    .bindPopup(mosque.name);
+                    .bindPopup(
+                        `<div class="map-place-card map-place-card-prayer">
+                           <div class="map-place-badge">PRAYER</div>
+                           <div class="map-place-title">${mosque.name}</div>
+                         </div>`,
+                        { className: "imuslim-map-popup" }
+                    );
             });
             
             // размер карты

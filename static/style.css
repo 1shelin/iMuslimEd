@@ -1981,75 +1981,129 @@ input:checked + .slider:before {
 
 .language-popup {
   position: absolute;
-  width: 280px;
-  height: 150px;
-  background: #F4F4EE;
+  width: 306px;
+  min-height: 142px;
+  background:
+    radial-gradient(120px 70px at 100% 0%, rgba(9,72,30,0.10), transparent 72%),
+    radial-gradient(120px 70px at 0% 100%, rgba(9,72,30,0.08), transparent 72%),
+    #F4F4EE;
   border: 2px solid #09481E;
-  border-radius: 18px;
+  border-radius: 22px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5000;
   display: none;
-  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+  box-shadow: 0 16px 36px rgba(0,0,0,.24);
+  overflow: hidden;
+}
+
+.language-popup::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 50px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(9,72,30,0.35), transparent);
+}
+
+.language-popup::after {
+  content: "✦";
+  position: absolute;
+  right: 16px;
+  bottom: 10px;
+  color: rgba(9,72,30,0.36);
+  font-size: 11px;
+  letter-spacing: 2px;
 }
 
 .language-header {
-  height: 28px;
-  padding: 4px 12px;
+  height: 32px;
+  padding: 4px 14px;
   background: #09481E;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 14px;
-  margin: 8px;
+  border-radius: 16px;
+  margin: 9px;
 }
 
 .language-title {
   font-family: 'Inter', sans-serif;
-  font-weight: 400;
+  font-weight: 300;
   font-size: 13px;
+  letter-spacing: .35px;
   color: #F4F4EE;
 }
 
 .language-close {
-  background: none;
-  border: none;
-  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  background: rgba(244,244,238,0.10);
+  border: 1px solid rgba(244,244,238,0.35);
+  border-radius: 50%;
+  font-size: 12px;
   color: #F4F4EE;
-  opacity: .7;
+  opacity: .85;
   cursor: pointer;
-}
-
-.language-body {
-  height: calc(100% - 52px);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 8px 12px 12px;
+  transition: all .18s ease;
+}
+
+.language-close:hover {
+  opacity: 1;
+  background: rgba(244,244,238,0.2);
+}
+
+.language-body {
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 10px 14px 14px;
 }
 
 .language-option {
-  min-width: 108px;
-  padding: 9px 10px;
-  border: 1px solid #09481E;
-  border-radius: 12px;
-  background: #fff;
+  min-width: 122px;
+  padding: 11px 12px;
+  border: 1px solid rgba(9,72,30,0.42);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f4f6f2 100%);
   color: #09481E;
   font-family: 'Inter', sans-serif;
   font-size: 13px;
+  font-weight: 400;
+  letter-spacing: .25px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(9,72,30,0.08);
 }
 
 .language-option:hover {
   transform: translateY(-1px);
+  border-color: rgba(9,72,30,0.62);
 }
 
 .language-option.active {
-  background: #09481E;
+  background: linear-gradient(180deg, #0f5a2c 0%, #09481E 100%);
   color: #F4F4EE;
+  border-color: #09481E;
+  box-shadow: 0 6px 14px rgba(9,72,30,0.24);
+  position: relative;
+}
+
+.language-option.active::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 6px;
+  height: 1px;
+  background: rgba(244,244,238,0.65);
 }
 
 /* главное окно */
@@ -2699,16 +2753,24 @@ html, body {
 }
 
 .about-close {
-  background: none;
-  border: none;
-  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  background: rgba(244,244,238,0.12);
+  border: 1px solid rgba(244,244,238,0.35);
+  border-radius: 50%;
+  font-size: 12px;
   color: #F4F4EE;
-  opacity: .6;
+  opacity: .85;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .18s ease;
 }
 
 .about-close:hover {
   opacity: 1;
+  background: rgba(244,244,238,0.2);
 }
 
 .about-body {
@@ -2887,47 +2949,60 @@ html, body {
 .feedback-popup {
   position: absolute;
   width: 300px;
-  height: 300px;
-  background: #F4F4EE;
+  height: 308px;
+  background:
+    radial-gradient(140px 75px at 100% 0%, rgba(9,72,30,0.10), transparent 70%),
+    radial-gradient(120px 65px at 0% 100%, rgba(9,72,30,0.08), transparent 70%),
+    #F4F4EE;
   border: 2px solid #09481E;
-  border-radius: 22px;
+  border-radius: 24px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 5000;
   display: none;
-  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+  box-shadow: 0 14px 32px rgba(0,0,0,.24);
+  overflow: hidden;
 }
 
 .feedback-header {
-  height: 28px;
-  padding: 4px 12px;
+  height: 32px;
+  padding: 4px 13px;
   background: #09481E;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 18px;
-  margin: 8px;
+  border-radius: 16px;
+  margin: 9px;
 }
 
 .feedback-title {
   font-family: 'Inter', sans-serif;
-  font-weight: 100;
+  font-weight: 300;
   font-size: 13px;
+  letter-spacing: .35px;
   color: #F4F4EE;
 }
 
 .feedback-close {
-  background: none;
-  border: none;
-  font-size: 14px;
+  width: 20px;
+  height: 20px;
+  background: rgba(244,244,238,0.12);
+  border: 1px solid rgba(244,244,238,0.35);
+  border-radius: 50%;
+  font-size: 12px;
   color: #F4F4EE;
-  opacity: .6;
+  opacity: .85;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .18s ease;
 }
 
 .feedback-close:hover {
   opacity: 1;
+  background: rgba(244,244,238,0.2);
 }
 
 .feedback-body {
@@ -2943,12 +3018,29 @@ html, body {
 }
 
 .feedback-card {
-  border: 1px solid rgba(9,72,30,0.2);
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 12px;
+  border: 1px solid rgba(9,72,30,0.24);
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f6faf7 100%);
+  padding: 12px 12px 10px;
   margin-bottom: 4px;
-  box-shadow: 0 4px 12px rgba(9,72,30,0.08);
+  box-shadow: 0 6px 14px rgba(9,72,30,0.10);
+  position: relative;
+}
+
+.feedback-card::before {
+  content: "support";
+  position: absolute;
+  top: -8px;
+  right: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 9px;
+  letter-spacing: .9px;
+  text-transform: uppercase;
+  color: #F4F4EE;
+  background: #0b5a28;
+  border-radius: 10px;
+  padding: 2px 6px;
 }
 
 .feedback-popup.popup-visible .feedback-card {
@@ -2961,16 +3053,18 @@ html, body {
   margin: 0 0 8px;
   font-family: 'Inter', sans-serif;
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.48;
   color: #09481E;
 }
 
 .feedback-sign {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   font-family: 'Inter', sans-serif;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
   color: #09481E;
+  padding-top: 6px;
+  border-top: 1px solid rgba(9,72,30,0.20);
 }
 
 .feedback-email {
@@ -2979,6 +3073,9 @@ html, body {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 1.5px;
+  background: rgba(9,72,30,0.08);
+  border-radius: 8px;
+  padding: 1px 4px;
 }
 
 @keyframes aboutSectionIn {
@@ -3247,6 +3344,72 @@ html, body {
   border-radius: 12px;
 }
 
+/* кастомный popup для маркеров на картах */
+.imuslim-map-popup .leaflet-popup-content-wrapper {
+  background: linear-gradient(180deg, #ffffff 0%, #edf5ee 100%);
+  border: 2px solid rgba(9, 72, 30, 0.55);
+  border-radius: 14px;
+  box-shadow: 0 12px 26px rgba(9, 72, 30, 0.28);
+}
+
+.imuslim-map-popup .leaflet-popup-content {
+  margin: 12px;
+  min-width: 174px;
+}
+
+.imuslim-map-popup .leaflet-popup-tip {
+  background: #edf5ee;
+  border: 2px solid rgba(9, 72, 30, 0.45);
+}
+
+.imuslim-map-popup .leaflet-popup-close-button {
+  color: #0A5A25 !important;
+  font-size: 18px !important;
+  opacity: 0.95;
+  right: 7px !important;
+  top: 3px !important;
+}
+
+.imuslim-map-popup .leaflet-popup-close-button:hover {
+  opacity: 1;
+  color: #073B19 !important;
+}
+
+.map-place-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: #09481E;
+  letter-spacing: 0.25px;
+}
+
+.map-place-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.map-place-badge {
+  align-self: flex-start;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #F4F4EE;
+}
+
+.map-place-card-halal .map-place-badge {
+  background: linear-gradient(180deg, #0f6a2f 0%, #09481E 100%);
+}
+
+.map-place-card-prayer .map-place-badge {
+  background: linear-gradient(180deg, #0a5a25 0%, #073e1a 100%);
+}
+
 
 /* анимации для окон */
 @keyframes fadeIn {
@@ -3443,9 +3606,29 @@ html, body {
   font-size: 13px;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   margin-bottom: 16px;
   letter-spacing: 0.2px;
+}
+
+.clear-history-confirm-close {
+  width: 20px;
+  height: 20px;
+  border: 1px solid rgba(244,244,238,0.35);
+  border-radius: 50%;
+  background: rgba(244,244,238,0.12);
+  color: #F4F4EE;
+  font-size: 12px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.clear-history-confirm-close:hover {
+  background: rgba(244,244,238,0.20);
 }
 
 .clear-history-confirm-card {
