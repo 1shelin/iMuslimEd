@@ -418,6 +418,11 @@
     <!-- нижняя черточка -->
     <div class="settings-bottom-line"></div>
 
+    <!-- кибла -->
+    <div class="settings-qibla" id="qiblaCard">
+      <img src="{{ url_for('static', filename='Qibla.png') }}" class="qibla-icon-img" alt="Qibla">
+    </div>
+
     <!-- логотип МУИВ внизу -->
     <img src="{{ url_for('static', filename='muiv_green.png') }}" class="settings-university">
   </div>
@@ -557,6 +562,31 @@
       <button class="language-option" id="languageEnBtn">English</button>
     </div>
   </div>
+
+  <div id="qiblaPopup" class="qibla-popup">
+    <div class="qibla-popup-header">
+      <span class="qibla-popup-title" id="qiblaPopupTitleText">Qibla</span>
+      <button class="qibla-popup-close" id="closeQiblaPopup">✕</button>
+    </div>
+    <div class="qibla-popup-body">
+      <div class="qibla-popup-compass">
+        <div class="qibla-popup-ring"></div>
+        <div class="qibla-popup-needle"></div>
+        <div class="qibla-popup-center"></div>
+      </div>
+      <div class="qibla-popup-lines">
+        <div class="qibla-popup-line">
+          <span class="qibla-popup-label" id="qiblaPopupCoordsLabelText">Координаты:</span>
+          <span class="qibla-popup-value">55.700339, 37.655150</span>
+        </div>
+        <div class="qibla-popup-line">
+          <span class="qibla-popup-label" id="qiblaPopupDirectionLabelText">Направление:</span>
+          <span class="qibla-popup-value">175.9°</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- главное окно (major) -->
@@ -744,4 +774,4 @@
 
   <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
-</html>
+</html>1
