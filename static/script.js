@@ -8,6 +8,7 @@ let chatMessages = [];
 const MAX_CHAT_MESSAGE_LENGTH = 500;
 const LAST_AUTH_WINDOW_KEY = "lastAuthorizedWindow";
 const APP_LANGUAGE_KEY = "appLanguage";
+const TASBIH_COUNT_KEY = "tasbihCount";
 
 // добавлено для отслеживания активного окна
 let activeMainWindow = null;
@@ -84,6 +85,12 @@ const languageEnBtn = document.getElementById("languageEnBtn");
 const qiblaCard = document.getElementById("qiblaCard");
 const qiblaPopupEl = document.getElementById("qiblaPopup");
 const closeQiblaPopupBtn = document.getElementById("closeQiblaPopup");
+const tasbihCard = document.getElementById("tasbihCard");
+const tasbihPopupEl = document.getElementById("tasbihPopup");
+const closeTasbihPopupBtn = document.getElementById("closeTasbihPopup");
+const tasbihFingerBtn = document.getElementById("tasbihFingerBtn");
+const tasbihCounterValueEl = document.getElementById("tasbihCounterValue");
+const tasbihResetBtn = document.getElementById("tasbihResetBtn");
 
 const settingsWindow = document.getElementById("settingsWindow");
 const closeSettings = document.getElementById("closeSettings");
@@ -117,6 +124,8 @@ const mosquePopupEl = document.getElementById("mosquePopup");
 const closeMosqueBtn = document.getElementById("closeMosque");
 
 let currentLanguage = (localStorage.getItem(APP_LANGUAGE_KEY) || "ru").toLowerCase().startsWith("en") ? "en" : "ru";
+let tasbihCount = Number.parseInt(localStorage.getItem(TASBIH_COUNT_KEY) || "0", 10);
+if (!Number.isFinite(tasbihCount) || tasbihCount < 0) tasbihCount = 0;
 
 const UI_TEXT = {
   ru: {
@@ -148,6 +157,9 @@ const UI_TEXT = {
     qibla_coords_label: "Координаты:",
     qibla_direction_label: "Направление:",
     qibla_popup_title: "Направление киблы",
+    tasbih_popup_title: "Счётчик зикров",
+    tasbih_counter_label: "Прочитано:",
+    tasbih_reset: "Сброс",
     logout: "Выйти",
     language_popup_title: "Язык интерфейса",
     language_ru: "Русский",
@@ -261,6 +273,9 @@ const UI_TEXT = {
     qibla_coords_label: "Coordinates:",
     qibla_direction_label: "Direction:",
     qibla_popup_title: "Qibla Direction",
+    tasbih_popup_title: "Dhikr Counter",
+    tasbih_counter_label: "Recited:",
+    tasbih_reset: "Reset",
     logout: "Log out",
     language_popup_title: "Interface language",
     language_ru: "Russian",
@@ -737,6 +752,18 @@ function t(key) {
   return (UI_TEXT[currentLanguage] && UI_TEXT[currentLanguage][key]) || (UI_TEXT.ru && UI_TEXT.ru[key]) || key;
 }
 
+function renderTasbihCount() {
+  if (!tasbihCounterValueEl) return;
+  tasbihCounterValueEl.textContent = String(tasbihCount);
+}
+
+function setTasbihCount(value) {
+  const next = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+  tasbihCount = next;
+  localStorage.setItem(TASBIH_COUNT_KEY, String(tasbihCount));
+  renderTasbihCount();
+}
+
 function applyLanguage(lang) {
   currentLanguage = (String(lang || "").toLowerCase().startsWith("en")) ? "en" : "ru";
   localStorage.setItem(APP_LANGUAGE_KEY, currentLanguage);
@@ -783,6 +810,9 @@ function applyLanguage(lang) {
   setText("qiblaPopupTitleText", t("qibla_popup_title"));
   setText("qiblaPopupCoordsLabelText", t("qibla_coords_label"));
   setText("qiblaPopupDirectionLabelText", t("qibla_direction_label"));
+  setText("tasbihPopupTitleText", t("tasbih_popup_title"));
+  setText("tasbihCounterLabelText", t("tasbih_counter_label"));
+  setText("tasbihResetText", t("tasbih_reset"));
   setText("logoutText", t("logout"));
   setText("languagePopupTitle", t("language_popup_title"));
   setText("languageRuBtn", t("language_ru"));
@@ -839,6 +869,7 @@ function applyLanguage(lang) {
   renderFaqByLanguage();
   renderSettingsContentByLanguage();
   initNames99Grid();
+  renderTasbihCount();
 }
 
 function updateProfileNameLabel() {
@@ -936,6 +967,7 @@ function hasBlockingChildPopupOpen() {
     aboutPopupEl,
     feedbackPopupEl,
     qiblaPopupEl,
+    tasbihPopupEl,
     clearHistoryConfirmPopupEl,
     logoutConfirmPopupEl,
     languagePopupEl,
@@ -1032,7 +1064,7 @@ function initNames99Grid() {
 function updateParentWindowEffects() {
   const majorChildOpen = [prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl]
     .some((popup) => popup && popup.style.display === 'block');
-  const settingsChildOpen = [aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl]
+  const settingsChildOpen = [aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl]
     .some((popup) => popup && popup.style.display === 'block');
   const settingsConfirmOpen = (
     (clearHistoryConfirmPopupEl && clearHistoryConfirmPopupEl.style.display === 'block') ||
@@ -1119,7 +1151,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, quickLanguagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
+    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
   ];
   
   allPopups.forEach(popup => {
@@ -1177,6 +1209,7 @@ function initEventListeners() {
       hidePopup(logoutConfirmPopupEl);
       hidePopup(quickLanguagePopupEl);
       hidePopup(qiblaPopupEl);
+      hidePopup(tasbihPopupEl);
 
       const isAuthorized = localStorage.getItem("isAuthorized");
       const savedFio = localStorage.getItem("fio");
@@ -1700,6 +1733,29 @@ function initEventListeners() {
   closeQiblaPopupBtn?.addEventListener("click", function(e) {
     e.stopPropagation();
     hidePopup(qiblaPopupEl);
+  });
+
+  // тасбих
+  tasbihCard?.addEventListener("click", function(e) {
+    if (hasBlockingChildPopupOpen()) return;
+    e.preventDefault();
+    e.stopPropagation();
+    showChildPopup(tasbihPopupEl);
+  });
+
+  closeTasbihPopupBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    hidePopup(tasbihPopupEl);
+  });
+
+  tasbihFingerBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    setTasbihCount(tasbihCount + 1);
+  });
+
+  tasbihResetBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    setTasbihCount(0);
   });
   
   function performLogout() {
@@ -2808,6 +2864,7 @@ document.addEventListener('click', (e) => {
     { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
     { popup: languagePopupEl, btn: document.getElementById('languageSettings') },
     { popup: qiblaPopupEl, btn: qiblaCard },
+    { popup: tasbihPopupEl, btn: tasbihCard },
     { popup: quickLanguagePopupEl, btn: quickLanguageBtn },
     { popup: menuPrayerPopupEl, btn: menuPrayer },
     { popup: menuNames99PopupEl, btn: menuNames99 },
@@ -2836,7 +2893,7 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, quickLanguagePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
       const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;

@@ -423,6 +423,11 @@
       <img src="{{ url_for('static', filename='Qibla.png') }}" class="qibla-icon-img" alt="Qibla">
     </div>
 
+    <!-- тасбих -->
+    <div class="settings-tasbih" id="tasbihCard">
+      <img src="{{ url_for('static', filename='Tasbih.png') }}" class="tasbih-icon-img" alt="Tasbih">
+    </div>
+
     <!-- логотип МУИВ внизу -->
     <img src="{{ url_for('static', filename='muiv_green.png') }}" class="settings-university">
   </div>
@@ -584,6 +589,22 @@
           <span class="qibla-popup-value">175.9°</span>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="tasbihPopup" class="tasbih-popup">
+    <div class="tasbih-popup-header">
+      <span class="tasbih-popup-title" id="tasbihPopupTitleText">Счётчик Зикров</span>
+      <button class="tasbih-popup-close" id="closeTasbihPopup">✕</button>
+    </div>
+    <div class="tasbih-popup-body">
+      <img src="{{ url_for('static', filename='Finger.png') }}" class="tasbih-finger" id="tasbihFingerBtn" alt="Finger">
+      <div class="tasbih-counter-label" id="tasbihCounterLabelText">Прочитано:</div>
+      <div class="tasbih-counter-value" id="tasbihCounterValue">0</div>
+      <button class="tasbih-reset-btn" id="tasbihResetBtn">
+        <img src="{{ url_for('static', filename='Refresh.png') }}" alt="Refresh">
+        <span id="tasbihResetText">Сброс</span>
+      </button>
     </div>
   </div>
 
