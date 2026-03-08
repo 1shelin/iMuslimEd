@@ -2511,6 +2511,11 @@ input:checked + .slider:before {
   height: 24px;
 }
 
+.settings-item-icon-service {
+  width: 28px;
+  height: 28px;
+}
+
 .settings-divider {
   height: 1px;
   background-color: #09481E;
