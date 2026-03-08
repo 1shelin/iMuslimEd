@@ -108,6 +108,9 @@ const feedbackPopupEl = document.getElementById("feedbackPopup");
 const closeFeedbackBtn = document.getElementById("closeFeedback");
 const faqPopupEl = document.getElementById("faqPopup");
 const closeFaqBtn = document.getElementById("closeFaq");
+const centerInfoBtn = document.getElementById("centerInfoBtn");
+const centerInfoPopupEl = document.getElementById("centerInfoPopup");
+const closeCenterInfoBtn = document.getElementById("closeCenterInfo");
 const clearHistoryConfirmPopupEl = document.getElementById("clearHistoryConfirmPopup");
 const clearHistoryConfirmYesBtn = document.getElementById("confirmClearHistoryYes");
 const clearHistoryConfirmNoBtn = document.getElementById("confirmClearHistoryNo");
@@ -183,6 +186,7 @@ const UI_TEXT = {
     major_mosque: "Мечеть /<br>молельная",
     major_faq: "Часто задаваемые<br>вопросы",
     major_halal: "Халяль<br>рядом",
+    center_info_popup_title: "Информация",
     prayer_popup_title: "Время намаза",
     faq_popup_title: "Часто задаваемые вопросы",
     halal_popup_title: "Халяль рядом",
@@ -299,6 +303,7 @@ const UI_TEXT = {
     major_mosque: "Mosque /<br>prayer room",
     major_faq: "Frequently asked<br>questions",
     major_halal: "Halal<br>nearby",
+    center_info_popup_title: "Information",
     prayer_popup_title: "Prayer time",
     faq_popup_title: "Frequently Asked Questions",
     halal_popup_title: "Halal Nearby",
@@ -844,6 +849,7 @@ function applyLanguage(lang) {
   setHtml("majorMosqueText", t("major_mosque"));
   setHtml("majorFaqText", t("major_faq"));
   setHtml("majorHalalText", t("major_halal"));
+  setText("centerInfoPopupTitleText", t("center_info_popup_title"));
   setText("prayerPopupTitleText", t("prayer_popup_title"));
   setText("faqPopupTitleText", t("faq_popup_title"));
   setText("halalPopupTitleText", t("halal_popup_title"));
@@ -1150,8 +1156,8 @@ function hidePopup(popupElement) {
 function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
-    chatWindow, menuWindow, settingsWindow, majorWindow,
-    fioPopup, prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
+    chatWindow, menuWindow, settingsWindow, majorWindow, centerInfoPopupEl,
+    fioPopup, prayerPopupEl, faqPopupEl, centerInfoPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
   ];
   
   allPopups.forEach(popup => {
@@ -1164,7 +1170,7 @@ function hideAllPopups() {
 
 // функция переключения главных окон
 function switchMainWindow(windowElement) {
-  const mainWindows = [majorWindow, chatWindow, settingsWindow, menuPrayerWindow, menuNames99Window];
+  const mainWindows = [majorWindow, centerInfoPopupEl, chatWindow, settingsWindow, menuPrayerWindow, menuNames99Window];
 
   // если целевое окно уже открыто — ничего не делаем
   if (windowElement && windowElement.style.display === 'block') {
@@ -1210,6 +1216,7 @@ function initEventListeners() {
       hidePopup(quickLanguagePopupEl);
       hidePopup(qiblaPopupEl);
       hidePopup(tasbihPopupEl);
+      hidePopup(centerInfoPopupEl);
 
       const isAuthorized = localStorage.getItem("isAuthorized");
       const savedFio = localStorage.getItem("fio");
@@ -1267,7 +1274,7 @@ function initEventListeners() {
       updateProfileNameLabel();
       
       // все основные окна авторизованного пользователя
-      const mainUserWindows = [mainWindow, majorWindow, chatWindow, settingsWindow, menuWindow, menuPrayerWindow, menuNames99Window];
+      const mainUserWindows = [mainWindow, majorWindow, centerInfoPopupEl, chatWindow, settingsWindow, menuWindow, menuPrayerWindow, menuNames99Window];
       let openMainWindow = null;
       
       for (let win of mainUserWindows) {
@@ -1559,6 +1566,21 @@ function initEventListeners() {
     closeFaqBtn.addEventListener("click", function(e) {
       e.stopPropagation();
       hidePopup(faqPopupEl);
+    });
+  }
+
+  // центральная info-кнопка
+  if (centerInfoBtn && centerInfoPopupEl && closeCenterInfoBtn) {
+    centerInfoBtn.addEventListener("click", function(e) {
+      if (hasBlockingChildPopupOpen()) return;
+      e.stopPropagation();
+      e.preventDefault();
+      switchMainWindow(centerInfoPopupEl);
+    });
+
+    closeCenterInfoBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      hidePopup(centerInfoPopupEl);
     });
   }
 
@@ -2823,6 +2845,9 @@ function formatFIO(fio) {
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log("dom fully loaded");
+  if (centerInfoPopupEl && centerInfoPopupEl.parentElement !== document.body) {
+    document.body.appendChild(centerInfoPopupEl);
+  }
   hideAllPopups();
   applyLanguage(currentLanguage);
   updateChatDateLabel();
@@ -2860,6 +2885,7 @@ document.addEventListener('click', (e) => {
     { popup: fioPopup, btn: null },
     { popup: prayerPopupEl, btn: document.getElementById('prayerTime') },
     { popup: faqPopupEl, btn: document.getElementById('faq') },
+    { popup: centerInfoPopupEl, btn: centerInfoBtn },
     { popup: aboutPopupEl, btn: document.getElementById('aboutService') },
     { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
     { popup: languagePopupEl, btn: document.getElementById('languageSettings') },

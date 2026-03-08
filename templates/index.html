@@ -668,7 +668,9 @@
 	            <span id="majorHalalText">Халяль<br>рядом</span>
           </div>
         
-          <div class="circle-center"></div>
+          <button class="circle-center" id="centerInfoBtn" type="button" aria-label="Info">
+            <img src="/static/Info%20main.png" alt="Info">
+          </button>
         </div>        
         <div class="social-icons">
           <a href="https://vk.com/mosvitte?from=groups" target="_blank">
@@ -790,6 +792,24 @@
     </div>
     <div class="mosque-body">
       <div id="mosqueMap" class="popup-map"></div>
+    </div>
+  </div>
+
+  <div id="centerInfoPopup" class="center-info-popup">
+    <div class="settings-header center-info-header">
+      <div class="settings-left">
+        <div class="settings-icon-container">
+          <img src="{{ url_for('static', filename='moonstar_white.png') }}" alt="IMuslimEd">
+        </div>
+        <span class="settings-title">IMuslimEd</span>
+      </div>
+      <div class="chat-right-icons">
+        <span class="chat-menu">≡</span>
+        <button class="settings-close" id="closeCenterInfo">✕</button>
+      </div>
+    </div>
+    <div class="center-info-body">
+      <h1 class="settings-main-title center-info-main-title" id="centerInfoPopupTitleText">Информация</h1>
     </div>
   </div>
 
