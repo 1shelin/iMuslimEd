@@ -3135,6 +3135,24 @@ input:checked + .slider:before {
   height: calc(100% - 50px);
   padding: 18px;
   box-sizing: border-box;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 26px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(9,72,30,0.35) transparent;
+}
+
+.center-info-body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.center-info-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.center-info-body::-webkit-scrollbar-thumb {
+  background: rgba(9,72,30,0.35);
+  border-radius: 10px;
 }
 
 .center-info-main-title {
@@ -3290,6 +3308,44 @@ input:checked + .slider:before {
   font-size: 11px;
   color: rgba(9,72,30,0.6);
   letter-spacing: 0.2px;
+}
+
+.prayer-guide-card {
+  margin-top: 14px;
+  background:
+    radial-gradient(170px 105px at 100% 0%, rgba(180,0,55,0.12), transparent 74%),
+    radial-gradient(145px 90px at 0% 100%, rgba(9,72,30,0.10), transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(251,247,247,0.93) 100%);
+  border-color: rgba(180, 0, 55, 0.24);
+}
+
+.prayer-guide-card .center-info-accent-line {
+  background: linear-gradient(90deg, #B40037 0%, #d43763 45%, #8e002a 100%);
+}
+
+.prayer-guide-card .center-info-badge {
+  color: rgba(180, 0, 55, 0.82);
+  border-color: rgba(180, 0, 55, 0.26);
+}
+
+.prayer-guide-card .center-info-note-title {
+  color: #8e002a;
+}
+
+.prayer-guide-card .center-info-note-text,
+.prayer-guide-card .center-info-quote,
+.prayer-guide-card .center-info-link-note {
+  color: rgba(120, 14, 44, 0.82);
+}
+
+.prayer-guide-card .center-info-link-btn {
+  border-color: rgba(180, 0, 55, 0.45);
+  background: linear-gradient(180deg, #c91f52 0%, #B40037 100%);
+  box-shadow: 0 6px 14px rgba(180, 0, 55, 0.2);
+}
+
+.prayer-guide-card .center-info-link-btn:hover {
+  box-shadow: 0 9px 18px rgba(180, 0, 55, 0.26);
 }
 
 /* (кнопки) */
