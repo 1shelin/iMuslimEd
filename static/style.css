@@ -3422,6 +3422,43 @@ input:checked + .slider:before {
   box-shadow: 0 9px 18px rgba(9, 72, 140, 0.26);
 }
 
+.fatwa-card {
+  margin-top: 14px;
+  background:
+    radial-gradient(170px 110px at 100% 0%, rgba(74, 43, 120, 0.12), transparent 74%),
+    radial-gradient(150px 92px at 0% 100%, rgba(190, 90, 0, 0.12), transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(248,244,250,0.93) 100%);
+  border-color: rgba(74, 43, 120, 0.24);
+}
+
+.fatwa-card .center-info-accent-line {
+  background: linear-gradient(90deg, #3b1f6f 0%, #7a3bd1 45%, #2a134f 100%);
+}
+
+.fatwa-card .center-info-badge {
+  color: rgba(74, 43, 120, 0.82);
+  border-color: rgba(74, 43, 120, 0.26);
+}
+
+.fatwa-card .center-info-note-title {
+  color: #3b1f6f;
+}
+
+.fatwa-card .center-info-note-text,
+.fatwa-card .center-info-link-note {
+  color: rgba(54, 28, 92, 0.86);
+}
+
+.fatwa-card .center-info-link-btn {
+  border-color: rgba(74, 43, 120, 0.45);
+  background: linear-gradient(180deg, #8240da 0%, #3b1f6f 100%);
+  box-shadow: 0 6px 14px rgba(74, 43, 120, 0.2);
+}
+
+.fatwa-card .center-info-link-btn:hover {
+  box-shadow: 0 9px 18px rgba(74, 43, 120, 0.26);
+}
+
 /* (кнопки) */
 .circle-sector {
   position: absolute;
