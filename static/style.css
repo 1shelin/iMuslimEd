@@ -3348,6 +3348,80 @@ input:checked + .slider:before {
   box-shadow: 0 9px 18px rgba(180, 0, 55, 0.26);
 }
 
+.pillars-card {
+  margin-top: 14px;
+  background:
+    radial-gradient(160px 96px at 100% 0%, rgba(15,93,46,0.11), transparent 74%),
+    radial-gradient(150px 88px at 0% 100%, rgba(137,95,0,0.12), transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(249,247,239,0.93) 100%);
+  border-color: rgba(105, 75, 6, 0.24);
+}
+
+.pillars-card .center-info-accent-line {
+  background: linear-gradient(90deg, #7a5a12 0%, #b28928 45%, #5f460e 100%);
+}
+
+.pillars-card .center-info-badge {
+  color: rgba(95, 70, 14, 0.86);
+  border-color: rgba(122, 90, 18, 0.28);
+}
+
+.pillars-card .center-info-note-title {
+  color: #5f460e;
+}
+
+.pillars-card .center-info-note-text,
+.pillars-card .center-info-link-note {
+  color: rgba(82, 61, 14, 0.86);
+}
+
+.pillars-card .center-info-link-btn {
+  border-color: rgba(122, 90, 18, 0.45);
+  background: linear-gradient(180deg, #9d7420 0%, #7a5a12 100%);
+  box-shadow: 0 6px 14px rgba(122, 90, 18, 0.2);
+}
+
+.pillars-card .center-info-link-btn:hover {
+  box-shadow: 0 9px 18px rgba(122, 90, 18, 0.26);
+}
+
+.ramadan-card {
+  margin-top: 14px;
+  background:
+    radial-gradient(170px 110px at 100% 0%, rgba(9, 72, 140, 0.12), transparent 74%),
+    radial-gradient(150px 92px at 0% 100%, rgba(180, 120, 0, 0.12), transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(245,248,252,0.93) 100%);
+  border-color: rgba(9, 72, 140, 0.24);
+}
+
+.ramadan-card .center-info-accent-line {
+  background: linear-gradient(90deg, #0b3f7c 0%, #1f6ac6 45%, #082c57 100%);
+}
+
+.ramadan-card .center-info-badge {
+  color: rgba(9, 72, 140, 0.82);
+  border-color: rgba(9, 72, 140, 0.26);
+}
+
+.ramadan-card .center-info-note-title {
+  color: #0b3f7c;
+}
+
+.ramadan-card .center-info-note-text,
+.ramadan-card .center-info-link-note {
+  color: rgba(9, 50, 90, 0.86);
+}
+
+.ramadan-card .center-info-link-btn {
+  border-color: rgba(9, 72, 140, 0.45);
+  background: linear-gradient(180deg, #226fcd 0%, #0b3f7c 100%);
+  box-shadow: 0 6px 14px rgba(9, 72, 140, 0.2);
+}
+
+.ramadan-card .center-info-link-btn:hover {
+  box-shadow: 0 9px 18px rgba(9, 72, 140, 0.26);
+}
+
 /* (кнопки) */
 .circle-sector {
   position: absolute;
