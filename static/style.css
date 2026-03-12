@@ -3140,6 +3140,8 @@ input:checked + .slider:before {
   padding-bottom: 26px;
   scrollbar-width: thin;
   scrollbar-color: rgba(9,72,30,0.35) transparent;
+  --ci-glow-1: rgba(9, 72, 30, 0.22);
+  --ci-glow-2: rgba(180, 0, 55, 0.16);
 }
 
 .center-info-body::-webkit-scrollbar {
@@ -3174,6 +3176,15 @@ input:checked + .slider:before {
   background-color: #09481E;
 }
 
+.center-info-body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: transparent;
+}
+
 .center-info-content-card {
   margin-top: 32px;
   background:
@@ -3189,6 +3200,15 @@ input:checked + .slider:before {
     inset 0 18px 24px rgba(255,255,255,0.35);
   position: relative;
   overflow: hidden;
+  z-index: 1;
+  --card-glow: rgba(9, 72, 30, 0.45);
+}
+
+.center-info-content-card.is-active {
+  box-shadow:
+    0 12px 22px rgba(0,0,0,0.12),
+    0 0 0 1px rgba(255,255,255,0.45) inset,
+    inset 0 0 18px var(--card-glow);
 }
 
 .center-info-content-card::after {
@@ -3323,6 +3343,9 @@ input:checked + .slider:before {
   background: linear-gradient(90deg, #B40037 0%, #d43763 45%, #8e002a 100%);
 }
 
+.prayer-guide-card {
+  --card-glow: rgba(180, 0, 55, 0.45);
+}
 .prayer-guide-card .center-info-badge {
   color: rgba(180, 0, 55, 0.82);
   border-color: rgba(180, 0, 55, 0.26);
@@ -3361,6 +3384,9 @@ input:checked + .slider:before {
   background: linear-gradient(90deg, #7a5a12 0%, #b28928 45%, #5f460e 100%);
 }
 
+.pillars-card {
+  --card-glow: rgba(122, 90, 18, 0.45);
+}
 .pillars-card .center-info-badge {
   color: rgba(95, 70, 14, 0.86);
   border-color: rgba(122, 90, 18, 0.28);
@@ -3394,6 +3420,9 @@ input:checked + .slider:before {
   border-color: rgba(9, 72, 140, 0.24);
 }
 
+.ramadan-card {
+  --card-glow: rgba(9, 72, 140, 0.45);
+}
 .ramadan-card .center-info-accent-line {
   background: linear-gradient(90deg, #0b3f7c 0%, #1f6ac6 45%, #082c57 100%);
 }
@@ -3431,6 +3460,9 @@ input:checked + .slider:before {
   border-color: rgba(74, 43, 120, 0.24);
 }
 
+.fatwa-card {
+  --card-glow: rgba(74, 43, 120, 0.45);
+}
 .fatwa-card .center-info-accent-line {
   background: linear-gradient(90deg, #3b1f6f 0%, #7a3bd1 45%, #2a134f 100%);
 }
@@ -3468,6 +3500,9 @@ input:checked + .slider:before {
   border-color: rgba(12, 98, 84, 0.24);
 }
 
+.durus-card {
+  --card-glow: rgba(12, 98, 84, 0.45);
+}
 .durus-card .center-info-accent-line {
   background: linear-gradient(90deg, #0b5c4d 0%, #21a087 45%, #084036 100%);
 }
@@ -3505,6 +3540,9 @@ input:checked + .slider:before {
   border-color: rgba(140, 70, 10, 0.24);
 }
 
+.lectures-card {
+  --card-glow: rgba(140, 70, 10, 0.45);
+}
 .lectures-card .center-info-accent-line {
   background: linear-gradient(90deg, #8c3f08 0%, #d2802e 45%, #5d2404 100%);
 }
@@ -3542,6 +3580,9 @@ input:checked + .slider:before {
   border-color: rgba(14, 90, 110, 0.24);
 }
 
+.articles-card {
+  --card-glow: rgba(14, 90, 110, 0.45);
+}
 .articles-card .center-info-accent-line {
   background: linear-gradient(90deg, #0d5a6e 0%, #2fb0c4 45%, #0a3e4c 100%);
 }
@@ -3568,6 +3609,46 @@ input:checked + .slider:before {
 
 .articles-card .center-info-link-btn:hover {
   box-shadow: 0 9px 18px rgba(14, 90, 110, 0.26);
+}
+
+.library-card {
+  margin-top: 14px;
+  background:
+    radial-gradient(170px 110px at 100% 0%, rgba(60, 60, 70, 0.12), transparent 74%),
+    radial-gradient(150px 92px at 0% 100%, rgba(120, 120, 130, 0.12), transparent 74%),
+    linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(246,246,248,0.93) 100%);
+  border-color: rgba(70, 70, 80, 0.24);
+}
+
+.library-card {
+  --card-glow: rgba(80, 80, 92, 0.5);
+}
+.library-card .center-info-accent-line {
+  background: linear-gradient(90deg, #4a4a55 0%, #7a7a86 45%, #2f2f36 100%);
+}
+
+.library-card .center-info-badge {
+  color: rgba(70, 70, 80, 0.82);
+  border-color: rgba(70, 70, 80, 0.26);
+}
+
+.library-card .center-info-note-title {
+  color: #3f3f48;
+}
+
+.library-card .center-info-note-text,
+.library-card .center-info-link-note {
+  color: rgba(54, 54, 62, 0.86);
+}
+
+.library-card .center-info-link-btn {
+  border-color: rgba(70, 70, 80, 0.45);
+  background: linear-gradient(180deg, #6f6f7d 0%, #42424c 100%);
+  box-shadow: 0 6px 14px rgba(70, 70, 80, 0.2);
+}
+
+.library-card .center-info-link-btn:hover {
+  box-shadow: 0 9px 18px rgba(70, 70, 80, 0.26);
 }
 
 /* (кнопки) */

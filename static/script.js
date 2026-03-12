@@ -2843,6 +2843,77 @@ function formatFIO(fio) {
     .join(' ');
 }
 
+function initCenterInfoGlow() {
+  const body = document.querySelector("#centerInfoPopup .center-info-body");
+  if (!body) return;
+
+  const cards = Array.from(body.querySelectorAll(".center-info-content-card"));
+  if (cards.length === 0) return;
+
+  body.classList.add("center-info-glow-enabled");
+
+  const themes = [
+    { className: "prayer-guide-card", glow1: "rgba(180, 0, 55, 0.28)", glow2: "rgba(9, 72, 30, 0.22)" },
+    { className: "pillars-card", glow1: "rgba(122, 90, 18, 0.28)", glow2: "rgba(15, 93, 46, 0.22)" },
+    { className: "ramadan-card", glow1: "rgba(9, 72, 140, 0.28)", glow2: "rgba(180, 120, 0, 0.22)" },
+    { className: "fatwa-card", glow1: "rgba(74, 43, 120, 0.28)", glow2: "rgba(190, 90, 0, 0.22)" },
+    { className: "durus-card", glow1: "rgba(12, 98, 84, 0.28)", glow2: "rgba(180, 120, 0, 0.22)" },
+    { className: "lectures-card", glow1: "rgba(140, 70, 10, 0.28)", glow2: "rgba(10, 90, 150, 0.22)" },
+    { className: "articles-card", glow1: "rgba(14, 90, 110, 0.28)", glow2: "rgba(120, 80, 0, 0.22)" },
+    { className: "library-card", glow1: "rgba(90, 90, 110, 0.28)", glow2: "rgba(130, 130, 145, 0.22)" }
+  ];
+
+  const fallbackGlow = { glow1: "rgba(9, 72, 30, 0.28)", glow2: "rgba(180, 0, 55, 0.22)" };
+
+  function getThemeForCard(card) {
+    const theme = themes.find((t) => card.classList.contains(t.className));
+    return theme || fallbackGlow;
+  }
+
+  function applyGlow(theme) {
+    body.style.setProperty("--ci-glow-1", theme.glow1);
+    body.style.setProperty("--ci-glow-2", theme.glow2);
+  }
+
+  let activeIndex = -1;
+  let rafId = null;
+
+  function updateGlowFromScroll() {
+    rafId = null;
+    const focusY = body.scrollTop + body.clientHeight * 0.45;
+
+    let bestIndex = 0;
+    let bestDist = Infinity;
+
+    cards.forEach((card, index) => {
+      const centerY = card.offsetTop + card.offsetHeight / 2;
+      const dist = Math.abs(centerY - focusY);
+      if (dist < bestDist) {
+        bestDist = dist;
+        bestIndex = index;
+      }
+    });
+
+    if (bestIndex !== activeIndex) {
+      if (activeIndex !== -1 && cards[activeIndex]) {
+        cards[activeIndex].classList.remove("is-active");
+      }
+      activeIndex = bestIndex;
+      cards[activeIndex].classList.add("is-active");
+      applyGlow(getThemeForCard(cards[bestIndex]));
+    }
+  }
+
+  function onScroll() {
+    if (rafId !== null) return;
+    rafId = window.requestAnimationFrame(updateGlowFromScroll);
+  }
+
+  body.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  updateGlowFromScroll();
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   console.log("dom fully loaded");
   if (centerInfoPopupEl && centerInfoPopupEl.parentElement !== document.body) {
@@ -2867,6 +2938,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   initEventListeners();
   updateParentWindowEffects();
+  initCenterInfoGlow();
 });
 
 // закрытие по клику вне
