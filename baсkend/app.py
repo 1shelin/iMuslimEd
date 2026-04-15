@@ -9,7 +9,12 @@ import html
 import requests
 from bs4 import BeautifulSoup
 
-app = Flask(__name__, template_folder='../templates', static_folder='../static')
+BACKEND_DIR = os.path.dirname(__file__)
+BASE_DIR = os.path.abspath(os.path.join(BACKEND_DIR, ".."))
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+
+app = Flask(__name__, template_folder=TEMPLATES_DIR, static_folder=STATIC_DIR)
 
 USERS_FILE = os.path.join(os.path.dirname(__file__), "users.json")
 KIE_API_URL = "https://api.kie.ai/gemini-3-flash/v1/chat/completions"

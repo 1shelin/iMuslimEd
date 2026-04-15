@@ -28,6 +28,7 @@ const quickLanguagePopupEl = document.getElementById("quickLanguagePopup");
 const quickLanguageTitleEl = document.getElementById("quickLanguageTitle");
 const quickLanguageRuBtn = document.getElementById("quickLanguageRuBtn");
 const quickLanguageEnBtn = document.getElementById("quickLanguageEnBtn");
+const quickLanguageArBtn = document.getElementById("quickLanguageArBtn");
 
 const loginBtn = document.getElementById("loginBtn");
 const loginInput = document.getElementById("loginInput");
@@ -82,6 +83,7 @@ const languagePopupEl = document.getElementById("languagePopup");
 const closeLanguagePopupBtn = document.getElementById("closeLanguagePopup");
 const languageRuBtn = document.getElementById("languageRuBtn");
 const languageEnBtn = document.getElementById("languageEnBtn");
+const languageArBtn = document.getElementById("languageArBtn");
 const qiblaCard = document.getElementById("qiblaCard");
 const qiblaPopupEl = document.getElementById("qiblaPopup");
 const closeQiblaPopupBtn = document.getElementById("closeQiblaPopup");
@@ -126,7 +128,14 @@ const closeHalalBtn = document.getElementById("closeHalal");
 const mosquePopupEl = document.getElementById("mosquePopup");
 const closeMosqueBtn = document.getElementById("closeMosque");
 
-let currentLanguage = (localStorage.getItem(APP_LANGUAGE_KEY) || "ru").toLowerCase().startsWith("en") ? "en" : "ru";
+function normalizeClientLanguage(lang) {
+  const normalized = String(lang || "").trim().toLowerCase();
+  if (normalized.startsWith("en")) return "en";
+  if (normalized.startsWith("ar")) return "ar";
+  return "ru";
+}
+
+let currentLanguage = normalizeClientLanguage(localStorage.getItem(APP_LANGUAGE_KEY) || "ru");
 let tasbihCount = Number.parseInt(localStorage.getItem(TASBIH_COUNT_KEY) || "0", 10);
 if (!Number.isFinite(tasbihCount) || tasbihCount < 0) tasbihCount = 0;
 
@@ -167,6 +176,7 @@ const UI_TEXT = {
     language_popup_title: "Язык интерфейса",
     language_ru: "Русский",
     language_en: "English",
+    language_ar: "العربية",
     prayer_title: "В помощь студентам:<br>7 дуа для экзаменов и учебы",
     names_title: "99 Прекрасных Имён Аллаха",
     clear_history_popup_title: "Очистить историю",
@@ -284,6 +294,7 @@ const UI_TEXT = {
     language_popup_title: "Interface language",
     language_ru: "Russian",
     language_en: "English",
+    language_ar: "Arabic",
     prayer_title: "For students:<br>7 Duas for Exams and Study",
     names_title: "99 Beautiful Names of Allah",
     clear_history_popup_title: "Clear history",
@@ -364,6 +375,124 @@ const UI_TEXT = {
     faq_a9: "Yes, we do not share data with third parties. Login and password are stored encrypted.",
     faq_q10: "10. How can I contact the developers?",
     faq_a10: "Open \"Settings\" and choose \"Feedback\".",
+  },
+  ar: {
+    muiv_header: "جامعة ويتي في موسكو",
+    religion_question: "هل دينك الإسلام؟",
+    registration_header: "التسجيل",
+    auth_title: "تسجيل الدخول",
+    fio_title: "أدخل اسمك الكامل",
+    login_placeholder: "اسم المستخدم",
+    password_placeholder: "كلمة المرور",
+    fio_placeholder: "الاسم الكامل",
+    login_btn: "دخول",
+    continue_btn: "متابعة",
+    ask_btn: "اطرح سؤالًا",
+    home_btn: "الرئيسية",
+    menu_home: "الرئيسية",
+    menu_chat: "الدردشة",
+    menu_prayer: "الصلاة",
+    menu_names: "99 اسمًا",
+    menu_settings: "الإعدادات",
+    settings_title: "الإعدادات",
+    clear_history: "مسح سجل الدردشة",
+    about_service: "حول الخدمة",
+    feedback: "الملاحظات",
+    about_popup_title: "حول الخدمة",
+    feedback_popup_title: "الملاحظات",
+    language: "اللغة",
+    qibla_title: "القبلة",
+    qibla_coords_label: "الإحداثيات:",
+    qibla_direction_label: "الاتجاه:",
+    qibla_popup_title: "اتجاه القبلة",
+    tasbih_popup_title: "عداد الذكر",
+    tasbih_counter_label: "العدد:",
+    tasbih_reset: "إعادة ضبط",
+    logout: "تسجيل الخروج",
+    language_popup_title: "لغة الواجهة",
+    language_ru: "الروسية",
+    language_en: "الإنجليزية",
+    language_ar: "العربية",
+    prayer_title: "للطلاب:<br>7 أدعية للامتحانات والدراسة",
+    names_title: "99 اسمًا من أسماء الله الحسنى",
+    clear_history_popup_title: "مسح السجل",
+    clear_history_popup_text: "هل تريد بالتأكيد مسح سجل الدردشة؟",
+    yes: "نعم",
+    no: "لا",
+    logout_confirm: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    cancel: "إلغاء",
+    ok: "موافق",
+    loading_auth: "جارٍ تسجيل الدخول...",
+    main_welcome_line1: "• السلام عليكم!",
+    main_welcome_line2: "مرحبًا بك في",
+    major_title: "الرئيسية",
+    major_quote: "\"لتقُد المعرفة إلى التفاهم\"",
+    profile_name_placeholder: "الاسم الكامل",
+    major_prayer: "أوقات<br>الصلاة",
+    major_mosque: "المسجد /<br>المصلى",
+    major_faq: "الأسئلة الشائعة",
+    major_halal: "حلال<br>بالقرب منك",
+    center_info_popup_title: "معلومات",
+    prayer_popup_title: "أوقات الصلاة",
+    faq_popup_title: "الأسئلة الشائعة",
+    halal_popup_title: "حلال قريب",
+    mosque_popup_title: "المسجد / المصلى",
+    chat_placeholder: "اكتب رسالة...",
+    today: "اليوم",
+    net_error: "خطأ في الاتصال، حاول مرة أخرى.",
+    thinking1: "أفكّر.",
+    thinking2: "أفكّر..",
+    thinking3: "أفكّر...",
+    thinking_stage1: "أبحث عن إجابة دقيقة...",
+    thinking_stage2: "بقي القليل...",
+    thinking_stage3: "أوشكنا على الانتهاء...",
+    login_password_hint: "أدخل اسم المستخدم وكلمة المرور لحسابك الشخصي",
+    empty_chat_error: "الرسالة فارغة",
+    login_required: "أدخل اسم المستخدم",
+    login_too_short: "يجب أن يكون اسم المستخدم 3 أحرف على الأقل",
+    login_too_long: "اسم المستخدم طويل جدًا",
+    login_spaces: "لا يجب أن يحتوي اسم المستخدم على مسافات",
+    login_format: "يمكن أن يحتوي اسم المستخدم على أحرف لاتينية وأرقام والرموز . _ - فقط",
+    password_required: "أدخل كلمة المرور",
+    password_too_short: "يجب أن تكون كلمة المرور 4 أحرف على الأقل",
+    password_too_long: "كلمة المرور طويلة جدًا",
+    password_spaces: "لا يجب أن تحتوي كلمة المرور على مسافات",
+    fio_required: "أدخل الاسم الكامل",
+    fio_invalid: "يجب إدخال الاسم الكامل بالروسية مع المسافات: اللقب الاسم اسم الأب",
+    fio_too_long: "الاسم الكامل طويل جدًا",
+    fio_equals_login: "يجب ألا يطابق الاسم الكامل اسم المستخدم",
+    save_error: "خطأ في الحفظ",
+    max_chars_message: "الحد الأقصى {n} حرفًا في الرسالة الواحدة.",
+    empty_model_response: "رد النموذج فارغ.",
+    model_response_error: "خطأ في رد النموذج.",
+    mini_error_default: "خطأ",
+    mini_message_default: "رسالة",
+    prayer_loading: "جارٍ التحميل…",
+    prayer_load_error: "تعذر تحميل أوقات الصلاة",
+    faq_q1: "1. ما هو الإسلام؟",
+    faq_a1: "الإسلام دين عالمي قائم على الإيمان بالله الواحد (الله). ويتبع المسلمون تعاليم النبي محمد ﷺ.",
+    faq_q2: "2. ما هي أركان الإسلام الخمسة؟",
+    faq_a2_1: "الشهادة (الإيمان بالله الواحد)",
+    faq_a2_2: "الصلاة (الصلاة اليومية)",
+    faq_a2_3: "الصيام (في رمضان)",
+    faq_a2_4: "الزكاة (الصدقة الواجبة)",
+    faq_a2_5: "الحج (إلى مكة)",
+    faq_q3: "3. ما وقت الصلاة اليوم في موسكو؟",
+    faq_a3: "تتغير أوقات الصلاة يوميًا. افتح قسم \"وقت الصلاة\" في تطبيقنا للاطلاع على الجدول الأحدث.",
+    faq_q4: "4. أين أقرب مسجد؟",
+    faq_a4: "في قسم \"المسجد / المصلى\" ستجد خريطة للأماكن القريبة في موسكو.",
+    faq_q5: "5. ماذا تعني كلمة \"حلال\"؟",
+    faq_a5: "الحلال يعني ما هو مباح للمسلمين. وغالبًا يُستخدم للطعام: لحم مذبوح وفق الشريعة ومن دون لحم الخنزير والكحول.",
+    faq_q6: "6. أين يمكنني تناول طعام حلال قرب الجامعة؟",
+    faq_a6: "في قسم \"حلال قريب\" توجد خريطة بمقاهي ومطاعم حلال قرب الجامعة.",
+    faq_q7: "7. ما الأسئلة التي يجيب عنها روبوت الدردشة؟",
+    faq_a7: "يجيب روبوت الدردشة عن أسئلة حول التقاليد الإسلامية والممارسات الدينية والبنية التحتية الحلال والتكيف الطلابي والتواصل بين الثقافات وميزات خدمة IMuslimEd.",
+    faq_q8: "8. هل المنصة مجانية؟",
+    faq_a8: "نعم.",
+    faq_q9: "9. هل بياناتي آمنة؟",
+    faq_a9: "نعم، نحن لا نشارك البيانات مع أطراف ثالثة. يتم حفظ اسم المستخدم وكلمة المرور بشكل مشفر.",
+    faq_q10: "10. كيف أتواصل مع المطورين؟",
+    faq_a10: "افتح \"الإعدادات\" ثم اختر \"الملاحظات\".",
   }
 };
 
@@ -443,6 +572,44 @@ const ABOUT_CONTENT = {
       <div class="about-quote">"May knowledge lead to mutual understanding"</div>
       <p class="about-section-text">IMuslimEd helps reduce intercultural barriers, supports communication, and assists student adaptation in the university environment.</p>
     </section>
+  `,
+  ar: `
+    <section class="about-hero">
+      <h3 class="about-hero-title">IMuslimEd</h3>
+      <div class="about-meta">
+        <span class="about-pill">التعليم</span>
+        <span class="about-pill">الحوار</span>
+        <span class="about-pill">الدعم</span>
+      </div>
+      <p class="about-hero-text">IMuslimEd خدمة ويب معلوماتية صُممت لدعم التواصل بين الثقافات وبناء بيئة تعليمية شاملة للطلاب من مختلف الخلفيات الدينية.</p>
+      <p class="about-hero-text">تركّز المنصة على الطلاب المسلمين وعلى جميع المتعلمين المهتمين بالحوار الثقافي والتفاعل بين الأديان.</p>
+    </section>
+    <section class="about-goal">
+      <div class="about-chip">هدف الخدمة</div>
+      <p class="about-section-text">توفير وصول مريح إلى معلومات موثوقة عن التقاليد الإسلامية والممارسة الدينية والجوانب الثقافية، وإنشاء مساحة رقمية مريحة للتفاعل داخل البيئة الجامعية.</p>
+    </section>
+    <section class="about-features">
+      <div class="about-chip">الميزات الأساسية</div>
+      <ul class="about-feature-list">
+        <li>التحقق والتسجيل (اسم مستخدم/كلمة مرور، وإدخال الاسم الكامل عند أول دخول)، مع مسار ترحيب.</li>
+        <li>عرض أوقات الصلاة المحدثة يوميًا.</li>
+        <li>عرض نقاط على الخريطة لأماكن مناسبة للصلاة.</li>
+        <li>إظهار أماكن الطعام الحلال على الخرائط.</li>
+        <li>روبوت دردشة ذكي للإجابة عن الأسئلة الدينية والثقافية والتعليمية.</li>
+        <li>قسم أسئلة شائعة (FAQ) بإجابات منظمة على الموضوعات الأساسية.</li>
+        <li>إعدادات المستخدم (مسح السجل، معلومات عن الخدمة، الملاحظات).</li>
+        <li>أدوات للملاحظات والاقتراحات وتقارير الأعطال التقنية.</li>
+        <li>واجهة ويب متجاوبة للعمل الصحيح على مختلف الأجهزة.</li>
+      </ul>
+    </section>
+    <section class="about-data">
+      <div class="about-chip">البيانات والوصول</div>
+      <p class="about-section-text">تُخزَّن بيانات المستخدم على الخادم بصيغة JSON. وتقتصر معالجة البيانات على وظائف التطبيق. ويُدار الوصول عبر آلية التفويض.</p>
+    </section>
+    <section class="about-impact">
+      <div class="about-quote">"لتقُد المعرفة إلى التفاهم"</div>
+      <p class="about-section-text">يساهم IMuslimEd في تقليل الحواجز الثقافية، ودعم التواصل، ومساعدة الطلاب على التكيف في البيئة الجامعية.</p>
+    </section>
   `
 };
 
@@ -464,6 +631,54 @@ const FEEDBACK_CONTENT = {
     <p class="feedback-text">All requests are reviewed by the service administration according to established procedures.</p>
     <p class="feedback-text">We value your feedback and continuously improve the platform.</p>
     <p class="feedback-sign">Best regards, IMuslimEd.</p>
+  `,
+  ar: `
+    <p class="feedback-text">
+      لإرسال الطلبات أو المقترحات أو بلاغات الأعطال التقنية، يُرجى استخدام البريد الإلكتروني:
+      <a class="feedback-email" href="mailto:support@imuslimed.ru">support@imuslimed.ru</a>.
+    </p>
+    <p class="feedback-text">تتم مراجعة جميع الرسائل من قِبل إدارة الخدمة وفق الإجراءات المعتمدة.</p>
+    <p class="feedback-text">نقدّر ملاحظاتكم ونعمل باستمرار على تحسين المنصة.</p>
+    <p class="feedback-sign">مع أطيب التحيات، IMuslimEd.</p>
+  `
+};
+
+const centerInfoBodyEl = document.querySelector("#centerInfoPopup .center-info-body");
+const CENTER_INFO_CONTENT = {
+  ru: centerInfoBodyEl ? centerInfoBodyEl.innerHTML : "",
+  en: `
+    <h1 class="settings-main-title center-info-main-title" id="centerInfoPopupTitleText">Information</h1>
+    <div class="center-info-content-card">
+      <div class="center-info-accent-line"></div><div class="center-info-badge">Verified Source</div><div class="center-info-mark">📗</div>
+      <div class="center-info-note-title">Reliable Quran Tafsir</div><p class="center-info-note-text">For authentic Quran tafsir, use the trusted source:</p>
+      <div class="center-info-quote">"Reading tafsir helps understand ayat deeply and apply knowledge consciously."</div>
+      <a class="center-info-link-btn" href="https://azan.ru/tafsir/predislovie" target="_blank" rel="noopener noreferrer">Open Tafsir</a><div class="center-info-link-note">azan.ru/tafsir/predislovie</div>
+    </div>
+    <div class="center-info-content-card prayer-guide-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Step-by-Step Learning</div><div class="center-info-mark">🧎🏻</div><div class="center-info-note-title">How to Learn Prayer</div><p class="center-info-note-text">Detailed guide for beginners.</p><div class="center-info-quote">"Prayer strengthens your connection with Allah and builds discipline."</div><a class="center-info-link-btn" href="https://azan.kz/namaz/nisa" target="_blank" rel="noopener noreferrer">Open Guide</a><div class="center-info-link-note">azan.kz/namaz/nisa</div></div>
+    <div class="center-info-content-card pillars-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Foundations of Faith</div><div class="center-info-mark">🕌</div><div class="center-info-note-title">Five Pillars of Islam</div><p class="center-info-note-text">Clear explanation of Shahada, Salah, Zakat, fasting, and Hajj.</p><div class="center-info-quote">"The five pillars are the foundation of worship."</div><a class="center-info-link-btn" href="https://azan.ru/islam" target="_blank" rel="noopener noreferrer">Open Material</a><div class="center-info-link-note">azan.ru/islam</div></div>
+    <div class="center-info-content-card ramadan-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Ramadan Fasting</div><div class="center-info-mark">🌙</div><div class="center-info-note-title">All About Ramadan Fasting</div><p class="center-info-note-text">Meaning, rules, intention, and key points of Ramadan.</p><div class="center-info-quote">"Fasting purifies the soul and develops patience."</div><a class="center-info-link-btn" href="https://azan.ru/ramadan" target="_blank" rel="noopener noreferrer">Open Material</a><div class="center-info-link-note">azan.ru/ramadan</div></div>
+    <div class="center-info-content-card fatwa-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Fatwas</div><div class="center-info-mark">⚖️</div><div class="center-info-note-title">Fatwas Collection</div><p class="center-info-note-text">Collection prepared by the Sharia and Fatwa department.</p><div class="center-info-quote">"Fatwas help apply Sharia correctly in daily life."</div><a class="center-info-link-btn" href="https://azan.kz/durus/dars/fetvyi-duhovnogo-upravleniya-musulman-kazahstana-108" target="_blank" rel="noopener noreferrer">Open Fatwas</a><div class="center-info-link-note">azan.kz/durus/dars/fetvy</div></div>
+    <div class="center-info-content-card durus-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Lesson Series</div><div class="center-info-mark">📚</div><div class="center-info-note-title">Islamic Lesson Series</div><p class="center-info-note-text">Courses and lessons for consistent study.</p><div class="center-info-quote">"Structured lessons bring clarity and confidence in faith."</div><a class="center-info-link-btn" href="https://azan.ru/durus" target="_blank" rel="noopener noreferrer">Open Lessons</a><div class="center-info-link-note">azan.ru/durus</div></div>
+    <div class="center-info-content-card lectures-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Islamic Lectures</div><div class="center-info-mark">🎙️</div><div class="center-info-note-title">Video Lectures and Sermons</div><p class="center-info-note-text">Selected videos for knowledge and spiritual growth.</p><div class="center-info-quote">"Lectures inspire and strengthen faith."</div><a class="center-info-link-btn" href="https://azan.ru/video" target="_blank" rel="noopener noreferrer">Open Lectures</a><div class="center-info-link-note">azan.ru/video</div></div>
+    <div class="center-info-content-card articles-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Articles</div><div class="center-info-mark">📝</div><div class="center-info-note-title">Islamic Articles</div><p class="center-info-note-text">Articles and explanations on various topics.</p><div class="center-info-quote">"Articles help understand faith questions clearly."</div><a class="center-info-link-btn" href="https://azan.ru/maqalat" target="_blank" rel="noopener noreferrer">Open Articles</a><div class="center-info-link-note">azan.ru/maqalat</div></div>
+    <div class="center-info-content-card library-card"><div class="center-info-accent-line"></div><div class="center-info-badge">Library</div><div class="center-info-mark">📖</div><div class="center-info-note-title">Islamic Library</div><p class="center-info-note-text">Books and materials for deeper study.</p><div class="center-info-quote">"Reading books deepens understanding and conviction."</div><a class="center-info-link-btn" href="https://azan.ru/maktabah" target="_blank" rel="noopener noreferrer">Open Library</a><div class="center-info-link-note">azan.ru/maktabah</div></div>
+  `,
+  ar: `
+    <h1 class="settings-main-title center-info-main-title" id="centerInfoPopupTitleText">معلومات</h1>
+    <div class="center-info-content-card">
+      <div class="center-info-accent-line"></div><div class="center-info-badge">مصدر موثوق</div><div class="center-info-mark">📗</div>
+      <div class="center-info-note-title">تفسير موثوق للقرآن</div><p class="center-info-note-text">لدراسة تفسير القرآن الموثوق، استخدم المصدر التالي:</p>
+      <div class="center-info-quote">"قراءة التفسير تساعد على فهم الآيات بعمق وتطبيق العلم بوعي."</div>
+      <a class="center-info-link-btn" href="https://azan.ru/tafsir/predislovie" target="_blank" rel="noopener noreferrer">فتح التفسير</a><div class="center-info-link-note">azan.ru/tafsir/predislovie</div>
+    </div>
+    <div class="center-info-content-card prayer-guide-card"><div class="center-info-accent-line"></div><div class="center-info-badge">تعلم خطوة بخطوة</div><div class="center-info-mark">🧎🏻</div><div class="center-info-note-title">كيف تتعلم الصلاة</div><p class="center-info-note-text">دليل مفصل للمبتدئين.</p><div class="center-info-quote">"الصلاة تقوّي الصلة بالله وتغرس الانضباط."</div><a class="center-info-link-btn" href="https://azan.kz/namaz/nisa" target="_blank" rel="noopener noreferrer">فتح الدليل</a><div class="center-info-link-note">azan.kz/namaz/nisa</div></div>
+    <div class="center-info-content-card pillars-card"><div class="center-info-accent-line"></div><div class="center-info-badge">أسس الدين</div><div class="center-info-mark">🕌</div><div class="center-info-note-title">أركان الإسلام الخمسة</div><p class="center-info-note-text">شرح للشهادة والصلاة والزكاة والصوم والحج.</p><div class="center-info-quote">"الأركان الخمسة هي أساس العبادة."</div><a class="center-info-link-btn" href="https://azan.ru/islam" target="_blank" rel="noopener noreferrer">فتح المادة</a><div class="center-info-link-note">azan.ru/islam</div></div>
+    <div class="center-info-content-card ramadan-card"><div class="center-info-accent-line"></div><div class="center-info-badge">صيام رمضان</div><div class="center-info-mark">🌙</div><div class="center-info-note-title">كل ما يخص صيام رمضان</div><p class="center-info-note-text">المعنى والأحكام والنية وأهم الجوانب.</p><div class="center-info-quote">"الصيام يزكّي النفس ويقوّي الصبر."</div><a class="center-info-link-btn" href="https://azan.ru/ramadan" target="_blank" rel="noopener noreferrer">فتح المادة</a><div class="center-info-link-note">azan.ru/ramadan</div></div>
+    <div class="center-info-content-card fatwa-card"><div class="center-info-accent-line"></div><div class="center-info-badge">الفتاوى</div><div class="center-info-mark">⚖️</div><div class="center-info-note-title">مجموعة فتاوى</div><p class="center-info-note-text">مجموعة أعدها قسم الشريعة والفتوى.</p><div class="center-info-quote">"الفتاوى تساعد على تطبيق الشريعة في الحياة اليومية."</div><a class="center-info-link-btn" href="https://azan.kz/durus/dars/fetvyi-duhovnogo-upravleniya-musulman-kazahstana-108" target="_blank" rel="noopener noreferrer">فتح الفتاوى</a><div class="center-info-link-note">azan.kz/durus/dars/fetvy</div></div>
+    <div class="center-info-content-card durus-card"><div class="center-info-accent-line"></div><div class="center-info-badge">سلاسل الدروس</div><div class="center-info-mark">📚</div><div class="center-info-note-title">دروس في الإسلام</div><p class="center-info-note-text">دورات ودروس للتعلم المتدرج.</p><div class="center-info-quote">"الدروس المنتظمة تمنح وضوحًا وثباتًا في الفهم."</div><a class="center-info-link-btn" href="https://azan.ru/durus" target="_blank" rel="noopener noreferrer">فتح الدروس</a><div class="center-info-link-note">azan.ru/durus</div></div>
+    <div class="center-info-content-card lectures-card"><div class="center-info-accent-line"></div><div class="center-info-badge">محاضرات إسلامية</div><div class="center-info-mark">🎙️</div><div class="center-info-note-title">محاضرات وخطب مرئية</div><p class="center-info-note-text">مواد مرئية مختارة للعلم والنمو الروحي.</p><div class="center-info-quote">"المحاضرات تلهم وتقوّي الإيمان."</div><a class="center-info-link-btn" href="https://azan.ru/video" target="_blank" rel="noopener noreferrer">فتح المحاضرات</a><div class="center-info-link-note">azan.ru/video</div></div>
+    <div class="center-info-content-card articles-card"><div class="center-info-accent-line"></div><div class="center-info-badge">مقالات</div><div class="center-info-mark">📝</div><div class="center-info-note-title">مقالات في الإسلام</div><p class="center-info-note-text">مقالات وشروحات في موضوعات متنوعة.</p><div class="center-info-quote">"المقالات تساعد على فهم المسائل بإيجاز."</div><a class="center-info-link-btn" href="https://azan.ru/maqalat" target="_blank" rel="noopener noreferrer">فتح المقالات</a><div class="center-info-link-note">azan.ru/maqalat</div></div>
+    <div class="center-info-content-card library-card"><div class="center-info-accent-line"></div><div class="center-info-badge">مكتبة</div><div class="center-info-mark">📖</div><div class="center-info-note-title">المكتبة الإسلامية</div><p class="center-info-note-text">كتب ومواد للتعلم المتعمق.</p><div class="center-info-quote">"قراءة الكتب تعمّق الفهم وتقوّي القناعة."</div><a class="center-info-link-btn" href="https://azan.ru/maktabah" target="_blank" rel="noopener noreferrer">فتح المكتبة</a><div class="center-info-link-note">azan.ru/maktabah</div></div>
   `
 };
 
@@ -503,6 +718,24 @@ const PRAYER_CONTENT = {
     <article class="dua-card"><h3 class="dua-title">Nothing Is Easy Except What You Make Easy</h3><p class="dua-meaning">"O Allah, nothing is easy except what You make easy, and You can make hardship easy if You will."</p><p class="dua-arabic">اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا</p><p class="dua-translit">Allahumma la sahla illa ma ja'altahu sahla, wa anta taj'alu al-hazna idha shi'ta sahla</p></article>
     <article class="dua-card"><h3 class="dua-title">Protection from Useless Knowledge</h3><p class="dua-meaning">"O Allah, I seek refuge in You from knowledge that does not benefit, from a heart that does not humble itself, from a soul that is never satisfied, and from a supplication that is not answered."</p><p class="dua-arabic">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عِلْمٍ لَا يَنْفَعُ وَمِنْ قَلْبٍ لَا يَخْشَعُ وَمِنْ نَفْسٍ لَا تَشْبَعُ وَمِنْ دَعْوَةٍ لَا يُسْتَجَابُ لَهَا</p><p class="dua-translit">Allahumma inni a'udhu bika min 'ilmin la yanfa', wa min qalbin la yakhsha', wa min nafsin la tashba', wa min da'watin la yustajabu laha</p></article>
     <div class="prayer-outro-card">Every student should remember: dua goes together with effort and discipline in study. Knowledge has high value in Islam, so learning should be treated with seriousness and care.</div>
+  `,
+  ar: `
+    <h1 class="menu-full-title" id="prayerWindowTitle">للطلاب:<br>7 أدعية للامتحانات والدراسة</h1>
+    <div class="prayer-intro-card">
+      <p class="prayer-lead">من أفضل أنواع العبادة الدعاء. فبالدعاء يقترب المؤمن من الله ويستطيع أن يناجيه مباشرة.</p>
+      <p class="prayer-quote">"ادْعُونِي أَسْتَجِبْ لَكُمْ" (40:60)</p>
+      <p class="prayer-lead">وقال رسول الله ﷺ:</p>
+      <p class="prayer-quote">"الدعاء هو العبادة." (أبو داود، الترمذي)</p>
+      <p class="prayer-lead">أثناء الدراسة والاستعداد للامتحانات، من المهم الجمع بين بذل الجهد والدعاء الصادق. فيما يلي أدعية من القرآن والسنة يمكن قراءتها في هذه الفترات.</p>
+    </div>
+    <article class="dua-card"><h3 class="dua-title">ربِّ زدني علمًا (20:114)</h3><p class="dua-arabic">رَّبِّ زِدْنِي عِلْمًا</p><p class="dua-translit">Rabbi zidni 'ilma</p><p class="dua-meaning">المعنى: "يا رب زدني علمًا".</p></article>
+    <article class="dua-card"><h3 class="dua-title">دعاء نبي الله موسى عليه السلام (20:25-28)</h3><p class="dua-meaning">"رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي يَفْقَهُوا قَوْلِي".</p><p class="dua-arabic">رَبِّ اشْرَحْ لِي صَدْرِي وَيَسِّرْ لِي أَمْرِي وَاحْلُلْ عُقْدَةً مِنْ لِسَانِي يَفْقَهُوا قَوْلِي</p><p class="dua-translit">Rabbi ishrah li sadri wa yassir li amri wahlul 'uqdatan min lisani yafqahu qawli</p></article>
+    <article class="dua-card"><h3 class="dua-title">دعاء العلم النافع والرزق الطيب</h3><p class="dua-meaning">"اللهم إني أسألك علمًا نافعًا، ورزقًا طيبًا، وعملًا متقبلًا".</p><p class="dua-arabic">اللَّهُمَّ إِنِّي أَسْأَلُكَ عِلْمًا نَافِعًا وَرِزْقًا طَيِّبًا وَعَمَلًا مُتَقَبَّلًا</p><p class="dua-translit">Allahumma inni as'aluka 'ilman nafi'an wa rizqan tayyiban wa 'amalan mutaqabbalan</p></article>
+    <article class="dua-card"><h3 class="dua-title">دعاء الملائكة في العلم (2:32)</h3><p class="dua-meaning">"سُبْحَانَكَ لَا عِلْمَ لَنَا إِلَّا مَا عَلَّمْتَنَا إِنَّكَ أَنْتَ الْعَلِيمُ الْحَكِيمُ".</p><p class="dua-arabic">سُبْحَانَكَ لاَ عِلْمَ لَنَا إِلاَّ مَا عَلَّمْتَنَا إِنَّكَ أَنتَ الْعَلِيمُ الْحَكِيمُ</p><p class="dua-translit">Subhanaka la 'ilma lana illa ma 'allamtana innaka anta al-'Alim al-Hakim</p></article>
+    <article class="dua-card"><h3 class="dua-title">دعاء التيسير وحسن الختام</h3><p class="dua-meaning">"ربِّ يسِّر ولا تعسِّر، ربِّ تمِّم بالخير".</p><p class="dua-arabic">رَبِّ يَسِّرْ وَلَا تُعَسِّرْ، رَبِّ تَمِّمْ بِالْخَيْرِ</p><p class="dua-translit">Rabbi yassir wa la tu'assir, Rabbi tammim bil-khayr</p></article>
+    <article class="dua-card"><h3 class="dua-title">لا سهل إلا ما جعلته سهلًا</h3><p class="dua-meaning">"اللهم لا سهل إلا ما جعلته سهلًا، وأنت تجعل الحزن إذا شئت سهلًا".</p><p class="dua-arabic">اللَّهُمَّ لَا سَهْلَ إِلَّا مَا جَعَلْتَهُ سَهْلًا وَأَنْتَ تَجْعَلُ الْحَزْنَ إِذَا شِئْتَ سَهْلًا</p><p class="dua-translit">Allahumma la sahla illa ma ja'altahu sahla, wa anta taj'alu al-hazna idha shi'ta sahla</p></article>
+    <article class="dua-card"><h3 class="dua-title">الاستعاذة من العلم غير النافع</h3><p class="dua-meaning">"اللهم إني أعوذ بك من علم لا ينفع، ومن قلب لا يخشع، ومن نفس لا تشبع، ومن دعوة لا يستجاب لها".</p><p class="dua-arabic">اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ عِلْمٍ لَا يَنْفَعُ وَمِنْ قَلْبٍ لَا يَخْشَعُ وَمِنْ نَفْسٍ لَا تَشْبَعُ وَمِنْ دَعْوَةٍ لَا يُسْتَجَابُ لَهَا</p><p class="dua-translit">Allahumma inni a'udhu bika min 'ilmin la yanfa', wa min qalbin la yakhsha', wa min nafsin la tashba', wa min da'watin la yustajabu laha</p></article>
+    <div class="prayer-outro-card">على كل طالب أن يتذكر: الدعاء لا ينفصل عن الاجتهاد والانضباط في الدراسة. فالعلم في الإسلام ذو مكانة عظيمة، لذلك ينبغي التعامل مع التعلم بجدية واهتمام.</div>
   `
 };
 
@@ -770,9 +1003,10 @@ function setTasbihCount(value) {
 }
 
 function applyLanguage(lang) {
-  currentLanguage = (String(lang || "").toLowerCase().startsWith("en")) ? "en" : "ru";
+  currentLanguage = normalizeClientLanguage(lang);
   localStorage.setItem(APP_LANGUAGE_KEY, currentLanguage);
   document.documentElement.lang = currentLanguage;
+  document.documentElement.dir = "ltr";
 
   const setText = (id, value) => {
     const el = document.getElementById(id);
@@ -822,9 +1056,11 @@ function applyLanguage(lang) {
   setText("languagePopupTitle", t("language_popup_title"));
   setText("languageRuBtn", t("language_ru"));
   setText("languageEnBtn", t("language_en"));
+  setText("languageArBtn", t("language_ar"));
   if (quickLanguageTitleEl) quickLanguageTitleEl.textContent = t("language");
   setText("quickLanguageRuBtn", t("language_ru"));
   setText("quickLanguageEnBtn", t("language_en"));
+  setText("quickLanguageArBtn", t("language_ar"));
   const prayerTitleEl = document.getElementById("prayerWindowTitle");
   if (prayerTitleEl) prayerTitleEl.innerHTML = t("prayer_title");
   const namesTitleEl = document.getElementById("namesWindowTitle");
@@ -855,7 +1091,14 @@ function applyLanguage(lang) {
   setText("halalPopupTitleText", t("halal_popup_title"));
   setText("mosquePopupTitleText", t("mosque_popup_title"));
   setText("miniAlertOk", t("ok"));
-  if (miniAlertText && (miniAlertText.textContent === UI_TEXT.ru.mini_message_default || miniAlertText.textContent === UI_TEXT.en.mini_message_default)) {
+  if (
+    miniAlertText &&
+    (
+      miniAlertText.textContent === UI_TEXT.ru.mini_message_default ||
+      miniAlertText.textContent === UI_TEXT.en.mini_message_default ||
+      miniAlertText.textContent === UI_TEXT.ar.mini_message_default
+    )
+  ) {
     miniAlertText.textContent = t("mini_message_default");
   }
 
@@ -867,11 +1110,14 @@ function applyLanguage(lang) {
 
   if (languageRuBtn) languageRuBtn.classList.toggle("active", currentLanguage === "ru");
   if (languageEnBtn) languageEnBtn.classList.toggle("active", currentLanguage === "en");
+  if (languageArBtn) languageArBtn.classList.toggle("active", currentLanguage === "ar");
   if (quickLanguageRuBtn) quickLanguageRuBtn.classList.toggle("active", currentLanguage === "ru");
   if (quickLanguageEnBtn) quickLanguageEnBtn.classList.toggle("active", currentLanguage === "en");
+  if (quickLanguageArBtn) quickLanguageArBtn.classList.toggle("active", currentLanguage === "ar");
 
   updateChatDateLabel();
   renderPrayerContentByLanguage();
+  renderCenterInfoContentByLanguage();
   renderFaqByLanguage();
   renderSettingsContentByLanguage();
   initNames99Grid();
@@ -1356,6 +1602,13 @@ function initEventListeners() {
     setQuickLanguageOpenState(false);
     hidePopup(quickLanguagePopupEl);
   });
+
+  quickLanguageArBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    applyLanguage("ar");
+    setQuickLanguageOpenState(false);
+    hidePopup(quickLanguagePopupEl);
+  });
   
   // переключатель  
   if (toggle) {
@@ -1741,6 +1994,12 @@ function initEventListeners() {
   languageEnBtn?.addEventListener("click", function(e) {
     e.stopPropagation();
     applyLanguage("en");
+    hidePopup(languagePopupEl);
+  });
+
+  languageArBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    applyLanguage("ar");
     hidePopup(languagePopupEl);
   });
 
@@ -2552,6 +2811,13 @@ function renderSettingsContentByLanguage() {
   if (feedbackCard) {
     feedbackCard.innerHTML = FEEDBACK_CONTENT[currentLanguage] || FEEDBACK_CONTENT.ru;
   }
+}
+
+function renderCenterInfoContentByLanguage() {
+  const centerInfoBody = document.querySelector("#centerInfoPopup .center-info-body");
+  if (!centerInfoBody) return;
+  centerInfoBody.innerHTML = CENTER_INFO_CONTENT[currentLanguage] || CENTER_INFO_CONTENT.ru;
+  initCenterInfoGlow();
 }
 
 function renderPrayerContentByLanguage() {

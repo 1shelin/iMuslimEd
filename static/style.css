@@ -555,7 +555,8 @@ input:checked + .slider:before {
   z-index: 1;
   display: flex;
   justify-content: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 10px;
 }
 
@@ -609,7 +610,7 @@ input:checked + .slider:before {
 .mini-alert-box {
   position: absolute;
   width: 246px;
-  min-height: 78px;
+  min-height: 96px;
   padding: 7px 8px 6px;
   border: 2px solid #09481E;
   border-radius: 20px;
@@ -2119,7 +2120,8 @@ input:checked + .slider:before {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
   position: relative;
 }
 
@@ -2417,7 +2419,8 @@ input:checked + .slider:before {
 .settings-checkbox-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .settings-checkbox-text {
@@ -2490,7 +2493,8 @@ input:checked + .slider:before {
 .settings-item-content {
   display: flex;
   align-items: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
   min-width: 0;
 }
 
@@ -2569,8 +2573,8 @@ input:checked + .slider:before {
 
 .language-popup {
   position: absolute;
-  width: 306px;
-  min-height: 142px;
+  width: 342px;
+  min-height: 162px;
   background:
     radial-gradient(120px 70px at 100% 0%, rgba(9,72,30,0.10), transparent 72%),
     radial-gradient(120px 70px at 0% 100%, rgba(9,72,30,0.08), transparent 72%),
@@ -2647,23 +2651,26 @@ input:checked + .slider:before {
 }
 
 .language-body {
-  min-height: 78px;
+  min-height: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 10px;
   padding: 10px 14px 14px;
 }
 
 .language-option {
-  min-width: 122px;
-  padding: 11px 12px;
+  min-width: 96px;
+  flex: 1 1 calc(33.333% - 10px);
+  max-width: 140px;
+  padding: 10px 10px;
   border: 1px solid rgba(9,72,30,0.42);
   border-radius: 14px;
   background: linear-gradient(180deg, #ffffff 0%, #f4f6f2 100%);
   color: #09481E;
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: .25px;
   cursor: pointer;
