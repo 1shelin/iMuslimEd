@@ -944,7 +944,14 @@ const ALLAH_99_MEANINGS_EN = [
 ];
 
 function getAllah99NamesForLanguage() {
-  if (currentLanguage !== "en") return ALLAH_99_NAMES;
+  if (currentLanguage === "ru") return ALLAH_99_NAMES;
+  if (currentLanguage === "ar") {
+    return ALLAH_99_NAMES.map(([, arabic], idx) => [
+      arabic,
+      arabic,
+      ALLAH_99_MEANINGS_AR[idx] || ""
+    ]);
+  }
   return ALLAH_99_NAMES.map(([name, arabic], idx) => [
     translitRuToLat(name),
     arabic,
@@ -1124,6 +1131,13 @@ function applyLanguage(lang) {
   renderTasbihCount();
 }
 
+function applyChatMessageDirection(el) {
+  if (!el) return;
+  const isArabic = currentLanguage === "ar";
+  el.classList.toggle("message-rtl", isArabic);
+  el.setAttribute("dir", isArabic ? "auto" : "ltr");
+}
+
 function updateProfileNameLabel() {
   if (!profileName) return;
   const savedFio = (localStorage.getItem("fio") || "").trim();
@@ -1177,7 +1191,7 @@ function updateChatDateLabel() {
     return;
   }
 
-  chatDateEl.textContent = lastDate.toLocaleDateString(currentLanguage === "en" ? "en-US" : "ru-RU", {
+  chatDateEl.textContent = lastDate.toLocaleDateString(currentLanguage === "en" ? "en-US" : currentLanguage === "ar" ? "ar-SA" : "ru-RU", {
     day: "numeric",
     month: "long"
   });
@@ -2363,6 +2377,7 @@ async function sendMessage() {
   let div = document.createElement("div");
   div.classList.add("message-user");
   div.textContent = msg;
+  applyChatMessageDirection(div);
   messageContainer.appendChild(div);
   
   const userCreatedAt = new Date().toISOString();
@@ -2377,6 +2392,7 @@ async function sendMessage() {
   let botDiv = document.createElement("div");
   botDiv.classList.add("message-bot");
   botDiv.textContent = t("thinking1");
+  applyChatMessageDirection(botDiv);
   messageContainer.appendChild(botDiv);
   if (keepScrollAtBottom) scrollChatToBottom();
   const stopThinking = startThinkingAnimation(botDiv);
@@ -2397,6 +2413,7 @@ async function sendMessage() {
     stopThinking();
     await typeMessage(botDiv, botText, 18, keepScrollAtBottom);
     botDiv.innerHTML = markdownToHtml(botText);
+    applyChatMessageDirection(botDiv);
     const botCreatedAt = new Date().toISOString();
     chatMessages.push({ type: 'bot', text: botText, created_at: botCreatedAt });
     updateChatDateLabel();
@@ -2610,6 +2627,7 @@ function renderChatHistory(historyItems) {
     } else {
       div.textContent = item.text;
     }
+    applyChatMessageDirection(div);
     messageContainer.appendChild(div);
     chatMessages.push({ type: item.type, text: item.text, created_at: createdAt });
   });
@@ -2925,7 +2943,7 @@ function initHalalMap() {
                     .addTo(halalMap)
                     .bindPopup(
                         `<div class="map-place-card map-place-card-halal">
-                           <div class="map-place-badge">HALAL</div>
+                           <div class="map-place-badge">${currentLanguage === "ar" ? "حلال" : "HALAL"}</div>
                            <div class="map-place-title">${place.name}</div>
                          </div>`,
                         { className: "imuslim-map-popup" }
@@ -3015,7 +3033,7 @@ function initMosqueMap() {
                     .addTo(mosqueMap)
                     .bindPopup(
                         `<div class="map-place-card map-place-card-prayer">
-                           <div class="map-place-badge">PRAYER</div>
+                           <div class="map-place-badge">${currentLanguage === "ar" ? "صلاة" : "PRAYER"}</div>
                            <div class="map-place-title">${mosque.name}</div>
                          </div>`,
                         { className: "imuslim-map-popup" }

@@ -1181,6 +1181,17 @@ input:checked + .slider:before {
   border-right: 8px solid #ffffff;
 }
 
+
+.message-user.message-rtl {
+  text-align: right;
+  unicode-bidi: plaintext;
+}
+
+.message-bot.message-rtl {
+  text-align: left;
+  unicode-bidi: plaintext;
+}
+
 /* меню */
 .menu-popup {
   display: none;
