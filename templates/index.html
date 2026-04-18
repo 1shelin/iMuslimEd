@@ -542,6 +542,129 @@
     </div>
   </div>
 
+  <!-- ролевая панель -->
+  <div id="adminFocusBackdrop" class="admin-focus-backdrop"></div>
+  <div id="adminPanelPopup" class="admin-popup">
+    <div class="admin-header">
+      <div class="admin-left">
+        <span class="admin-title" id="adminPopupTitleText">Ролевая модель</span>
+      </div>
+      <div class="chat-right-icons">
+        <span class="chat-menu">≡</span>
+        <button class="settings-close" id="closeAdminPanel">✕</button>
+      </div>
+    </div>
+    <div class="admin-body">
+      <div class="admin-top-info">
+        <div class="admin-panel-role" id="rolePanelAccessText">Роль: student</div>
+        <div class="admin-role-details" id="roleCapabilities"></div>
+      </div>
+
+      <div class="admin-section" id="curatorToolsSection">
+        <div class="admin-section-title">Инструменты куратора</div>
+        <div class="admin-field-label">FAQ (JSON-массив объектов `question/answer`)</div>
+        <textarea class="admin-textarea" id="roleFaqEditor"></textarea>
+        <div class="admin-actions-row">
+          <button class="admin-refresh-btn" id="faqReloadBtn">Загрузить</button>
+          <button class="admin-refresh-btn primary" id="faqSaveBtn">Сохранить FAQ</button>
+        </div>
+
+        <div class="admin-field-label">Инфо-материалы (HTML для текущего языка)</div>
+        <textarea class="admin-textarea" id="roleInfoEditor"></textarea>
+        <div class="admin-actions-row">
+          <button class="admin-refresh-btn" id="infoReloadBtn">Загрузить</button>
+          <button class="admin-refresh-btn primary" id="infoSaveBtn">Сохранить инфо</button>
+        </div>
+
+        <div class="admin-field-label">Точки халяль (JSON-массив `name/lat/lon`)</div>
+        <textarea class="admin-textarea compact" id="roleHalalEditor"></textarea>
+        <div class="admin-field-label">Точки мечеть/молельная (JSON-массив `name/lat/lon`)</div>
+        <textarea class="admin-textarea compact" id="roleMosqueEditor"></textarea>
+        <div class="admin-actions-row">
+          <button class="admin-refresh-btn" id="mapReloadBtn">Загрузить</button>
+          <button class="admin-refresh-btn primary" id="mapSaveBtn">Сохранить точки</button>
+        </div>
+      </div>
+
+      <div class="admin-section" id="adminUsersSection">
+        <div class="admin-section-head">
+          <div class="admin-section-title">Управление пользователями</div>
+          <button class="admin-refresh-btn" id="adminRefreshBtn">Обновить</button>
+        </div>
+        <div class="admin-users-wrap">
+          <table class="admin-users-table">
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>ID</th>
+                <th>Роль</th>
+                <th>Статус</th>
+                <th>Действие</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersBody">
+              <tr>
+                <td colspan="5">Загрузка...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-section" id="adminAuditSection">
+        <div class="admin-section-head">
+          <div class="admin-section-title">Audit log (последние записи)</div>
+          <button class="admin-refresh-btn" id="auditReloadBtn">Обновить</button>
+        </div>
+        <pre class="admin-audit-log" id="adminAuditLog">Загрузка...</pre>
+      </div>
+
+      <div class="admin-section" id="adminSystemSection">
+        <div class="admin-section-head">
+          <div class="admin-section-title">Системные настройки (JSON)</div>
+          <button class="admin-refresh-btn" id="systemReloadBtn">Обновить</button>
+        </div>
+        <textarea class="admin-textarea compact" id="roleSystemEditor"></textarea>
+        <div class="admin-actions-row">
+          <button class="admin-refresh-btn primary" id="systemSaveBtn">Сохранить настройки</button>
+        </div>
+      </div>
+
+      <div class="admin-section" id="adminMetricsSection">
+        <div class="admin-section-head">
+          <div class="admin-section-title">Статистика и метрики</div>
+          <button class="admin-refresh-btn" id="metricsReloadBtn">Обновить</button>
+        </div>
+        <div class="admin-metrics-grid" id="adminMetricsGrid"></div>
+      </div>
+
+      <div class="admin-section" id="adminModerationSection">
+        <div class="admin-section-head">
+          <div class="admin-section-title">Модерация пользовательского контента</div>
+          <button class="admin-refresh-btn" id="moderationReloadBtn">Обновить</button>
+        </div>
+        <div class="admin-moderation-wrap">
+          <table class="admin-users-table admin-moderation-table">
+            <thead>
+              <tr>
+                <th>Пользователь</th>
+                <th>Сообщение</th>
+                <th>Время</th>
+                <th>Статус</th>
+                <th>Действие</th>
+              </tr>
+            </thead>
+            <tbody id="adminModerationBody">
+              <tr>
+                <td colspan="5">Загрузка...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- подтверждение очистки истории -->
   <div id="clearHistoryConfirmPopup" class="clear-history-confirm-popup">
     <div class="clear-history-confirm-title">
@@ -639,6 +762,7 @@
             <img src="{{ url_for('static', filename='user.png') }}" class="user-icon">
             <div class="profile-name" id="profileName">ФИО</div>
           </div>
+          <button class="profile-role-badge" id="profileRoleBadge" type="button">role: student</button>
         </div>
 
 	        <div class="major-quote" id="majorQuoteText">«Пусть знания ведут к взаимопониманию»</div>

@@ -3056,6 +3056,34 @@ input:checked + .slider:before {
   z-index: 1;
 }
 
+.profile-role-badge {
+  position: relative;
+  z-index: 2;
+  margin-top: 8px;
+  margin-left: 8px;
+  border: 1px solid rgba(9,72,30,0.45);
+  background: #f0f5f1;
+  color: #09481E;
+  border-radius: 999px;
+  font-size: 10px;
+  padding: 3px 10px;
+  cursor: pointer;
+  text-transform: lowercase;
+  letter-spacing: 0.5px;
+}
+
+.profile-role-badge:hover {
+  background: #e6efe8;
+}
+
+.profile-role-badge.is-disabled,
+.profile-role-badge:disabled {
+  cursor: default;
+  opacity: 0.75;
+  background: #eef2ee;
+  pointer-events: none;
+}
+
 /* КРУГ */
 .circle-menu {
   position: relative;
@@ -3811,6 +3839,13 @@ html, body {
   transition: transform 0.2s ease;
   object-fit: contain;
   display: block;
+}
+
+.circle-sector,
+.circle-center,
+.profile-role-badge {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .prayer-popup {
