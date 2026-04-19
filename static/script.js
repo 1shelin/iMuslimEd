@@ -4,6 +4,7 @@ let authFinished = false;
 let currentLogin = "";
 let currentPassword = "";
 let currentUserId = localStorage.getItem("currentUserId") || "";
+let currentUserRole = localStorage.getItem("currentUserRole") || "student";
 let chatMessages = [];
 const MAX_CHAT_MESSAGE_LENGTH = 500;
 const LAST_AUTH_WINDOW_KEY = "lastAuthorizedWindow";
@@ -79,6 +80,39 @@ const menuNames99PopupEl = document.getElementById("menuNames99Popup");
 const closeMenuPrayerBtn = document.getElementById("closeMenuPrayer");
 const closeMenuNames99Btn = document.getElementById("closeMenuNames99");
 const languageSettingsBtn = document.getElementById("languageSettings");
+const profileRoleBadgeBtn = document.getElementById("profileRoleBadge");
+const adminFocusBackdropEl = document.getElementById("adminFocusBackdrop");
+const adminPanelPopupEl = document.getElementById("adminPanelPopup");
+const closeAdminPanelBtn = document.getElementById("closeAdminPanel");
+const adminRefreshBtn = document.getElementById("adminRefreshBtn");
+const adminUsersBodyEl = document.getElementById("adminUsersBody");
+const rolePanelAccessTextEl = document.getElementById("rolePanelAccessText");
+const curatorToolsSectionEl = document.getElementById("curatorToolsSection");
+const adminUsersSectionEl = document.getElementById("adminUsersSection");
+const adminAuditSectionEl = document.getElementById("adminAuditSection");
+const adminSystemSectionEl = document.getElementById("adminSystemSection");
+const adminMetricsSectionEl = document.getElementById("adminMetricsSection");
+const adminModerationSectionEl = document.getElementById("adminModerationSection");
+const roleFaqEditorEl = document.getElementById("roleFaqEditor");
+const roleInfoEditorEl = document.getElementById("roleInfoEditor");
+const roleHalalEditorEl = document.getElementById("roleHalalEditor");
+const roleMosqueEditorEl = document.getElementById("roleMosqueEditor");
+const roleSystemEditorEl = document.getElementById("roleSystemEditor");
+const roleCapabilitiesEl = document.getElementById("roleCapabilities");
+const faqReloadBtn = document.getElementById("faqReloadBtn");
+const faqSaveBtn = document.getElementById("faqSaveBtn");
+const infoReloadBtn = document.getElementById("infoReloadBtn");
+const infoSaveBtn = document.getElementById("infoSaveBtn");
+const mapReloadBtn = document.getElementById("mapReloadBtn");
+const mapSaveBtn = document.getElementById("mapSaveBtn");
+const auditReloadBtn = document.getElementById("auditReloadBtn");
+const systemReloadBtn = document.getElementById("systemReloadBtn");
+const systemSaveBtn = document.getElementById("systemSaveBtn");
+const metricsReloadBtn = document.getElementById("metricsReloadBtn");
+const moderationReloadBtn = document.getElementById("moderationReloadBtn");
+const adminAuditLogEl = document.getElementById("adminAuditLog");
+const adminMetricsGridEl = document.getElementById("adminMetricsGrid");
+const adminModerationBodyEl = document.getElementById("adminModerationBody");
 const languagePopupEl = document.getElementById("languagePopup");
 const closeLanguagePopupBtn = document.getElementById("closeLanguagePopup");
 const languageRuBtn = document.getElementById("languageRuBtn");
@@ -138,6 +172,9 @@ function normalizeClientLanguage(lang) {
 let currentLanguage = normalizeClientLanguage(localStorage.getItem(APP_LANGUAGE_KEY) || "ru");
 let tasbihCount = Number.parseInt(localStorage.getItem(TASBIH_COUNT_KEY) || "0", 10);
 if (!Number.isFinite(tasbihCount) || tasbihCount < 0) tasbihCount = 0;
+let dynamicFaqItems = [];
+let dynamicInfoContent = { ru: "", en: "", ar: "" };
+let dynamicMapPoints = { halal: [], mosque: [] };
 
 const UI_TEXT = {
   ru: {
@@ -162,6 +199,46 @@ const UI_TEXT = {
     clear_history: "Очистить историю чата",
     about_service: "О сервисе",
     feedback: "Обратная связь",
+    admin_panel: "Ролевая модель",
+    admin_panel_title: "Ролевая модель",
+    role_label: "Роль",
+    role_student: "student",
+    role_curator: "curator",
+    role_admin: "admin",
+    role_access_none: "Только просмотр. Расширенные действия недоступны.",
+    role_access_curator: "Доступ к редактированию FAQ, инфо-материалов и точек карт.",
+    role_access_admin: "Полный доступ: контент + пользователи + аудит.",
+    admin_refresh: "Обновить",
+    admin_loading: "Загрузка...",
+    admin_action_save: "Сменить",
+    admin_save_faq: "Сохранить FAQ",
+    admin_save_info: "Сохранить инфо",
+    admin_save_points: "Сохранить точки",
+    admin_action_block: "Блок",
+    admin_action_unblock: "Разблок",
+    admin_status_blocked: "Заблокирован",
+    admin_status_active: "Активен",
+    admin_error: "Ошибка админ-панели",
+    admin_save_system: "Сохранить настройки",
+    admin_metrics_users_total: "Пользователи",
+    admin_metrics_active: "Активные",
+    admin_metrics_blocked: "Заблокированные",
+    admin_metrics_new_today: "Новые за сегодня",
+    admin_metrics_faq: "FAQ записей",
+    admin_metrics_map_halal: "Точек халяль",
+    admin_metrics_map_mosque: "Точек мечетей",
+    admin_metrics_audit: "Событий аудита",
+    admin_metrics_chat_total: "Всего сообщений",
+    admin_metrics_chat_user: "Сообщений user",
+    admin_metrics_chat_bot: "Сообщений bot",
+    admin_moderation_hidden: "Скрыто",
+    admin_moderation_visible: "Видимо",
+    admin_moderation_hide: "Скрыть",
+    admin_moderation_show: "Показать",
+    admin_saved: "Сохранено",
+    admin_role_updated: "Роль обновлена",
+    admin_user_blocked: "Пользователь заблокирован",
+    admin_user_unblocked: "Пользователь разблокирован",
     about_popup_title: "О сервисе",
     feedback_popup_title: "Обратная связь",
     language: "Язык",
@@ -280,6 +357,46 @@ const UI_TEXT = {
     clear_history: "Clear chat history",
     about_service: "About service",
     feedback: "Feedback",
+    admin_panel: "Admin Panel",
+    admin_panel_title: "Admin Panel",
+    role_label: "Role",
+    role_student: "student",
+    role_curator: "curator",
+    role_admin: "admin",
+    role_access_none: "Read-only mode. Extended actions are not available.",
+    role_access_curator: "Can edit FAQ, info materials, and map points.",
+    role_access_admin: "Full access: content, users, and audit logs.",
+    admin_refresh: "Refresh",
+    admin_loading: "Loading...",
+    admin_action_save: "Apply",
+    admin_save_faq: "Save FAQ",
+    admin_save_info: "Save Info",
+    admin_save_points: "Save Points",
+    admin_action_block: "Block",
+    admin_action_unblock: "Unblock",
+    admin_status_blocked: "Blocked",
+    admin_status_active: "Active",
+    admin_error: "Admin panel error",
+    admin_save_system: "Save settings",
+    admin_metrics_users_total: "Users",
+    admin_metrics_active: "Active users",
+    admin_metrics_blocked: "Blocked users",
+    admin_metrics_new_today: "New today",
+    admin_metrics_faq: "FAQ items",
+    admin_metrics_map_halal: "Halal points",
+    admin_metrics_map_mosque: "Mosque points",
+    admin_metrics_audit: "Audit events",
+    admin_metrics_chat_total: "All messages",
+    admin_metrics_chat_user: "User messages",
+    admin_metrics_chat_bot: "Bot messages",
+    admin_moderation_hidden: "Hidden",
+    admin_moderation_visible: "Visible",
+    admin_moderation_hide: "Hide",
+    admin_moderation_show: "Show",
+    admin_saved: "Saved",
+    admin_role_updated: "Role updated",
+    admin_user_blocked: "User blocked",
+    admin_user_unblocked: "User unblocked",
     about_popup_title: "About service",
     feedback_popup_title: "Feedback",
     language: "Language",
@@ -398,6 +515,46 @@ const UI_TEXT = {
     clear_history: "مسح سجل الدردشة",
     about_service: "حول الخدمة",
     feedback: "الملاحظات",
+    admin_panel: "لوحة الإدارة",
+    admin_panel_title: "لوحة الإدارة",
+    role_label: "الدور",
+    role_student: "student",
+    role_curator: "curator",
+    role_admin: "admin",
+    role_access_none: "وضع عرض فقط. الإجراءات المتقدمة غير متاحة.",
+    role_access_curator: "يمكن تعديل FAQ ومواد المعلومات ونقاط الخرائط.",
+    role_access_admin: "وصول كامل: المحتوى والمستخدمون وسجل التدقيق.",
+    admin_refresh: "تحديث",
+    admin_loading: "جارٍ التحميل...",
+    admin_action_save: "تغيير",
+    admin_save_faq: "حفظ FAQ",
+    admin_save_info: "حفظ المعلومات",
+    admin_save_points: "حفظ النقاط",
+    admin_action_block: "حظر",
+    admin_action_unblock: "إلغاء الحظر",
+    admin_status_blocked: "محظور",
+    admin_status_active: "نشط",
+    admin_error: "خطأ في لوحة الإدارة",
+    admin_save_system: "حفظ الإعدادات",
+    admin_metrics_users_total: "المستخدمون",
+    admin_metrics_active: "المستخدمون النشطون",
+    admin_metrics_blocked: "المستخدمون المحظورون",
+    admin_metrics_new_today: "جدد اليوم",
+    admin_metrics_faq: "عناصر FAQ",
+    admin_metrics_map_halal: "نقاط الحلال",
+    admin_metrics_map_mosque: "نقاط المساجد",
+    admin_metrics_audit: "أحداث التدقيق",
+    admin_metrics_chat_total: "كل الرسائل",
+    admin_metrics_chat_user: "رسائل المستخدم",
+    admin_metrics_chat_bot: "رسائل البوت",
+    admin_moderation_hidden: "مخفي",
+    admin_moderation_visible: "ظاهر",
+    admin_moderation_hide: "إخفاء",
+    admin_moderation_show: "إظهار",
+    admin_saved: "تم الحفظ",
+    admin_role_updated: "تم تحديث الدور",
+    admin_user_blocked: "تم حظر المستخدم",
+    admin_user_unblocked: "تم إلغاء حظر المستخدم",
     about_popup_title: "حول الخدمة",
     feedback_popup_title: "الملاحظات",
     language: "اللغة",
@@ -494,6 +651,78 @@ const UI_TEXT = {
     faq_q10: "10. كيف أتواصل مع المطورين؟",
     faq_a10: "افتح \"الإعدادات\" ثم اختر \"الملاحظات\".",
   }
+};
+
+const ROLE_CAPABILITIES_CONTENT = {
+  ru: `
+    <p>Student</p>
+    <ul>
+      <li>Обычный пользователь.</li>
+      <li>Использует: чат, намаз, карты, FAQ, настройки.</li>
+      <li>Ничего не редактирует и никем не управляет.</li>
+    </ul>
+    <p>Curator</p>
+    <ul>
+      <li>Все, что может Student.</li>
+      <li>Редактирует FAQ и инфо-материалы.</li>
+      <li>Обновляет точки на карте (мечети/халяль).</li>
+      <li>Поддерживает актуальность информации.</li>
+      <li>Не может: назначать роли, блокировать пользователей, смотреть audit_log и системные настройки.</li>
+    </ul>
+    <p>Admin</p>
+    <ul>
+      <li>Все, что может Curator.</li>
+      <li>Открывает админ-панель, видит пользователей, меняет роли и блокирует/разблокирует аккаунты.</li>
+      <li>Смотрит audit_log и управляет доступом к критичным действиям.</li>
+      <li>Опасные действия идут через серверные проверки роли и фиксируются в журнале аудита.</li>
+    </ul>
+  `,
+  en: `
+    <p>Student</p>
+    <ul>
+      <li>Regular user.</li>
+      <li>Uses chat, prayer, maps, FAQ, settings.</li>
+      <li>Cannot edit content or manage users.</li>
+    </ul>
+    <p>Curator</p>
+    <ul>
+      <li>Everything Student can do.</li>
+      <li>Edits FAQ and info materials.</li>
+      <li>Updates map points (mosques/halal).</li>
+      <li>Keeps content up to date.</li>
+      <li>Cannot assign roles, block users, or access audit/system management.</li>
+    </ul>
+    <p>Admin</p>
+    <ul>
+      <li>Everything Curator can do.</li>
+      <li>Manages users, roles, blocking/unblocking, and admin panel access.</li>
+      <li>Reviews audit log and controls critical actions.</li>
+      <li>Dangerous actions must be server-side role checked and logged.</li>
+    </ul>
+  `,
+  ar: `
+    <p>Student</p>
+    <ul>
+      <li>مستخدم عادي.</li>
+      <li>يستخدم الدردشة والصلاة والخرائط وFAQ والإعدادات.</li>
+      <li>لا يحرر المحتوى ولا يدير المستخدمين.</li>
+    </ul>
+    <p>Curator</p>
+    <ul>
+      <li>كل صلاحيات Student.</li>
+      <li>يحرر FAQ والمواد المعلوماتية.</li>
+      <li>يحدث نقاط الخرائط (مساجد/حلال).</li>
+      <li>يحافظ على حداثة المعلومات.</li>
+      <li>لا يمكنه تعيين الأدوار أو حظر المستخدمين أو عرض سجل التدقيق.</li>
+    </ul>
+    <p>Admin</p>
+    <ul>
+      <li>كل صلاحيات Curator.</li>
+      <li>يدير لوحة الإدارة والمستخدمين والأدوار والحظر/فك الحظر.</li>
+      <li>يعرض سجل التدقيق ويتحكم في الإجراءات الحساسة.</li>
+      <li>الإجراءات الخطرة يجب أن تمر عبر تحقق دور من الخادم مع تسجيلها.</li>
+    </ul>
+  `
 };
 
 const ABOUT_CONTENT = {
@@ -943,6 +1172,108 @@ const ALLAH_99_MEANINGS_EN = [
   "The Most Patient"
 ];
 
+const ALLAH_99_MEANINGS_AR = [
+  "الإله الواحد، صاحب الألوهية",
+  "الأرحم واسع الرحمة",
+  "الرحيم بالمؤمنين",
+  "الملك",
+  "القدوس",
+  "مصدر السلام والأمان",
+  "المؤمِّن المانح للأمان",
+  "المهيمن الحافظ",
+  "العزيز",
+  "الجبار",
+  "المتكبر المتعالي",
+  "الخالق",
+  "البارئ",
+  "المصور",
+  "الغفار",
+  "القهار",
+  "الوهاب",
+  "الرزاق",
+  "الفتاح",
+  "العليم",
+  "القابض",
+  "الباسط",
+  "الخافض",
+  "الرافع",
+  "المعز",
+  "المذل",
+  "السميع",
+  "البصير",
+  "الحكم",
+  "العدل",
+  "اللطيف",
+  "الخبير",
+  "الحليم",
+  "العظيم",
+  "الغفور",
+  "الشكور",
+  "العلي",
+  "الكبير",
+  "الحفيظ",
+  "المقيت",
+  "الحسيب",
+  "الجليل",
+  "الكريم",
+  "الرقيب",
+  "المجيب",
+  "الواسع",
+  "الحكيم",
+  "الودود",
+  "المجيد",
+  "الباعث",
+  "الشهيد",
+  "الحق",
+  "الوكيل",
+  "القوي",
+  "المتين",
+  "الولي",
+  "الحميد",
+  "المحصي",
+  "المبدئ",
+  "المعيد",
+  "المحيي",
+  "المميت",
+  "الحي",
+  "القيوم",
+  "الواجد",
+  "الماجد",
+  "الواحد",
+  "الأحد",
+  "الصمد",
+  "القادر",
+  "المقتدر",
+  "المقدم",
+  "المؤخر",
+  "الأول",
+  "الآخر",
+  "الظاهر",
+  "الباطن",
+  "الوالي",
+  "المتعالي",
+  "البر",
+  "التواب",
+  "المنتقم",
+  "العفو",
+  "الرؤوف",
+  "مالك الملك",
+  "ذو الجلال والإكرام",
+  "المقسط",
+  "الجامع",
+  "الغني",
+  "المغني",
+  "المانع",
+  "الضار بحكمته",
+  "النافع",
+  "النور",
+  "الهادي",
+  "البديع",
+  "الباقي",
+  "الوارث",
+  "الصبور"
+];
+
 function getAllah99NamesForLanguage() {
   if (currentLanguage === "ru") return ALLAH_99_NAMES;
   if (currentLanguage === "ar") {
@@ -965,6 +1296,7 @@ function getWindowKey(windowElement) {
   if (windowElement === chatWindow) return "chat";
   if (windowElement === majorWindow) return "major";
   if (windowElement === settingsWindow) return "settings";
+  if (windowElement === adminPanelPopupEl) return "admin_panel";
   if (windowElement === menuWindow) return "menu";
   if (windowElement === menuPrayerWindow) return "menu_prayer";
   if (windowElement === menuNames99Window) return "menu_names99";
@@ -976,6 +1308,7 @@ function getWindowByKey(windowKey) {
   if (windowKey === "chat") return chatWindow;
   if (windowKey === "major") return majorWindow;
   if (windowKey === "settings") return settingsWindow;
+  if (windowKey === "admin_panel") return adminPanelPopupEl;
   if (windowKey === "menu") return menuWindow;
   if (windowKey === "menu_prayer") return menuPrayerWindow;
   if (windowKey === "menu_names99") return menuNames99Window;
@@ -995,6 +1328,84 @@ function getRememberedAuthorizedWindow() {
 
 function t(key) {
   return (UI_TEXT[currentLanguage] && UI_TEXT[currentLanguage][key]) || (UI_TEXT.ru && UI_TEXT.ru[key]) || key;
+}
+
+function isAdminRole() {
+  return currentUserRole === "admin";
+}
+
+function isCuratorOrAdminRole() {
+  return currentUserRole === "curator" || currentUserRole === "admin";
+}
+
+function roleDisplayName(role) {
+  if (role === "admin") return t("role_admin");
+  if (role === "curator") return t("role_curator");
+  return t("role_student");
+}
+
+function renderRoleCapabilitiesByLanguage() {
+  if (!roleCapabilitiesEl) return;
+  roleCapabilitiesEl.innerHTML = ROLE_CAPABILITIES_CONTENT[currentLanguage] || ROLE_CAPABILITIES_CONTENT.ru;
+}
+
+function updateRoleBasedUi() {
+  if (profileRoleBadgeBtn) {
+    profileRoleBadgeBtn.textContent = `${t("role_label")}: ${roleDisplayName(currentUserRole)}`;
+    profileRoleBadgeBtn.style.display = "inline-flex";
+    const clickable = isCuratorOrAdminRole();
+    profileRoleBadgeBtn.disabled = !clickable;
+    profileRoleBadgeBtn.setAttribute("aria-disabled", clickable ? "false" : "true");
+    profileRoleBadgeBtn.classList.toggle("is-disabled", !clickable);
+  }
+  if (rolePanelAccessTextEl) {
+    const accessText = isAdminRole()
+      ? t("role_access_admin")
+      : currentUserRole === "curator"
+      ? t("role_access_curator")
+      : t("role_access_none");
+    rolePanelAccessTextEl.textContent = `${t("role_label")}: ${roleDisplayName(currentUserRole)}. ${accessText}`;
+  }
+  if (curatorToolsSectionEl) {
+    curatorToolsSectionEl.style.display = isCuratorOrAdminRole() ? "block" : "none";
+  }
+  if (adminUsersSectionEl) {
+    adminUsersSectionEl.style.display = isAdminRole() ? "block" : "none";
+  }
+  if (adminAuditSectionEl) {
+    adminAuditSectionEl.style.display = isAdminRole() ? "block" : "none";
+  }
+  if (adminSystemSectionEl) {
+    adminSystemSectionEl.style.display = isAdminRole() ? "block" : "none";
+  }
+  if (adminMetricsSectionEl) {
+    adminMetricsSectionEl.style.display = isAdminRole() ? "block" : "none";
+  }
+  if (adminModerationSectionEl) {
+    adminModerationSectionEl.style.display = isAdminRole() ? "block" : "none";
+  }
+}
+
+async function syncRoleFromServer() {
+  if (!currentUserId) {
+    currentUserRole = "student";
+    localStorage.setItem("currentUserRole", currentUserRole);
+    updateRoleBasedUi();
+    return;
+  }
+  try {
+    const res = await fetch(`/me?user_id=${encodeURIComponent(currentUserId)}`);
+    const data = await res.json();
+    if (data && data.success && typeof data.role === "string") {
+      currentUserRole = data.role || "student";
+      localStorage.setItem("currentUserRole", currentUserRole);
+      updateRoleBasedUi();
+      return;
+    }
+  } catch (error) {
+    console.error("Ошибка синхронизации роли:", error);
+  }
+  updateRoleBasedUi();
 }
 
 function renderTasbihCount() {
@@ -1047,6 +1458,19 @@ function applyLanguage(lang) {
   setText("clearHistoryText", t("clear_history"));
   setText("aboutServiceText", t("about_service"));
   setText("feedbackText", t("feedback"));
+  setText("adminPopupTitleText", t("admin_panel_title"));
+  setText("adminRefreshBtn", t("admin_refresh"));
+  setText("faqReloadBtn", t("admin_refresh"));
+  setText("faqSaveBtn", t("admin_save_faq"));
+  setText("infoReloadBtn", t("admin_refresh"));
+  setText("infoSaveBtn", t("admin_save_info"));
+  setText("mapReloadBtn", t("admin_refresh"));
+  setText("mapSaveBtn", t("admin_save_points"));
+  setText("auditReloadBtn", t("admin_refresh"));
+  setText("systemReloadBtn", t("admin_refresh"));
+  setText("systemSaveBtn", t("admin_save_system"));
+  setText("metricsReloadBtn", t("admin_refresh"));
+  setText("moderationReloadBtn", t("admin_refresh"));
   setText("aboutPopupTitleText", t("about_popup_title"));
   setText("feedbackPopupTitleText", t("feedback_popup_title"));
   setText("languageText", t("language"));
@@ -1064,6 +1488,7 @@ function applyLanguage(lang) {
   setText("languageRuBtn", t("language_ru"));
   setText("languageEnBtn", t("language_en"));
   setText("languageArBtn", t("language_ar"));
+  renderRoleCapabilitiesByLanguage();
   if (quickLanguageTitleEl) quickLanguageTitleEl.textContent = t("language");
   setText("quickLanguageRuBtn", t("language_ru"));
   setText("quickLanguageEnBtn", t("language_en"));
@@ -1114,6 +1539,7 @@ function applyLanguage(lang) {
   if (fioInput) fioInput.placeholder = t("fio_placeholder");
   if (chatInput) chatInput.placeholder = t("chat_placeholder");
   updateProfileNameLabel();
+  updateRoleBasedUi();
 
   if (languageRuBtn) languageRuBtn.classList.toggle("active", currentLanguage === "ru");
   if (languageEnBtn) languageEnBtn.classList.toggle("active", currentLanguage === "en");
@@ -1237,6 +1663,7 @@ function hasBlockingChildPopupOpen() {
     clearHistoryConfirmPopupEl,
     logoutConfirmPopupEl,
     languagePopupEl,
+    adminPanelPopupEl,
     quickLanguagePopupEl,
     miniAlertPopup,
     menuPrayerPopupEl,
@@ -1330,7 +1757,7 @@ function initNames99Grid() {
 function updateParentWindowEffects() {
   const majorChildOpen = [prayerPopupEl, faqPopupEl, halalPopupEl, mosquePopupEl]
     .some((popup) => popup && popup.style.display === 'block');
-  const settingsChildOpen = [aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl]
+  const settingsChildOpen = [aboutPopupEl, feedbackPopupEl, languagePopupEl, adminPanelPopupEl, qiblaPopupEl, tasbihPopupEl]
     .some((popup) => popup && popup.style.display === 'block');
   const settingsConfirmOpen = (
     (clearHistoryConfirmPopupEl && clearHistoryConfirmPopupEl.style.display === 'block') ||
@@ -1345,6 +1772,23 @@ function updateParentWindowEffects() {
   }
 }
 
+function setAdminFocusBackdropVisible(isVisible) {
+  if (!adminFocusBackdropEl) return;
+  if (isVisible) {
+    adminFocusBackdropEl.style.display = "block";
+    requestAnimationFrame(() => {
+      adminFocusBackdropEl.classList.add("visible");
+    });
+    return;
+  }
+  adminFocusBackdropEl.classList.remove("visible");
+  setTimeout(() => {
+    if (!adminFocusBackdropEl.classList.contains("visible")) {
+      adminFocusBackdropEl.style.display = "none";
+    }
+  }, 220);
+}
+
 // показать попап (заменяет другие окна)
 function showPopup(popupElement) {
   if (!popupElement) {
@@ -1355,7 +1799,7 @@ function showPopup(popupElement) {
   // скрыть только основные окна, но не дочерние 
   const mainPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
-    chatWindow, menuWindow, settingsWindow, majorWindow, fioPopup, menuPrayerWindow, menuNames99Window
+    chatWindow, menuWindow, settingsWindow, majorWindow, adminPanelPopupEl, fioPopup, menuPrayerWindow, menuNames99Window
   ];
   
   mainPopups.forEach(popup => {
@@ -1386,9 +1830,12 @@ function showChildPopup(popupElement) {
   popupElement.style.display = 'block';
   popupElement.classList.remove('popup-hidden');
   popupElement.classList.add('popup-visible');
+  if (popupElement === adminPanelPopupEl) {
+    setAdminFocusBackdropVisible(true);
+  }
   
   // устанавливаем высокий z-index
-  popupElement.style.zIndex = '2000';
+  popupElement.style.zIndex = popupElement === adminPanelPopupEl ? '5001' : '2000';
   updateParentWindowEffects();
   
   console.log("showing child popup:", popupElement.id);
@@ -1397,6 +1844,9 @@ function showChildPopup(popupElement) {
 // скрыть попап с анимацией
 function hidePopup(popupElement) {
   if (!popupElement) return;
+  if (popupElement === adminPanelPopupEl) {
+    setAdminFocusBackdropVisible(false);
+  }
   
   popupElement.classList.remove('popup-visible');
   popupElement.classList.add('popup-hidden');
@@ -1417,7 +1867,7 @@ function hideAllPopups() {
   const allPopups = [
     islamPopup, authPopup, authLoading, mainWindow, 
     chatWindow, menuWindow, settingsWindow, majorWindow, centerInfoPopupEl,
-    fioPopup, prayerPopupEl, faqPopupEl, centerInfoPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
+    fioPopup, prayerPopupEl, faqPopupEl, centerInfoPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, adminPanelPopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, halalPopupEl, mosquePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, menuPrayerWindow, menuNames99Window
   ];
   
   allPopups.forEach(popup => {
@@ -1535,6 +1985,7 @@ function initEventListeners() {
       
       // все основные окна авторизованного пользователя
       const mainUserWindows = [mainWindow, majorWindow, centerInfoPopupEl, chatWindow, settingsWindow, menuWindow, menuPrayerWindow, menuNames99Window];
+      mainUserWindows.push(adminPanelPopupEl);
       let openMainWindow = null;
       
       for (let win of mainUserWindows) {
@@ -1561,6 +2012,9 @@ function initEventListeners() {
       if (activeMainWindow) {
         console.log("открываем последнее окно:", activeMainWindow.id);
         showPopup(activeMainWindow);
+        if (activeMainWindow === adminPanelPopupEl) {
+          void hydrateAdminPanelData();
+        }
       } else {
         console.log("открываем окно приветствия");
         showPopup(mainWindow);
@@ -1687,7 +2141,9 @@ function initEventListeners() {
   if (menuButtons && menuButtons.length > 0) {
     menuButtons.forEach(btn => {
       btn.addEventListener("click", function(e) {
-        if (hasBlockingChildPopupOpen()) {
+        const adminOpen = adminPanelPopupEl && adminPanelPopupEl.style.display === "block";
+        const clickedInsideAdmin = adminOpen && adminPanelPopupEl.contains(this);
+        if (hasBlockingChildPopupOpen() && !clickedInsideAdmin) {
           e.preventDefault();
           e.stopPropagation();
           return;
@@ -2017,6 +2473,132 @@ function initEventListeners() {
     hidePopup(languagePopupEl);
   });
 
+  profileRoleBadgeBtn?.addEventListener("click", async function(e) {
+    if (!isCuratorOrAdminRole()) return;
+    const adminOpen = adminPanelPopupEl && adminPanelPopupEl.style.display === "block";
+    if (hasBlockingChildPopupOpen() && !adminOpen) return;
+    e.preventDefault();
+    e.stopPropagation();
+    if (adminOpen) {
+      hidePopup(adminPanelPopupEl);
+      rememberAuthorizedWindow(adminPanelPopupEl);
+      return;
+    }
+    if (majorWindow && majorWindow.style.display === "block") {
+      hidePopup(majorWindow);
+    }
+    showPopup(adminPanelPopupEl);
+    rememberAuthorizedWindow(adminPanelPopupEl);
+    await hydrateAdminPanelData();
+  });
+
+  closeAdminPanelBtn?.addEventListener("click", function(e) {
+    e.stopPropagation();
+    hidePopup(adminPanelPopupEl);
+    showPopup(majorWindow);
+    rememberAuthorizedWindow(majorWindow);
+  });
+
+  adminRefreshBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadAdminUsers();
+  });
+
+  auditReloadBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadAuditLog();
+  });
+
+  systemReloadBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadSystemSettings();
+  });
+
+  systemSaveBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await saveSystemSettingsFromEditor();
+  });
+
+  metricsReloadBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadAdminMetrics();
+  });
+
+  moderationReloadBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadModerationMessages();
+  });
+
+  faqReloadBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadFaqContentFromServer();
+    if (roleFaqEditorEl) {
+      const faqForEditor = (Array.isArray(dynamicFaqItems) && dynamicFaqItems.length > 0)
+        ? dynamicFaqItems
+        : getBuiltInFaqItemsByLanguage(currentLanguage);
+      roleFaqEditorEl.value = JSON.stringify(faqForEditor, null, 2);
+    }
+  });
+
+  infoReloadBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadInfoContentFromServer();
+    if (roleInfoEditorEl) {
+      roleInfoEditorEl.value = dynamicInfoContent[currentLanguage] || CENTER_INFO_CONTENT[currentLanguage] || "";
+    }
+  });
+
+  mapReloadBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await loadMapPointsFromServer();
+    if (roleHalalEditorEl) roleHalalEditorEl.value = JSON.stringify(dynamicMapPoints.halal || [], null, 2);
+    if (roleMosqueEditorEl) roleMosqueEditorEl.value = JSON.stringify(dynamicMapPoints.mosque || [], null, 2);
+  });
+
+  faqSaveBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await saveFaqFromEditor();
+  });
+
+  infoSaveBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await saveInfoFromEditor();
+  });
+
+  mapSaveBtn?.addEventListener("click", async function(e) {
+    e.stopPropagation();
+    await saveMapPointsFromEditor();
+  });
+
+  adminUsersBodyEl?.addEventListener("click", async function(e) {
+    const actionBtn = e.target.closest("button[data-action]");
+    if (!actionBtn || !isAdminRole()) return;
+    e.stopPropagation();
+    const targetUserId = actionBtn.getAttribute("data-user-id") || "";
+    if (!targetUserId) return;
+    if (actionBtn.getAttribute("data-action") === "set-role") {
+      const row = actionBtn.closest("tr");
+      const roleSelect = row ? row.querySelector("select[data-role-user-id]") : null;
+      const selectedRole = roleSelect ? roleSelect.value : "";
+      await setRoleFromAdmin(targetUserId, selectedRole);
+      return;
+    }
+    if (actionBtn.getAttribute("data-action") === "toggle-block") {
+      const isBlockedNow = actionBtn.getAttribute("data-blocked") === "true";
+      await toggleBlockFromAdmin(targetUserId, !isBlockedNow);
+    }
+  });
+
+  adminModerationBodyEl?.addEventListener("click", async function(e) {
+    const actionBtn = e.target.closest("button[data-moderation-action]");
+    if (!actionBtn || !isAdminRole()) return;
+    e.stopPropagation();
+    const messageKey = actionBtn.getAttribute("data-message-key") || "";
+    if (!messageKey) return;
+    const currentHidden = actionBtn.getAttribute("data-hidden") === "true";
+    await setModerationVisibility(messageKey, !currentHidden);
+  });
+
   // кибла
   qiblaCard?.addEventListener("click", function(e) {
     if (hasBlockingChildPopupOpen()) return;
@@ -2057,6 +2639,7 @@ function initEventListeners() {
     localStorage.removeItem("fio");
     localStorage.removeItem("isAuthorized");
     localStorage.removeItem("currentUserId");
+    localStorage.removeItem("currentUserRole");
     localStorage.removeItem("islamConfirmed");
 
     authFinished = false;
@@ -2065,6 +2648,8 @@ function initEventListeners() {
     currentLogin = "";
     currentPassword = "";
     currentUserId = "";
+    currentUserRole = "student";
+    updateRoleBasedUi();
 
     if (loginInput) loginInput.value = "";
     if (passwordInput) passwordInput.value = "";
@@ -2168,6 +2753,7 @@ function getActiveHostWindowForMiniAlert() {
     chatWindow,
     settingsWindow,
     majorWindow,
+    adminPanelPopupEl,
     authLoading
   ];
   for (const win of windows) {
@@ -2274,9 +2860,12 @@ async function handleLogin() {
       } else {
         localStorage.setItem("isAuthorized", "true");
         currentUserId = result.user_id || "";
+        currentUserRole = result.role || "student";
         if (currentUserId) {
           localStorage.setItem("currentUserId", currentUserId);
         }
+        localStorage.setItem("currentUserRole", currentUserRole);
+        await syncRoleFromServer();
 
         if (result.fio) {
           localStorage.setItem("fio", result.fio);
@@ -2339,9 +2928,12 @@ async function handleSaveFio() {
       localStorage.setItem("fio", fio);
       localStorage.setItem("isAuthorized", "true");
       currentUserId = result.user_id || "";
+      currentUserRole = result.role || "student";
       if (currentUserId) {
         localStorage.setItem("currentUserId", currentUserId);
       }
+      localStorage.setItem("currentUserRole", currentUserRole);
+      await syncRoleFromServer();
 
       updateProfileNameLabel();
 
@@ -2682,10 +3274,14 @@ async function loadPrayerTimes() {
   const today = `${y}-${m}-${d}`;
   const cached = localStorage.getItem("prayerCache");
   let timings;
+  let staleTimings;
 
   if (cached) {
     try {
       const parsed = JSON.parse(cached);
+      if (parsed && parsed.data && typeof parsed.data === "object") {
+        staleTimings = parsed.data;
+      }
       if (parsed && parsed.date === today && parsed.signature === CACHE_SIGNATURE) {
         timings = parsed.data;
       }
@@ -2696,7 +3292,8 @@ async function loadPrayerTimes() {
 
   if (!timings) {
     try {
-      const res = await fetch("/prayer_times");
+      const res = await fetch(`/prayer_times?language=${encodeURIComponent(currentLanguage)}`);
+      if (!res.ok) throw new Error(`status ${res.status}`);
       const json = await res.json();
       if (!json?.success) throw new Error("server parse error");
       timings = json;
@@ -2707,8 +3304,11 @@ async function loadPrayerTimes() {
       }));
     } catch (err) {
       console.error(err);
-      prayerTimesContainer.textContent = t("prayer_load_error");
-      return;
+      if (!staleTimings) {
+        prayerTimesContainer.textContent = t("prayer_load_error");
+        return;
+      }
+      timings = staleTimings;
     }
   }
 
@@ -2736,6 +3336,15 @@ async function loadPrayerTimes() {
         { name: "Asr", time: timings.Asr, isPrayer: true },
         { name: "Maghrib", time: timings.Maghrib, isPrayer: true },
         { name: "Isha", time: timings.Isha, isPrayer: true },
+      ]
+    : currentLanguage === "ar"
+    ? [
+        { name: "الفجر", time: timings.Fajr, isPrayer: true },
+        { name: "الشروق", time: timings.Sunrise, isPrayer: false },
+        { name: "الظهر", time: timings.Dhuhr, isPrayer: true },
+        { name: "العصر", time: timings.Asr, isPrayer: true },
+        { name: "المغرب", time: timings.Maghrib, isPrayer: true },
+        { name: "العشاء", time: timings.Isha, isPrayer: true },
       ]
     : [
         { name: "Фаджр", time: timings.Fajr, isPrayer: true },
@@ -2767,6 +3376,16 @@ async function loadPrayerTimes() {
 function renderFaqByLanguage() {
   const container = document.querySelector("#faqPopup .faq-scroll-content");
   if (!container) return;
+  if (Array.isArray(dynamicFaqItems) && dynamicFaqItems.length > 0) {
+    container.innerHTML = dynamicFaqItems.map((item, index) => `
+      <div class="faq-item">
+        <button class="faq-question" type="button">${escapeHtml(String(index + 1))}. ${escapeHtml(item.question || "")}</button>
+        <div class="faq-answer">${escapeHtml(item.answer || "")}</div>
+      </div>
+    `).join("");
+    initFaqToggleHandlers();
+    return;
+  }
   container.innerHTML = `
     <div class="faq-item">
       <button class="faq-question" type="button">${t("faq_q1")}</button>
@@ -2820,6 +3439,37 @@ function renderFaqByLanguage() {
   initFaqToggleHandlers();
 }
 
+function getBuiltInFaqItemsByLanguage(lang = currentLanguage) {
+  const read = (key) => (UI_TEXT[lang] && UI_TEXT[lang][key]) || (UI_TEXT.ru && UI_TEXT.ru[key]) || "";
+  const answer2 = `${read("faq_a2_1")}\n${read("faq_a2_2")}\n${read("faq_a2_3")}\n${read("faq_a2_4")}\n${read("faq_a2_5")}`;
+  return [
+    { question: read("faq_q1"), answer: read("faq_a1") },
+    { question: read("faq_q2"), answer: answer2 },
+    { question: read("faq_q3"), answer: read("faq_a3") },
+    { question: read("faq_q4"), answer: read("faq_a4") },
+    { question: read("faq_q5"), answer: read("faq_a5") },
+    { question: read("faq_q6"), answer: read("faq_a6") },
+    { question: read("faq_q7"), answer: read("faq_a7") },
+    { question: read("faq_q8"), answer: read("faq_a8") },
+    { question: read("faq_q9"), answer: read("faq_a9") },
+    { question: read("faq_q10"), answer: read("faq_a10") }
+  ];
+}
+
+async function loadFaqContentFromServer() {
+  try {
+    const res = await fetch("/faq_content");
+    const data = await res.json();
+    if (data && data.success && data.content && Array.isArray(data.content.items)) {
+      dynamicFaqItems = data.content.items;
+      renderFaqByLanguage();
+      return;
+    }
+  } catch (error) {
+    console.error("Ошибка загрузки FAQ:", error);
+  }
+}
+
 function renderSettingsContentByLanguage() {
   const aboutLayout = document.getElementById("aboutLayoutContent");
   if (aboutLayout) {
@@ -2831,10 +3481,438 @@ function renderSettingsContentByLanguage() {
   }
 }
 
+async function loadInfoContentFromServer() {
+  try {
+    const res = await fetch("/info_content");
+    const data = await res.json();
+    if (data && data.success && data.content && typeof data.content === "object") {
+      const content = data.content.content || {};
+      dynamicInfoContent = {
+        ru: String(content.ru || ""),
+        en: String(content.en || ""),
+        ar: String(content.ar || "")
+      };
+    }
+  } catch (error) {
+    console.error("Ошибка загрузки info content:", error);
+  }
+}
+
+async function loadMapPointsFromServer() {
+  try {
+    const res = await fetch("/map_points");
+    const data = await res.json();
+    if (data && data.success && data.content && data.content.points) {
+      const points = data.content.points;
+      dynamicMapPoints = {
+        halal: Array.isArray(points.halal) ? points.halal : [],
+        mosque: Array.isArray(points.mosque) ? points.mosque : []
+      };
+    }
+  } catch (error) {
+    console.error("Ошибка загрузки map points:", error);
+  }
+}
+
+function shortUserId(value) {
+  const text = String(value || "");
+  if (text.length <= 12) return text;
+  return `${text.slice(0, 6)}...${text.slice(-4)}`;
+}
+
+function renderAdminUsers(users) {
+  if (!adminUsersBodyEl) return;
+  if (!Array.isArray(users) || users.length === 0) {
+    adminUsersBodyEl.innerHTML = `<tr><td colspan="5">${t("admin_loading")}</td></tr>`;
+    return;
+  }
+
+  adminUsersBodyEl.innerHTML = users.map((user) => {
+    const userId = String(user.user_id || "");
+    const role = String(user.role || "student");
+    const blocked = !!user.blocked;
+    const safeFio = escapeHtml(user.fio || "—");
+    const blockText = blocked ? t("admin_action_unblock") : t("admin_action_block");
+    const statusText = blocked ? t("admin_status_blocked") : t("admin_status_active");
+    const roleText = escapeHtml(roleDisplayName(role));
+    const rowClass = blocked ? "is-blocked" : "";
+    return `
+      <tr data-user-id="${escapeHtml(userId)}" class="${rowClass}">
+        <td><span class="admin-user-fio">${safeFio}</span></td>
+        <td title="${escapeHtml(userId)}">${escapeHtml(shortUserId(userId))}</td>
+        <td>
+          <span class="admin-role-pill is-${escapeHtml(role)}">${roleText}</span>
+          <div class="admin-user-controls">
+            <select class="admin-role-select" data-role-user-id="${escapeHtml(userId)}">
+              <option value="student" ${role === "student" ? "selected" : ""}>student</option>
+              <option value="curator" ${role === "curator" ? "selected" : ""}>curator</option>
+              <option value="admin" ${role === "admin" ? "selected" : ""}>admin</option>
+            </select>
+            <button class="admin-action-btn secondary" data-action="set-role" data-user-id="${escapeHtml(userId)}">${t("admin_action_save")}</button>
+          </div>
+        </td>
+        <td><span class="admin-status-pill ${blocked ? "is-blocked" : "is-active"}">${escapeHtml(statusText)}</span></td>
+        <td>
+          <button class="admin-action-btn" data-action="toggle-block" data-user-id="${escapeHtml(userId)}" data-blocked="${blocked ? "true" : "false"}">${escapeHtml(blockText)}</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+async function loadAdminUsers() {
+  if (!isAdminRole() || !currentUserId || !adminUsersBodyEl) return;
+  adminUsersBodyEl.innerHTML = `<tr><td colspan="5">${t("admin_loading")}</td></tr>`;
+  try {
+    const res = await fetch(`/admin/users?actor_user_id=${encodeURIComponent(currentUserId)}`);
+    const data = await res.json();
+    if (!data.success) {
+      adminUsersBodyEl.innerHTML = `<tr><td colspan="5">${escapeHtml(data.error || t("admin_error"))}</td></tr>`;
+      return;
+    }
+    renderAdminUsers(data.users || []);
+  } catch (error) {
+    adminUsersBodyEl.innerHTML = `<tr><td colspan="5">${t("admin_error")}</td></tr>`;
+  }
+}
+
+async function setRoleFromAdmin(targetUserId, role) {
+  if (!isAdminRole() || !currentUserId || !targetUserId || !role) return;
+  try {
+    const res = await fetch(`/admin/set_role?actor_user_id=${encodeURIComponent(currentUserId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        actor_user_id: currentUserId,
+        target_user_id: targetUserId,
+        role
+      })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      showMiniAlert(data.error || t("admin_error"));
+      return;
+    }
+    showMiniAlert(t("admin_role_updated"));
+  } catch (error) {
+    showMiniAlert(t("admin_error"));
+  }
+  await loadAdminUsers();
+}
+
+async function toggleBlockFromAdmin(targetUserId, blocked) {
+  if (!isAdminRole() || !currentUserId || !targetUserId) return;
+  try {
+    const res = await fetch(`/admin/set_block?actor_user_id=${encodeURIComponent(currentUserId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        actor_user_id: currentUserId,
+        target_user_id: targetUserId,
+        blocked
+      })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      showMiniAlert(data.error || t("admin_error"));
+      return;
+    }
+    showMiniAlert(blocked ? t("admin_user_blocked") : t("admin_user_unblocked"));
+  } catch (error) {
+    showMiniAlert(t("admin_error"));
+  }
+  await loadAdminUsers();
+}
+
+async function loadAuditLog() {
+  if (!isAdminRole() || !adminAuditLogEl || !currentUserId) return;
+  adminAuditLogEl.textContent = t("admin_loading");
+  try {
+    const res = await fetch(`/admin/audit_log?actor_user_id=${encodeURIComponent(currentUserId)}`);
+    const data = await res.json();
+    if (!data.success) {
+      adminAuditLogEl.textContent = data.error || t("admin_error");
+      return;
+    }
+    const items = Array.isArray(data.items) ? data.items.slice(-60) : [];
+    adminAuditLogEl.textContent = items.length
+      ? items.map((item) => {
+          const when = item.created_at || "";
+          const user = item.user_id || "";
+          const action = item.action || "";
+          return `${when} | ${user} | ${action}\nbefore: ${JSON.stringify(item.before || {})}\nafter: ${JSON.stringify(item.after || {})}`;
+        }).join("\n\n")
+      : "No audit events";
+  } catch (error) {
+    adminAuditLogEl.textContent = t("admin_error");
+  }
+}
+
+async function loadSystemSettings() {
+  if (!isAdminRole() || !roleSystemEditorEl || !currentUserId) return;
+  try {
+    const res = await fetch(`/admin/system_settings?actor_user_id=${encodeURIComponent(currentUserId)}`);
+    const data = await res.json();
+    if (!data.success) {
+      showMiniAlert(data.error || t("admin_error"));
+      return;
+    }
+    roleSystemEditorEl.value = JSON.stringify((data.content && data.content.settings) || {}, null, 2);
+  } catch (error) {
+    showMiniAlert(t("admin_error"));
+  }
+}
+
+async function saveSystemSettingsFromEditor() {
+  if (!isAdminRole() || !roleSystemEditorEl || !currentUserId) return;
+  let settings;
+  try {
+    settings = JSON.parse(roleSystemEditorEl.value || "{}");
+  } catch (error) {
+    showMiniAlert("System settings JSON format error");
+    return;
+  }
+  if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
+    showMiniAlert("System settings must be object");
+    return;
+  }
+  try {
+    const res = await fetch(`/admin/system_settings?actor_user_id=${encodeURIComponent(currentUserId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ actor_user_id: currentUserId, settings })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      showMiniAlert(data.error || t("admin_error"));
+      return;
+    }
+    roleSystemEditorEl.value = JSON.stringify((data.content && data.content.settings) || {}, null, 2);
+    showMiniAlert(t("admin_saved"));
+  } catch (error) {
+    showMiniAlert(t("admin_error"));
+  }
+}
+
+function renderAdminMetrics(metrics) {
+  if (!adminMetricsGridEl) return;
+  const cards = [
+    [t("admin_metrics_users_total"), metrics.users_total],
+    [t("admin_metrics_active"), metrics.users_active],
+    [t("admin_metrics_blocked"), metrics.users_blocked],
+    [t("admin_metrics_new_today"), metrics.users_new_today],
+    [t("admin_metrics_faq"), metrics.faq_items],
+    [t("admin_metrics_map_halal"), metrics.map_halal_points],
+    [t("admin_metrics_map_mosque"), metrics.map_mosque_points],
+    [t("admin_metrics_audit"), metrics.audit_events_total],
+    [t("admin_metrics_chat_total"), metrics.chat_messages_total],
+    [t("admin_metrics_chat_user"), metrics.chat_user_messages],
+    [t("admin_metrics_chat_bot"), metrics.chat_bot_messages],
+  ];
+  adminMetricsGridEl.innerHTML = cards.map(([label, value]) => `
+    <div class="admin-metric-card">
+      <div class="admin-metric-value">${escapeHtml(String(value ?? 0))}</div>
+      <div class="admin-metric-label">${escapeHtml(String(label))}</div>
+    </div>
+  `).join("");
+}
+
+async function loadAdminMetrics() {
+  if (!isAdminRole() || !adminMetricsGridEl || !currentUserId) return;
+  adminMetricsGridEl.innerHTML = "";
+  try {
+    const res = await fetch(`/admin/metrics?actor_user_id=${encodeURIComponent(currentUserId)}`);
+    const data = await res.json();
+    if (!data.success) {
+      showMiniAlert(data.error || t("admin_error"));
+      return;
+    }
+    renderAdminMetrics(data.metrics || {});
+  } catch (error) {
+    showMiniAlert(t("admin_error"));
+  }
+}
+
+function renderModerationMessages(items) {
+  if (!adminModerationBodyEl) return;
+  if (!Array.isArray(items) || items.length === 0) {
+    adminModerationBodyEl.innerHTML = `<tr><td colspan="5">${t("admin_loading")}</td></tr>`;
+    return;
+  }
+  adminModerationBodyEl.innerHTML = items.map((item) => {
+    const hidden = !!item.hidden;
+    const status = hidden ? t("admin_moderation_hidden") : t("admin_moderation_visible");
+    const action = hidden ? t("admin_moderation_show") : t("admin_moderation_hide");
+    const safeFio = escapeHtml(item.fio || "—");
+    const safeText = escapeHtml(item.text || "");
+    const safeWhen = escapeHtml(item.created_at || "—");
+    const safeKey = escapeHtml(item.key || "");
+    return `
+      <tr>
+        <td>${safeFio}</td>
+        <td class="admin-moderation-text">${safeText}</td>
+        <td>${safeWhen}</td>
+        <td><span class="admin-status-pill ${hidden ? "is-blocked" : "is-active"}">${status}</span></td>
+        <td>
+          <button class="admin-action-btn secondary" data-moderation-action="toggle" data-message-key="${safeKey}" data-hidden="${hidden ? "true" : "false"}">${action}</button>
+        </td>
+      </tr>
+    `;
+  }).join("");
+}
+
+async function loadModerationMessages() {
+  if (!isAdminRole() || !adminModerationBodyEl || !currentUserId) return;
+  adminModerationBodyEl.innerHTML = `<tr><td colspan="5">${t("admin_loading")}</td></tr>`;
+  try {
+    const res = await fetch(`/admin/moderation/messages?actor_user_id=${encodeURIComponent(currentUserId)}&limit=120`);
+    const data = await res.json();
+    if (!data.success) {
+      adminModerationBodyEl.innerHTML = `<tr><td colspan="5">${escapeHtml(data.error || t("admin_error"))}</td></tr>`;
+      return;
+    }
+    renderModerationMessages(data.items || []);
+  } catch (error) {
+    adminModerationBodyEl.innerHTML = `<tr><td colspan="5">${t("admin_error")}</td></tr>`;
+  }
+}
+
+async function setModerationVisibility(messageKey, hidden) {
+  if (!isAdminRole() || !currentUserId || !messageKey) return;
+  try {
+    const res = await fetch(`/admin/moderation/hide?actor_user_id=${encodeURIComponent(currentUserId)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        actor_user_id: currentUserId,
+        message_key: messageKey,
+        hidden
+      })
+    });
+    const data = await res.json();
+    if (!data.success) {
+      showMiniAlert(data.error || t("admin_error"));
+      return;
+    }
+  } catch (error) {
+    showMiniAlert(t("admin_error"));
+    return;
+  }
+  await loadModerationMessages();
+}
+
+async function hydrateAdminPanelData() {
+  updateRoleBasedUi();
+  await fillRoleEditorsFromServer();
+  renderCenterInfoContentByLanguage();
+  if (!isAdminRole()) return;
+  await loadAdminUsers();
+  await loadAuditLog();
+  await loadSystemSettings();
+  await loadAdminMetrics();
+  await loadModerationMessages();
+}
+
+async function fillRoleEditorsFromServer() {
+  await Promise.all([loadFaqContentFromServer(), loadInfoContentFromServer(), loadMapPointsFromServer()]);
+  const faqForEditor = (Array.isArray(dynamicFaqItems) && dynamicFaqItems.length > 0)
+    ? dynamicFaqItems
+    : getBuiltInFaqItemsByLanguage(currentLanguage);
+  if (roleFaqEditorEl) {
+    roleFaqEditorEl.value = JSON.stringify(faqForEditor, null, 2);
+  }
+  if (roleInfoEditorEl) {
+    const value = dynamicInfoContent[currentLanguage] || CENTER_INFO_CONTENT[currentLanguage] || "";
+    roleInfoEditorEl.value = value;
+  }
+  if (roleHalalEditorEl) {
+    roleHalalEditorEl.value = JSON.stringify(dynamicMapPoints.halal || [], null, 2);
+  }
+  if (roleMosqueEditorEl) {
+    roleMosqueEditorEl.value = JSON.stringify(dynamicMapPoints.mosque || [], null, 2);
+  }
+}
+
+async function saveFaqFromEditor() {
+  if (!isCuratorOrAdminRole() || !currentUserId || !roleFaqEditorEl) return;
+  let parsed;
+  try {
+    parsed = JSON.parse(roleFaqEditorEl.value || "[]");
+  } catch (error) {
+    showMiniAlert("FAQ JSON format error");
+    return;
+  }
+  const items = Array.isArray(parsed) ? parsed : parsed.items;
+  if (!Array.isArray(items)) {
+    showMiniAlert("FAQ JSON must be array");
+    return;
+  }
+  const res = await fetch("/faq_content", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ actor_user_id: currentUserId, items })
+  });
+  const data = await res.json();
+  if (!data.success) {
+    showMiniAlert(data.error || t("admin_error"));
+    return;
+  }
+  await fillRoleEditorsFromServer();
+  showMiniAlert("FAQ saved");
+}
+
+async function saveInfoFromEditor() {
+  if (!isCuratorOrAdminRole() || !currentUserId || !roleInfoEditorEl) return;
+  const html = roleInfoEditorEl.value || "";
+  const res = await fetch("/info_content", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      actor_user_id: currentUserId,
+      language: currentLanguage,
+      html
+    })
+  });
+  const data = await res.json();
+  if (!data.success) {
+    showMiniAlert(data.error || t("admin_error"));
+    return;
+  }
+  await loadInfoContentFromServer();
+  renderCenterInfoContentByLanguage();
+  showMiniAlert("Info saved");
+}
+
+async function saveMapPointsFromEditor() {
+  if (!isCuratorOrAdminRole() || !currentUserId || !roleHalalEditorEl || !roleMosqueEditorEl) return;
+  let halal = [];
+  let mosque = [];
+  try {
+    halal = JSON.parse(roleHalalEditorEl.value || "[]");
+    mosque = JSON.parse(roleMosqueEditorEl.value || "[]");
+  } catch (error) {
+    showMiniAlert("Map points JSON format error");
+    return;
+  }
+  const res = await fetch("/map_points", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ actor_user_id: currentUserId, halal, mosque })
+  });
+  const data = await res.json();
+  if (!data.success) {
+    showMiniAlert(data.error || t("admin_error"));
+    return;
+  }
+  await loadMapPointsFromServer();
+  showMiniAlert("Map points saved");
+}
+
 function renderCenterInfoContentByLanguage() {
   const centerInfoBody = document.querySelector("#centerInfoPopup .center-info-body");
   if (!centerInfoBody) return;
-  centerInfoBody.innerHTML = CENTER_INFO_CONTENT[currentLanguage] || CENTER_INFO_CONTENT.ru;
+  const dynamicHtml = dynamicInfoContent[currentLanguage] || "";
+  centerInfoBody.innerHTML = dynamicHtml || CENTER_INFO_CONTENT[currentLanguage] || CENTER_INFO_CONTENT.ru;
   initCenterInfoGlow();
 }
 
@@ -2901,6 +3979,7 @@ function initHalalMap() {
     }
     
     try {
+        const halalBadgeLabel = currentLanguage === "ar" ? "حلال" : "HALAL";
         // создание карты с задержкой
         setTimeout(() => {
             // проверка, видим ли элемент
@@ -2920,21 +3999,16 @@ function initHalalMap() {
             }).addTo(halalMap);
             
             // маркеры
-            const places = currentLanguage === "en"
-                ? [
-                    { name: "Shafran Restaurant", lat: 55.699634, lon: 37.657776 },
-                    { name: "Non Gusht Cafe", lat: 55.700903, lon: 37.651461 },
-                    { name: "Sochny Vertel Cafe", lat: 55.694225, lon: 37.665306 },
-                    { name: "Plov&Burger Cafe", lat: 55.700121, lon: 37.657538 },
-                    { name: "Zdraste Coffee Shop", lat: 55.690114, lon: 37.654806 },
-                  ]
-                : [
-                    { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
-                    { name: "Кафе 'Non gusht'", lat: 55.700903, lon: 37.651461 },
-                    { name: "Кафе 'Сочный вертел'", lat: 55.694225, lon: 37.665306 },
-                    { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
-                    { name: "Кофейня 'Здрасте'", lat: 55.690114, lon: 37.654806 },
-                  ];
+            const defaultPlaces = [
+              { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
+              { name: "Кафе 'Non gusht'", lat: 55.700903, lon: 37.651461 },
+              { name: "Кафе 'Сочный вертел'", lat: 55.694225, lon: 37.665306 },
+              { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
+              { name: "Кофейня 'Здрасте'", lat: 55.690114, lon: 37.654806 },
+            ];
+            const places = (dynamicMapPoints.halal && dynamicMapPoints.halal.length > 0)
+              ? dynamicMapPoints.halal
+              : defaultPlaces;
             
             const darkGreenIcon = getDarkGreenLeafletIcon();
             places.forEach(place => {
@@ -2943,7 +4017,7 @@ function initHalalMap() {
                     .addTo(halalMap)
                     .bindPopup(
                         `<div class="map-place-card map-place-card-halal">
-                           <div class="map-place-badge">${currentLanguage === "ar" ? "حلال" : "HALAL"}</div>
+                           <div class="map-place-badge">${halalBadgeLabel}</div>
                            <div class="map-place-title">${place.name}</div>
                          </div>`,
                         { className: "imuslim-map-popup" }
@@ -2987,6 +4061,7 @@ function initMosqueMap() {
     }
     
     try {
+        const prayerBadgeLabel = currentLanguage === "ar" ? "صلاة" : "PRAYER";
         // создание карты с задержкой
         setTimeout(() => {
             // проверка
@@ -3006,25 +4081,16 @@ function initMosqueMap() {
             }).addTo(mosqueMap);
             
             // маркеры мечетей
-            const mosques = currentLanguage === "en"
-               ? [
-                   { name: "Heritage of Islam", lat: 55.7176, lon: 37.6375 },
-                   { name: "Cathedral Mosque", lat: 55.779167, lon: 37.626944 },
-                   { name: "Yardem Mosque", lat: 55.856667, lon: 37.592222 },
-                   { name: "Memorial Mosque", lat: 55.725377, lon: 37.497144 },
-                   { name: "Historical Mosque", lat: 55.738803, lon: 37.632483 },
-                   { name: "Shafran Restaurant", lat: 55.699634, lon: 37.657776 },
-                   { name: "Plov&Burger Cafe", lat: 55.700121, lon: 37.657538 },
-                 ]
-               : [
-                   { name: "Наследие Ислама", lat: 55.7176, lon: 37.6375 },
-                   { name: "Мечеть 'Соборная'", lat: 55.779167, lon: 37.626944 },
-                   { name: "Мечеть 'Ярдэм'", lat: 55.856667, lon: 37.592222 },
-                   { name: "Мечеть 'Мемориальная'", lat: 55.725377, lon: 37.497144 },
-                   { name: "Мечеть 'Историческая'", lat: 55.738803, lon: 37.632483 },
-                   { name: "Ресторан 'Шафран'", lat: 55.699634, lon: 37.657776 },
-                   { name: "Кафе 'Плов&бургер'", lat: 55.700121, lon: 37.657538 },
-                 ];
+            const defaultMosques = [
+              { name: "Наследие Ислама", lat: 55.7176, lon: 37.6375 },
+              { name: "Мечеть 'Соборная'", lat: 55.779167, lon: 37.626944 },
+              { name: "Мечеть 'Ярдэм'", lat: 55.856667, lon: 37.592222 },
+              { name: "Мечеть 'Мемориальная'", lat: 55.725377, lon: 37.497144 },
+              { name: "Мечеть 'Историческая'", lat: 55.738803, lon: 37.632483 },
+            ];
+            const mosques = (dynamicMapPoints.mosque && dynamicMapPoints.mosque.length > 0)
+              ? dynamicMapPoints.mosque
+              : defaultMosques;
             
             const darkGreenIcon = getDarkGreenLeafletIcon();
             mosques.forEach(mosque => {
@@ -3033,7 +4099,7 @@ function initMosqueMap() {
                     .addTo(mosqueMap)
                     .bindPopup(
                         `<div class="map-place-card map-place-card-prayer">
-                           <div class="map-place-badge">${currentLanguage === "ar" ? "صلاة" : "PRAYER"}</div>
+                           <div class="map-place-badge">${prayerBadgeLabel}</div>
                            <div class="map-place-title">${mosque.name}</div>
                          </div>`,
                         { className: "imuslim-map-popup" }
@@ -3198,12 +4264,23 @@ function initCenterInfoGlow() {
   updateGlowFromScroll();
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
   console.log("dom fully loaded");
   if (centerInfoPopupEl && centerInfoPopupEl.parentElement !== document.body) {
     document.body.appendChild(centerInfoPopupEl);
   }
+  if (adminPanelPopupEl && adminPanelPopupEl.parentElement !== document.body) {
+    document.body.appendChild(adminPanelPopupEl);
+  }
+  if (adminFocusBackdropEl && adminFocusBackdropEl.parentElement !== document.body) {
+    document.body.appendChild(adminFocusBackdropEl);
+  }
   hideAllPopups();
+  await Promise.all([
+    loadFaqContentFromServer(),
+    loadInfoContentFromServer(),
+    loadMapPointsFromServer()
+  ]);
   applyLanguage(currentLanguage);
   updateChatDateLabel();
   initNames99Grid();
@@ -3213,16 +4290,21 @@ document.addEventListener('DOMContentLoaded', function() {
   const isAuthorized = localStorage.getItem("isAuthorized");
   const savedFio = localStorage.getItem("fio");
   currentUserId = localStorage.getItem("currentUserId") || "";
+  currentUserRole = localStorage.getItem("currentUserRole") || "student";
 
   if (isAuthorized === "true" && savedFio) {
     updateProfileNameLabel();
     activeMainWindow = getRememberedAuthorizedWindow();
+    await syncRoleFromServer();
     loadChatHistoryFromServer();
+  } else {
+    updateRoleBasedUi();
   }
 
   initEventListeners();
   updateParentWindowEffects();
   initCenterInfoGlow();
+
 });
 
 // закрытие по клику вне
@@ -3245,6 +4327,7 @@ document.addEventListener('click', (e) => {
     { popup: aboutPopupEl, btn: document.getElementById('aboutService') },
     { popup: feedbackPopupEl, btn: document.getElementById('feedback') },
     { popup: languagePopupEl, btn: document.getElementById('languageSettings') },
+    { popup: adminPanelPopupEl, btn: profileRoleBadgeBtn },
     { popup: qiblaPopupEl, btn: qiblaCard },
     { popup: tasbihPopupEl, btn: tasbihCard },
     { popup: quickLanguagePopupEl, btn: quickLanguageBtn },
@@ -3275,7 +4358,7 @@ document.addEventListener('click', (e) => {
       }
       
       // не закрывать окна при клике на главное окно
-      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
+      const isChildPopup = [prayerPopupEl, faqPopupEl, aboutPopupEl, feedbackPopupEl, languagePopupEl, adminPanelPopupEl, qiblaPopupEl, tasbihPopupEl, quickLanguagePopupEl, clearHistoryConfirmPopupEl, logoutConfirmPopupEl, menuPrayerPopupEl, menuNames99PopupEl, halalPopupEl, mosquePopupEl].includes(popup);
       const isClickOnMajorParent = majorWindow && majorWindow.contains(e.target) && majorWindow.style.display === 'block';
       const isClickOnSettingsParent = settingsWindow && settingsWindow.contains(e.target) && settingsWindow.style.display === 'block';
       const isClickOnParent = isClickOnMajorParent || isClickOnSettingsParent;
