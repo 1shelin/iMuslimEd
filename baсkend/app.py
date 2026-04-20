@@ -5,6 +5,7 @@ import json
 import re
 import shutil
 import tempfile
+import time
 from functools import wraps
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -148,6 +149,10 @@ def _load_json_with_recovery(file_path, expected_type, default_value):
 MAX_USER_CHARS = int(os.environ.get("MAX_USER_CHARS", "400"))
 MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "220"))
 KIE_TEMPERATURE = float(os.environ.get("KIE_TEMPERATURE", "0.2"))
+LLM_RESPONSE_SLA_SECONDS = float(os.environ.get("LLM_RESPONSE_SLA_SECONDS", "5"))
+LLM_CONNECT_TIMEOUT_SECONDS = float(os.environ.get("LLM_CONNECT_TIMEOUT_SECONDS", "1.5"))
+LLM_READ_TIMEOUT_SECONDS = float(os.environ.get("LLM_READ_TIMEOUT_SECONDS", "3.0"))
+LLM_MAX_RETRIES = max(0, int(os.environ.get("LLM_MAX_RETRIES", "0")))
 PRAYER_CACHE = {}
 VALID_ROLES = {"student", "curator", "admin"}
 ROLE_RANK = {"student": 1, "curator": 2, "admin": 3}
@@ -929,30 +934,40 @@ def ask_kie_gemini(user_message, lang="ru"):
     }
 
     def send_kie(payload):
-        try:
-            return requests.post(
-                KIE_API_URL,
-                headers=headers,
-                json=payload,
-                timeout=(6, 25),
-            )
-        except requests.ReadTimeout as e:
-            print(f"[chat] timeout, retry once: {e}")
+        start = time.monotonic()
+        attempt = 0
+        while True:
+            elapsed = time.monotonic() - start
+            remaining = LLM_RESPONSE_SLA_SECONDS - elapsed
+            if remaining <= 0:
+                return None, "sla_timeout"
+
+            # Keep total LLM call inside SLA budget.
+            connect_timeout = max(0.2, min(LLM_CONNECT_TIMEOUT_SECONDS, remaining * 0.4))
+            read_timeout = max(0.2, min(LLM_READ_TIMEOUT_SECONDS, remaining - connect_timeout))
             try:
-                return requests.post(
+                response = requests.post(
                     KIE_API_URL,
                     headers=headers,
                     json=payload,
-                    timeout=(6, 25),
+                    timeout=(connect_timeout, read_timeout),
                 )
-            except requests.RequestException as e2:
-                print(f"[chat] network error after retry: {e2}")
-                return None
-        except requests.RequestException as e:
-            print(f"[chat] network error: {e}")
-            return None
+                return response, ""
+            except requests.ReadTimeout as e:
+                print(f"[chat] timeout attempt={attempt + 1}: {e}")
+                if attempt >= LLM_MAX_RETRIES:
+                    return None, "read_timeout"
+                attempt += 1
+                continue
+            except requests.RequestException as e:
+                print(f"[chat] network error: {e}")
+                return None, "network_error"
 
-    def extract_text_and_reason(response):
+    def extract_text_and_reason(response, transport_error=""):
+        if transport_error == "sla_timeout":
+            return "", "", get_text_by_lang(normalized_lang, "Сервис временно перегружен. Повторите запрос.", "Service is temporarily overloaded. Please retry.")
+        if transport_error in {"read_timeout", "network_error"}:
+            return "", "", get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
         if response is None:
             return "", "", get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
 
@@ -1028,8 +1043,8 @@ def ask_kie_gemini(user_message, lang="ru"):
         "stream": False,
     }
 
-    response = send_kie(base_payload)
-    content, finish_reason, error_text = extract_text_and_reason(response)
+    response, transport_error = send_kie(base_payload)
+    content, finish_reason, error_text = extract_text_and_reason(response, transport_error)
     if error_text:
         return error_text
 
