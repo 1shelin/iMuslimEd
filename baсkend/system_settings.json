@@ -1,0 +1,11 @@
+{
+  "updated_at": "",
+  "settings": {
+    "maintenance_mode": false,
+    "registration_enabled": true,
+    "chat_enabled": true,
+    "max_user_chars": 400,
+    "max_history_messages": 300,
+    "max_history_text_len": 2000
+  }
+}

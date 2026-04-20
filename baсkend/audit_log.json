@@ -1,0 +1,136 @@
+[
+  {
+    "created_at": "2026-04-16T15:34:03.465946",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "info_content_updated",
+    "entity": "info_content",
+    "before": {
+      "language": "ru",
+      "length": 7226
+    },
+    "after": {
+      "language": "ru",
+      "length": 7226
+    }
+  },
+  {
+    "created_at": "2026-04-16T15:34:57.048824",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "info_content_updated",
+    "entity": "info_content",
+    "before": {
+      "language": "ru",
+      "length": 7225
+    },
+    "after": {
+      "language": "ru",
+      "length": 7225
+    }
+  },
+  {
+    "created_at": "2026-04-17T21:47:35.516664",
+    "user_id": "cf6ac0289aa80641fa566f7c1a7855f2edb0c80f5b3e122534c9241cf0242fd2",
+    "action": "user_registered",
+    "entity": "user",
+    "before": {},
+    "after": {
+      "user_id": "cf6ac0289aa80641fa566f7c1a7855f2edb0c80f5b3e122534c9241cf0242fd2",
+      "role": "student"
+    }
+  },
+  {
+    "created_at": "2026-04-17T21:49:23.581273",
+    "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+    "action": "user_registered",
+    "entity": "user",
+    "before": {},
+    "after": {
+      "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+      "role": "student"
+    }
+  },
+  {
+    "created_at": "2026-04-17T22:05:34.135545",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "set_role",
+    "entity": "user",
+    "before": {
+      "user_id": "cf6ac0289aa80641fa566f7c1a7855f2edb0c80f5b3e122534c9241cf0242fd2",
+      "role": "student"
+    },
+    "after": {
+      "user_id": "cf6ac0289aa80641fa566f7c1a7855f2edb0c80f5b3e122534c9241cf0242fd2",
+      "role": "curator"
+    }
+  },
+  {
+    "created_at": "2026-04-17T22:09:54.762691",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "set_role",
+    "entity": "user",
+    "before": {
+      "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+      "role": "student"
+    },
+    "after": {
+      "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+      "role": "curator"
+    }
+  },
+  {
+    "created_at": "2026-04-17T22:09:58.657653",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "set_role",
+    "entity": "user",
+    "before": {
+      "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+      "role": "curator"
+    },
+    "after": {
+      "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+      "role": "curator"
+    }
+  },
+  {
+    "created_at": "2026-04-17T22:10:02.040139",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "set_role",
+    "entity": "user",
+    "before": {
+      "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+      "role": "curator"
+    },
+    "after": {
+      "user_id": "0ae28179b58b453423573b86aabe59ea8e02588614f54969ad4698a46dc4efb6",
+      "role": "student"
+    }
+  },
+  {
+    "created_at": "2026-04-17T22:10:14.679140",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "faq_content_updated",
+    "entity": "faq_content",
+    "before": {
+      "items_count": 0,
+      "updated_at": "2026-04-17T22:10:14.675883"
+    },
+    "after": {
+      "items_count": 10,
+      "updated_at": "2026-04-17T22:10:14.675905"
+    }
+  },
+  {
+    "created_at": "2026-04-17T22:17:59.480532",
+    "user_id": "6022fb3b7ac8ff74f8a0db76a3d2bb37e9044ca946ffdbf68aa079762dea70eb",
+    "action": "faq_content_updated",
+    "entity": "faq_content",
+    "before": {
+      "items_count": 10,
+      "updated_at": "2026-04-17T22:10:14.675905"
+    },
+    "after": {
+      "items_count": 10,
+      "updated_at": "2026-04-17T22:17:59.477587"
+    }
+  }
+]
