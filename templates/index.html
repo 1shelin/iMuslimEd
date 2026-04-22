@@ -561,24 +561,24 @@
       </div>
 
       <div class="admin-section" id="curatorToolsSection">
-        <div class="admin-section-title">Инструменты куратора</div>
-        <div class="admin-field-label">FAQ (JSON-массив объектов `question/answer`)</div>
+        <div class="admin-section-title" id="curatorToolsTitle">Инструменты куратора</div>
+        <div class="admin-field-label" id="faqLabelText">FAQ (JSON-массив объектов `question/answer`)</div>
         <textarea class="admin-textarea" id="roleFaqEditor"></textarea>
         <div class="admin-actions-row">
           <button class="admin-refresh-btn" id="faqReloadBtn">Загрузить</button>
           <button class="admin-refresh-btn primary" id="faqSaveBtn">Сохранить FAQ</button>
         </div>
 
-        <div class="admin-field-label">Инфо-материалы (HTML для текущего языка)</div>
+        <div class="admin-field-label" id="infoLabelText">Инфо-материалы (HTML для текущего языка)</div>
         <textarea class="admin-textarea" id="roleInfoEditor"></textarea>
         <div class="admin-actions-row">
           <button class="admin-refresh-btn" id="infoReloadBtn">Загрузить</button>
           <button class="admin-refresh-btn primary" id="infoSaveBtn">Сохранить инфо</button>
         </div>
 
-        <div class="admin-field-label">Точки халяль (JSON-массив `name/lat/lon`)</div>
+        <div class="admin-field-label" id="halalLabelText">Точки халяль (JSON-массив `name/lat/lon`)</div>
         <textarea class="admin-textarea compact" id="roleHalalEditor"></textarea>
-        <div class="admin-field-label">Точки мечеть/молельная (JSON-массив `name/lat/lon`)</div>
+        <div class="admin-field-label" id="mosqueLabelText">Точки мечеть/молельная (JSON-массив `name/lat/lon`)</div>
         <textarea class="admin-textarea compact" id="roleMosqueEditor"></textarea>
         <div class="admin-actions-row">
           <button class="admin-refresh-btn" id="mapReloadBtn">Загрузить</button>
@@ -588,23 +588,23 @@
 
       <div class="admin-section" id="adminUsersSection">
         <div class="admin-section-head">
-          <div class="admin-section-title">Управление пользователями</div>
+          <div class="admin-section-title" id="adminUsersTitle">Управление пользователями</div>
           <button class="admin-refresh-btn" id="adminRefreshBtn">Обновить</button>
         </div>
         <div class="admin-users-wrap">
           <table class="admin-users-table">
             <thead>
               <tr>
-                <th>ФИО</th>
-                <th>ID</th>
-                <th>Роль</th>
-                <th>Статус</th>
-                <th>Действие</th>
+                <th id="adminUsersHeadFio">ФИО</th>
+                <th id="adminUsersHeadId">ID</th>
+                <th id="adminUsersHeadRole">Роль</th>
+                <th id="adminUsersHeadStatus">Статус</th>
+                <th id="adminUsersHeadAction">Действие</th>
               </tr>
             </thead>
             <tbody id="adminUsersBody">
               <tr>
-                <td colspan="5">Загрузка...</td>
+                <td colspan="5" id="adminUsersLoadingText">Загрузка...</td>
               </tr>
             </tbody>
           </table>
@@ -613,15 +613,15 @@
 
       <div class="admin-section" id="adminAuditSection">
         <div class="admin-section-head">
-          <div class="admin-section-title">Audit log (последние записи)</div>
+          <div class="admin-section-title" id="adminAuditTitle">Audit log (последние записи)</div>
           <button class="admin-refresh-btn" id="auditReloadBtn">Обновить</button>
         </div>
-        <pre class="admin-audit-log" id="adminAuditLog">Загрузка...</pre>
+        <pre class="admin-audit-log" id="adminAuditLog"><span id="adminAuditLoadingText">Загрузка...</span></pre>
       </div>
 
       <div class="admin-section" id="adminSystemSection">
         <div class="admin-section-head">
-          <div class="admin-section-title">Системные настройки (JSON)</div>
+          <div class="admin-section-title" id="adminSystemTitle">Системные настройки (JSON)</div>
           <button class="admin-refresh-btn" id="systemReloadBtn">Обновить</button>
         </div>
         <textarea class="admin-textarea compact" id="roleSystemEditor"></textarea>
@@ -632,7 +632,7 @@
 
       <div class="admin-section" id="adminMetricsSection">
         <div class="admin-section-head">
-          <div class="admin-section-title">Статистика и метрики</div>
+          <div class="admin-section-title" id="adminMetricsTitle">Статистика и метрики</div>
           <button class="admin-refresh-btn" id="metricsReloadBtn">Обновить</button>
         </div>
         <div class="admin-metrics-grid" id="adminMetricsGrid"></div>
@@ -640,23 +640,23 @@
 
       <div class="admin-section" id="adminModerationSection">
         <div class="admin-section-head">
-          <div class="admin-section-title">Модерация пользовательского контента</div>
+          <div class="admin-section-title" id="adminModerationTitle">Модерация пользовательского контента</div>
           <button class="admin-refresh-btn" id="moderationReloadBtn">Обновить</button>
         </div>
         <div class="admin-moderation-wrap">
           <table class="admin-users-table admin-moderation-table">
             <thead>
               <tr>
-                <th>Пользователь</th>
-                <th>Сообщение</th>
-                <th>Время</th>
-                <th>Статус</th>
-                <th>Действие</th>
+                <th id="adminModerationHeadUser">Пользователь</th>
+                <th id="adminModerationHeadMessage">Сообщение</th>
+                <th id="adminModerationHeadTime">Время</th>
+                <th id="adminModerationHeadStatus">Статус</th>
+                <th id="adminModerationHeadAction">Действие</th>
               </tr>
             </thead>
             <tbody id="adminModerationBody">
               <tr>
-                <td colspan="5">Загрузка...</td>
+                <td colspan="5" id="adminModerationLoadingText">Загрузка...</td>
               </tr>
             </tbody>
           </table>
@@ -816,7 +816,7 @@
     
     <div class="prayer-body">
       <div class="prayer-times" id="prayerTimes">
-        Загрузка…
+        <span id="prayerLoadingText">Загрузка…</span>
       </div>
       <img src="/static/muiv_green.png" class="prayer-muiv">
     </div>

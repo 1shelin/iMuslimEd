@@ -202,9 +202,9 @@ const UI_TEXT = {
     admin_panel: "Ролевая модель",
     admin_panel_title: "Ролевая модель",
     role_label: "Роль",
-    role_student: "student",
-    role_curator: "curator",
-    role_admin: "admin",
+    role_student: "Студент",
+    role_curator: "Куратор",
+    role_admin: "Админ",
     role_access_none: "Только просмотр. Расширенные действия недоступны.",
     role_access_curator: "Доступ к редактированию FAQ, инфо-материалов и точек карт.",
     role_access_admin: "Полный доступ: контент + пользователи + аудит.",
@@ -220,6 +220,35 @@ const UI_TEXT = {
     admin_status_active: "Активен",
     admin_error: "Ошибка админ-панели",
     admin_save_system: "Сохранить настройки",
+    admin_section_curator_tools: "Инструменты куратора",
+    admin_label_faq: "FAQ (JSON-массив объектов `question/answer`)",
+    admin_label_info: "Инфо-материалы (HTML для текущего языка)",
+    admin_label_halal: "Точки халяль (JSON-массив `name/lat/lon`)",
+    admin_label_mosque: "Точки мечеть/молельная (JSON-массив `name/lat/lon`)",
+    admin_section_users: "Управление пользователями",
+    admin_section_audit: "Audit log (последние записи)",
+    admin_section_system: "Системные настройки (JSON)",
+    admin_section_metrics: "Статистика и метрики",
+    admin_section_moderation: "Модерация пользовательского контента",
+    admin_table_fio: "ФИО",
+    admin_table_id: "ID",
+    admin_table_role: "Роль",
+    admin_table_status: "Статус",
+    admin_table_action: "Действие",
+    admin_table_user: "Пользователь",
+    admin_table_message: "Сообщение",
+    admin_table_time: "Время",
+    admin_audit_empty: "Нет событий аудита",
+    admin_audit_before: "до",
+    admin_audit_after: "после",
+    admin_system_json_error: "Ошибка формата JSON в системных настройках",
+    admin_system_object_error: "Системные настройки должны быть JSON-объектом",
+    admin_faq_json_error: "Ошибка формата JSON в FAQ",
+    admin_faq_array_error: "FAQ должен быть JSON-массивом",
+    admin_faq_saved: "FAQ сохранен",
+    admin_info_saved: "Инфо сохранено",
+    admin_map_json_error: "Ошибка формата JSON в точках карты",
+    admin_map_saved: "Точки карты сохранены",
     admin_metrics_users_total: "Пользователи",
     admin_metrics_active: "Активные",
     admin_metrics_blocked: "Заблокированные",
@@ -360,9 +389,9 @@ const UI_TEXT = {
     admin_panel: "Admin Panel",
     admin_panel_title: "Admin Panel",
     role_label: "Role",
-    role_student: "student",
-    role_curator: "curator",
-    role_admin: "admin",
+    role_student: "Student",
+    role_curator: "Curator",
+    role_admin: "Admin",
     role_access_none: "Read-only mode. Extended actions are not available.",
     role_access_curator: "Can edit FAQ, info materials, and map points.",
     role_access_admin: "Full access: content, users, and audit logs.",
@@ -378,6 +407,35 @@ const UI_TEXT = {
     admin_status_active: "Active",
     admin_error: "Admin panel error",
     admin_save_system: "Save settings",
+    admin_section_curator_tools: "Curator tools",
+    admin_label_faq: "FAQ (JSON array of `question/answer` objects)",
+    admin_label_info: "Info materials (HTML for current language)",
+    admin_label_halal: "Halal points (JSON array `name/lat/lon`)",
+    admin_label_mosque: "Mosque/prayer room points (JSON array `name/lat/lon`)",
+    admin_section_users: "User management",
+    admin_section_audit: "Audit log (latest records)",
+    admin_section_system: "System settings (JSON)",
+    admin_section_metrics: "Statistics and metrics",
+    admin_section_moderation: "User content moderation",
+    admin_table_fio: "Full name",
+    admin_table_id: "ID",
+    admin_table_role: "Role",
+    admin_table_status: "Status",
+    admin_table_action: "Action",
+    admin_table_user: "User",
+    admin_table_message: "Message",
+    admin_table_time: "Time",
+    admin_audit_empty: "No audit events",
+    admin_audit_before: "before",
+    admin_audit_after: "after",
+    admin_system_json_error: "System settings JSON format error",
+    admin_system_object_error: "System settings must be a JSON object",
+    admin_faq_json_error: "FAQ JSON format error",
+    admin_faq_array_error: "FAQ must be a JSON array",
+    admin_faq_saved: "FAQ saved",
+    admin_info_saved: "Info saved",
+    admin_map_json_error: "Map points JSON format error",
+    admin_map_saved: "Map points saved",
     admin_metrics_users_total: "Users",
     admin_metrics_active: "Active users",
     admin_metrics_blocked: "Blocked users",
@@ -518,9 +576,9 @@ const UI_TEXT = {
     admin_panel: "لوحة الإدارة",
     admin_panel_title: "لوحة الإدارة",
     role_label: "الدور",
-    role_student: "student",
-    role_curator: "curator",
-    role_admin: "admin",
+    role_student: "طالب",
+    role_curator: "منسق",
+    role_admin: "مدير",
     role_access_none: "وضع عرض فقط. الإجراءات المتقدمة غير متاحة.",
     role_access_curator: "يمكن تعديل FAQ ومواد المعلومات ونقاط الخرائط.",
     role_access_admin: "وصول كامل: المحتوى والمستخدمون وسجل التدقيق.",
@@ -536,6 +594,35 @@ const UI_TEXT = {
     admin_status_active: "نشط",
     admin_error: "خطأ في لوحة الإدارة",
     admin_save_system: "حفظ الإعدادات",
+    admin_section_curator_tools: "أدوات المنسق",
+    admin_label_faq: "FAQ (مصفوفة JSON من كائنات `question/answer`)",
+    admin_label_info: "مواد المعلومات (HTML للغة الحالية)",
+    admin_label_halal: "نقاط الحلال (مصفوفة JSON `name/lat/lon`)",
+    admin_label_mosque: "نقاط المسجد/المصلى (مصفوفة JSON `name/lat/lon`)",
+    admin_section_users: "إدارة المستخدمين",
+    admin_section_audit: "سجل التدقيق (أحدث السجلات)",
+    admin_section_system: "إعدادات النظام (JSON)",
+    admin_section_metrics: "الإحصاءات والمقاييس",
+    admin_section_moderation: "إشراف محتوى المستخدمين",
+    admin_table_fio: "الاسم الكامل",
+    admin_table_id: "ID",
+    admin_table_role: "الدور",
+    admin_table_status: "الحالة",
+    admin_table_action: "إجراء",
+    admin_table_user: "المستخدم",
+    admin_table_message: "الرسالة",
+    admin_table_time: "الوقت",
+    admin_audit_empty: "لا توجد أحداث تدقيق",
+    admin_audit_before: "قبل",
+    admin_audit_after: "بعد",
+    admin_system_json_error: "خطأ في تنسيق JSON لإعدادات النظام",
+    admin_system_object_error: "يجب أن تكون إعدادات النظام كائن JSON",
+    admin_faq_json_error: "خطأ في تنسيق JSON لـ FAQ",
+    admin_faq_array_error: "يجب أن يكون FAQ مصفوفة JSON",
+    admin_faq_saved: "تم حفظ FAQ",
+    admin_info_saved: "تم حفظ المعلومات",
+    admin_map_json_error: "خطأ في تنسيق JSON لنقاط الخريطة",
+    admin_map_saved: "تم حفظ نقاط الخريطة",
     admin_metrics_users_total: "المستخدمون",
     admin_metrics_active: "المستخدمون النشطون",
     admin_metrics_blocked: "المستخدمون المحظورون",
@@ -1471,6 +1558,29 @@ function applyLanguage(lang) {
   setText("systemSaveBtn", t("admin_save_system"));
   setText("metricsReloadBtn", t("admin_refresh"));
   setText("moderationReloadBtn", t("admin_refresh"));
+  setText("curatorToolsTitle", t("admin_section_curator_tools"));
+  setText("faqLabelText", t("admin_label_faq"));
+  setText("infoLabelText", t("admin_label_info"));
+  setText("halalLabelText", t("admin_label_halal"));
+  setText("mosqueLabelText", t("admin_label_mosque"));
+  setText("adminUsersTitle", t("admin_section_users"));
+  setText("adminAuditTitle", t("admin_section_audit"));
+  setText("adminSystemTitle", t("admin_section_system"));
+  setText("adminMetricsTitle", t("admin_section_metrics"));
+  setText("adminModerationTitle", t("admin_section_moderation"));
+  setText("adminUsersHeadFio", t("admin_table_fio"));
+  setText("adminUsersHeadId", t("admin_table_id"));
+  setText("adminUsersHeadRole", t("admin_table_role"));
+  setText("adminUsersHeadStatus", t("admin_table_status"));
+  setText("adminUsersHeadAction", t("admin_table_action"));
+  setText("adminModerationHeadUser", t("admin_table_user"));
+  setText("adminModerationHeadMessage", t("admin_table_message"));
+  setText("adminModerationHeadTime", t("admin_table_time"));
+  setText("adminModerationHeadStatus", t("admin_table_status"));
+  setText("adminModerationHeadAction", t("admin_table_action"));
+  setText("adminUsersLoadingText", t("admin_loading"));
+  setText("adminAuditLoadingText", t("admin_loading"));
+  setText("adminModerationLoadingText", t("admin_loading"));
   setText("aboutPopupTitleText", t("about_popup_title"));
   setText("feedbackPopupTitleText", t("feedback_popup_title"));
   setText("languageText", t("language"));
@@ -1519,6 +1629,7 @@ function applyLanguage(lang) {
   setHtml("majorHalalText", t("major_halal"));
   setText("centerInfoPopupTitleText", t("center_info_popup_title"));
   setText("prayerPopupTitleText", t("prayer_popup_title"));
+  setText("prayerLoadingText", t("prayer_loading"));
   setText("faqPopupTitleText", t("faq_popup_title"));
   setText("halalPopupTitleText", t("halal_popup_title"));
   setText("mosquePopupTitleText", t("mosque_popup_title"));
@@ -1540,6 +1651,11 @@ function applyLanguage(lang) {
   if (chatInput) chatInput.placeholder = t("chat_placeholder");
   updateProfileNameLabel();
   updateRoleBasedUi();
+  if (adminPanelPopupEl && adminPanelPopupEl.style.display === "block" && isAdminRole()) {
+    loadAdminUsers();
+    loadModerationMessages();
+    loadAuditLog();
+  }
 
   if (languageRuBtn) languageRuBtn.classList.toggle("active", currentLanguage === "ru");
   if (languageEnBtn) languageEnBtn.classList.toggle("active", currentLanguage === "en");
@@ -3544,9 +3660,9 @@ function renderAdminUsers(users) {
           <span class="admin-role-pill is-${escapeHtml(role)}">${roleText}</span>
           <div class="admin-user-controls">
             <select class="admin-role-select" data-role-user-id="${escapeHtml(userId)}">
-              <option value="student" ${role === "student" ? "selected" : ""}>student</option>
-              <option value="curator" ${role === "curator" ? "selected" : ""}>curator</option>
-              <option value="admin" ${role === "admin" ? "selected" : ""}>admin</option>
+              <option value="student" ${role === "student" ? "selected" : ""}>${t("role_student")}</option>
+              <option value="curator" ${role === "curator" ? "selected" : ""}>${t("role_curator")}</option>
+              <option value="admin" ${role === "admin" ? "selected" : ""}>${t("role_admin")}</option>
             </select>
             <button class="admin-action-btn secondary" data-action="set-role" data-user-id="${escapeHtml(userId)}">${t("admin_action_save")}</button>
           </div>
@@ -3640,9 +3756,9 @@ async function loadAuditLog() {
           const when = item.created_at || "";
           const user = item.user_id || "";
           const action = item.action || "";
-          return `${when} | ${user} | ${action}\nbefore: ${JSON.stringify(item.before || {})}\nafter: ${JSON.stringify(item.after || {})}`;
+          return `${when} | ${user} | ${action}\n${t("admin_audit_before")}: ${JSON.stringify(item.before || {})}\n${t("admin_audit_after")}: ${JSON.stringify(item.after || {})}`;
         }).join("\n\n")
-      : "No audit events";
+      : t("admin_audit_empty");
   } catch (error) {
     adminAuditLogEl.textContent = t("admin_error");
   }
@@ -3669,11 +3785,11 @@ async function saveSystemSettingsFromEditor() {
   try {
     settings = JSON.parse(roleSystemEditorEl.value || "{}");
   } catch (error) {
-    showMiniAlert("System settings JSON format error");
+    showMiniAlert(t("admin_system_json_error"));
     return;
   }
   if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
-    showMiniAlert("System settings must be object");
+    showMiniAlert(t("admin_system_object_error"));
     return;
   }
   try {
@@ -3839,12 +3955,12 @@ async function saveFaqFromEditor() {
   try {
     parsed = JSON.parse(roleFaqEditorEl.value || "[]");
   } catch (error) {
-    showMiniAlert("FAQ JSON format error");
+    showMiniAlert(t("admin_faq_json_error"));
     return;
   }
   const items = Array.isArray(parsed) ? parsed : parsed.items;
   if (!Array.isArray(items)) {
-    showMiniAlert("FAQ JSON must be array");
+    showMiniAlert(t("admin_faq_array_error"));
     return;
   }
   const res = await fetch("/faq_content", {
@@ -3858,7 +3974,7 @@ async function saveFaqFromEditor() {
     return;
   }
   await fillRoleEditorsFromServer();
-  showMiniAlert("FAQ saved");
+  showMiniAlert(t("admin_faq_saved"));
 }
 
 async function saveInfoFromEditor() {
@@ -3880,7 +3996,7 @@ async function saveInfoFromEditor() {
   }
   await loadInfoContentFromServer();
   renderCenterInfoContentByLanguage();
-  showMiniAlert("Info saved");
+  showMiniAlert(t("admin_info_saved"));
 }
 
 async function saveMapPointsFromEditor() {
@@ -3891,7 +4007,7 @@ async function saveMapPointsFromEditor() {
     halal = JSON.parse(roleHalalEditorEl.value || "[]");
     mosque = JSON.parse(roleMosqueEditorEl.value || "[]");
   } catch (error) {
-    showMiniAlert("Map points JSON format error");
+    showMiniAlert(t("admin_map_json_error"));
     return;
   }
   const res = await fetch("/map_points", {
@@ -3905,7 +4021,7 @@ async function saveMapPointsFromEditor() {
     return;
   }
   await loadMapPointsFromServer();
-  showMiniAlert("Map points saved");
+  showMiniAlert(t("admin_map_saved"));
 }
 
 function renderCenterInfoContentByLanguage() {
