@@ -29,6 +29,8 @@ MAP_POINTS_FILE = os.path.join(os.path.dirname(__file__), "map_points.json")
 SYSTEM_SETTINGS_FILE = os.path.join(os.path.dirname(__file__), "system_settings.json")
 MODERATION_STATE_FILE = os.path.join(os.path.dirname(__file__), "moderation_state.json")
 KIE_API_URL = "https://api.kie.ai/gemini-3-flash/v1/chat/completions"
+KIE_MODEL = os.environ.get("KIE_MODEL", "gemini-3-flash").strip() or "gemini-3-flash"
+KIE_API_AUTH_MODE = os.environ.get("KIE_API_AUTH_MODE", "auto").strip().lower()
 MAX_HISTORY_MESSAGES = 300
 MAX_HISTORY_TEXT_LEN = 2000
 
@@ -149,10 +151,10 @@ def _load_json_with_recovery(file_path, expected_type, default_value):
 MAX_USER_CHARS = int(os.environ.get("MAX_USER_CHARS", "400"))
 MAX_OUTPUT_TOKENS = int(os.environ.get("MAX_OUTPUT_TOKENS", "220"))
 KIE_TEMPERATURE = float(os.environ.get("KIE_TEMPERATURE", "0.2"))
-LLM_RESPONSE_SLA_SECONDS = float(os.environ.get("LLM_RESPONSE_SLA_SECONDS", "5"))
-LLM_CONNECT_TIMEOUT_SECONDS = float(os.environ.get("LLM_CONNECT_TIMEOUT_SECONDS", "1.5"))
-LLM_READ_TIMEOUT_SECONDS = float(os.environ.get("LLM_READ_TIMEOUT_SECONDS", "3.0"))
-LLM_MAX_RETRIES = max(0, int(os.environ.get("LLM_MAX_RETRIES", "0")))
+LLM_RESPONSE_SLA_SECONDS = float(os.environ.get("LLM_RESPONSE_SLA_SECONDS", "20"))
+LLM_CONNECT_TIMEOUT_SECONDS = float(os.environ.get("LLM_CONNECT_TIMEOUT_SECONDS", "3.0"))
+LLM_READ_TIMEOUT_SECONDS = float(os.environ.get("LLM_READ_TIMEOUT_SECONDS", "15.0"))
+LLM_MAX_RETRIES = max(0, int(os.environ.get("LLM_MAX_RETRIES", "2")))
 PRAYER_CACHE = {}
 VALID_ROLES = {"student", "curator", "admin"}
 ROLE_RANK = {"student": 1, "curator": 2, "admin": 3}
@@ -666,6 +668,20 @@ def get_kie_api_key():
     return (os.environ.get("KIE_API_KEY") or "").strip()
 
 
+def build_kie_auth_headers(api_key):
+    base = {"Content-Type": "application/json"}
+    mode = (KIE_API_AUTH_MODE or "auto").lower()
+    if mode in {"x-api-key", "x_api_key", "xapikey"}:
+        return [{**base, "X-API-Key": api_key}]
+    if mode in {"bearer", "authorization"}:
+        return [{**base, "Authorization": f"Bearer {api_key}"}]
+    # auto: try bearer first, then x-api-key
+    return [
+        {**base, "Authorization": f"Bearer {api_key}"},
+        {**base, "X-API-Key": api_key},
+    ]
+
+
 def normalize_language(value):
     normalized = str(value or "").strip().lower()
     if normalized.startswith("en"):
@@ -928,40 +944,43 @@ def ask_kie_gemini(user_message, lang="ru"):
         print("[chat] missing API key")
         return get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
 
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-    }
+    auth_headers_variants = build_kie_auth_headers(api_key)
 
     def send_kie(payload):
         start = time.monotonic()
-        attempt = 0
-        while True:
-            elapsed = time.monotonic() - start
-            remaining = LLM_RESPONSE_SLA_SECONDS - elapsed
-            if remaining <= 0:
-                return None, "sla_timeout"
+        for headers in auth_headers_variants:
+            attempt = 0
+            while True:
+                elapsed = time.monotonic() - start
+                remaining = LLM_RESPONSE_SLA_SECONDS - elapsed
+                if remaining <= 0:
+                    return None, "sla_timeout"
 
-            # Keep total LLM call inside SLA budget.
-            connect_timeout = max(0.2, min(LLM_CONNECT_TIMEOUT_SECONDS, remaining * 0.4))
-            read_timeout = max(0.2, min(LLM_READ_TIMEOUT_SECONDS, remaining - connect_timeout))
-            try:
-                response = requests.post(
-                    KIE_API_URL,
-                    headers=headers,
-                    json=payload,
-                    timeout=(connect_timeout, read_timeout),
-                )
-                return response, ""
-            except requests.ReadTimeout as e:
-                print(f"[chat] timeout attempt={attempt + 1}: {e}")
-                if attempt >= LLM_MAX_RETRIES:
-                    return None, "read_timeout"
-                attempt += 1
-                continue
-            except requests.RequestException as e:
-                print(f"[chat] network error: {e}")
-                return None, "network_error"
+                # Keep total LLM call inside SLA budget.
+                connect_timeout = max(0.2, min(LLM_CONNECT_TIMEOUT_SECONDS, remaining * 0.4))
+                read_timeout = max(0.2, min(LLM_READ_TIMEOUT_SECONDS, remaining - connect_timeout))
+                try:
+                    response = requests.post(
+                        KIE_API_URL,
+                        headers=headers,
+                        json=payload,
+                        timeout=(connect_timeout, read_timeout),
+                    )
+                    # If auth failed, try the next auth scheme (auto mode).
+                    if response.status_code in (401, 403) and headers is not auth_headers_variants[-1]:
+                        print("[chat] auth failed, trying alternative auth header")
+                        break
+                    return response, ""
+                except requests.ReadTimeout as e:
+                    print(f"[chat] timeout attempt={attempt + 1}: {e}")
+                    if attempt >= LLM_MAX_RETRIES:
+                        return None, "read_timeout"
+                    attempt += 1
+                    continue
+                except requests.RequestException as e:
+                    print(f"[chat] network error: {e}")
+                    return None, "network_error"
+        return None, "auth_error"
 
     def extract_text_and_reason(response, transport_error=""):
         if transport_error == "sla_timeout":
@@ -974,6 +993,24 @@ def ask_kie_gemini(user_message, lang="ru"):
         if response.status_code != 200:
             body_preview = (response.text or "").strip().replace("\n", " ")[:240]
             print(f"[chat] upstream status={response.status_code} body={body_preview}")
+            if response.status_code in (401, 403):
+                return "", "", get_text_by_lang(
+                    normalized_lang,
+                    "Ошибка авторизации API. Проверьте KIE_API_KEY в .env.",
+                    "API authorization error. Check KIE_API_KEY in .env."
+                )
+            if response.status_code == 429:
+                return "", "", get_text_by_lang(
+                    normalized_lang,
+                    "Сервис перегружен. Повторите запрос через несколько секунд.",
+                    "Service is overloaded. Please retry in a few seconds."
+                )
+            if 500 <= response.status_code < 600:
+                return "", "", get_text_by_lang(
+                    normalized_lang,
+                    "Внешний сервис временно недоступен. Повторите запрос.",
+                    "External service is temporarily unavailable. Please retry."
+                )
             return "", "", get_text_by_lang(normalized_lang, "Ошибка подключения, повторите запрос.", "Connection error, please retry.")
 
         try:
@@ -1034,6 +1071,7 @@ def ask_kie_gemini(user_message, lang="ru"):
 
     response_max_tokens = choose_response_max_tokens(user_message)
     base_payload = {
+        "model": KIE_MODEL,
         "max_tokens": response_max_tokens,
         "temperature": KIE_TEMPERATURE,
         "messages": [

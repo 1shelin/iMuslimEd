@@ -5,7 +5,7 @@
             "name": "IMuslim App",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/bakend/app.py",
+            "program": "${workspaceFolder}/backend/app.py",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "envFile": "${workspaceFolder}/.env"
