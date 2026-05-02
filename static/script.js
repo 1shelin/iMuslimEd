@@ -1705,6 +1705,37 @@ function translitRuToLat(text) {
 
 function updateChatDateLabel() {
   if (!chatDateEl) return;
+  const formatChatDate = (date) => {
+    const now = new Date();
+    const isToday =
+      date.getFullYear() === now.getFullYear() &&
+      date.getMonth() === now.getMonth() &&
+      date.getDate() === now.getDate();
+    if (isToday) return t("today");
+    return date.toLocaleDateString(currentLanguage === "en" ? "en-US" : currentLanguage === "ar" ? "ar-SA" : "ru-RU", {
+      day: "numeric",
+      month: "long"
+    });
+  };
+
+  if (messageContainer && messageContainer.children.length > 0) {
+    const containerRect = messageContainer.getBoundingClientRect();
+    const isNearBottom = isChatNearBottom(28);
+    if (!isNearBottom) {
+      for (const child of messageContainer.children) {
+        const rect = child.getBoundingClientRect();
+        const createdAt = child.getAttribute("data-created-at") || "";
+        if (rect.bottom >= containerRect.top + 2 && createdAt) {
+          const parsed = new Date(createdAt);
+          if (!Number.isNaN(parsed.getTime())) {
+            chatDateEl.textContent = formatChatDate(parsed);
+            return;
+          }
+        }
+      }
+    }
+  }
+
   const now = new Date();
   let lastDate = null;
 
@@ -1722,21 +1753,7 @@ function updateChatDateLabel() {
     chatDateEl.textContent = t("today");
     return;
   }
-
-  const isToday =
-    lastDate.getFullYear() === now.getFullYear() &&
-    lastDate.getMonth() === now.getMonth() &&
-    lastDate.getDate() === now.getDate();
-
-  if (isToday) {
-    chatDateEl.textContent = t("today");
-    return;
-  }
-
-  chatDateEl.textContent = lastDate.toLocaleDateString(currentLanguage === "en" ? "en-US" : currentLanguage === "ar" ? "ar-SA" : "ru-RU", {
-    day: "numeric",
-    month: "long"
-  });
+  chatDateEl.textContent = formatChatDate(lastDate);
 }
 
 function scrollChatToBottom() {
@@ -1744,10 +1761,16 @@ function scrollChatToBottom() {
   messageContainer.scrollTop = messageContainer.scrollHeight;
   requestAnimationFrame(() => {
     messageContainer.scrollTop = messageContainer.scrollHeight;
+    updateChatDateLabel();
   });
   setTimeout(() => {
     messageContainer.scrollTop = messageContainer.scrollHeight;
+    updateChatDateLabel();
   }, 60);
+}
+
+function stripFaqLeadingNumber(text) {
+  return String(text || "").replace(/^\s*[\d٠-٩]+[\.\)\:\-–]*\s*/, "").trim();
 }
 
 function isChatNearBottom(threshold = 28) {
@@ -2419,7 +2442,7 @@ function initEventListeners() {
 
     closeCenterInfoBtn.addEventListener("click", function(e) {
       e.stopPropagation();
-      hidePopup(centerInfoPopupEl);
+      switchMainWindow(majorWindow);
     });
   }
 
@@ -2837,6 +2860,12 @@ function initEventListeners() {
     }
   });
 
+  if (messageContainer) {
+    messageContainer.addEventListener("scroll", () => {
+      updateChatDateLabel();
+    });
+  }
+
   if (chatInput) {
     chatInput.maxLength = MAX_CHAT_MESSAGE_LENGTH;
     resizeChatInput();
@@ -2957,7 +2986,7 @@ async function handleLogin() {
   currentLogin = login;
   currentPassword = password;
 
-  showPopup(authLoading);
+  showChildPopup(authLoading);
 
   try {
     const response = await fetch("/auth", {
@@ -3023,7 +3052,7 @@ async function handleSaveFio() {
     return;
   }
 
-  showPopup(authLoading);
+  showChildPopup(authLoading);
 
   try {
     const response = await fetch("/save_fio", {
@@ -3085,10 +3114,11 @@ async function sendMessage() {
   let div = document.createElement("div");
   div.classList.add("message-user");
   div.textContent = msg;
+  const userCreatedAt = new Date().toISOString();
+  div.setAttribute("data-created-at", userCreatedAt);
   applyChatMessageDirection(div);
   messageContainer.appendChild(div);
   
-  const userCreatedAt = new Date().toISOString();
   chatMessages.push({ type: 'user', text: msg, created_at: userCreatedAt });
   updateChatDateLabel();
   saveChatHistory();
@@ -3121,8 +3151,9 @@ async function sendMessage() {
     stopThinking();
     await typeMessage(botDiv, botText, 18, keepScrollAtBottom);
     botDiv.innerHTML = markdownToHtml(botText);
-    applyChatMessageDirection(botDiv);
     const botCreatedAt = new Date().toISOString();
+    botDiv.setAttribute("data-created-at", botCreatedAt);
+    applyChatMessageDirection(botDiv);
     chatMessages.push({ type: 'bot', text: botText, created_at: botCreatedAt });
     updateChatDateLabel();
     saveChatHistory();
@@ -3131,6 +3162,7 @@ async function sendMessage() {
     stopThinking();
     botDiv.textContent = t("net_error");
     const botErrorCreatedAt = new Date().toISOString();
+    botDiv.setAttribute("data-created-at", botErrorCreatedAt);
     chatMessages.push({ type: 'bot', text: t("net_error"), created_at: botErrorCreatedAt });
     updateChatDateLabel();
     saveChatHistory();
@@ -3335,6 +3367,9 @@ function renderChatHistory(historyItems) {
     } else {
       div.textContent = item.text;
     }
+    if (createdAt) {
+      div.setAttribute("data-created-at", createdAt);
+    }
     applyChatMessageDirection(div);
     messageContainer.appendChild(div);
     chatMessages.push({ type: item.type, text: item.text, created_at: createdAt });
@@ -3495,7 +3530,7 @@ function renderFaqByLanguage() {
   if (Array.isArray(dynamicFaqItems) && dynamicFaqItems.length > 0) {
     container.innerHTML = dynamicFaqItems.map((item, index) => `
       <div class="faq-item">
-        <button class="faq-question" type="button">${escapeHtml(String(index + 1))}. ${escapeHtml(item.question || "")}</button>
+        <button class="faq-question" type="button">${escapeHtml(String(index + 1))}. ${escapeHtml(stripFaqLeadingNumber(item.question || ""))}</button>
         <div class="faq-answer">${escapeHtml(item.answer || "")}</div>
       </div>
     `).join("");
@@ -3504,11 +3539,11 @@ function renderFaqByLanguage() {
   }
   container.innerHTML = `
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q1")}</button>
+      <button class="faq-question" type="button">1. ${escapeHtml(stripFaqLeadingNumber(t("faq_q1")))}</button>
       <div class="faq-answer">${t("faq_a1")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q2")}</button>
+      <button class="faq-question" type="button">2. ${escapeHtml(stripFaqLeadingNumber(t("faq_q2")))}</button>
       <div class="faq-answer">
         <ol class="faq-list">
           <li>${t("faq_a2_1")}</li>
@@ -3520,35 +3555,35 @@ function renderFaqByLanguage() {
       </div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q3")}</button>
+      <button class="faq-question" type="button">3. ${escapeHtml(stripFaqLeadingNumber(t("faq_q3")))}</button>
       <div class="faq-answer">${t("faq_a3")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q4")}</button>
+      <button class="faq-question" type="button">4. ${escapeHtml(stripFaqLeadingNumber(t("faq_q4")))}</button>
       <div class="faq-answer">${t("faq_a4")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q5")}</button>
+      <button class="faq-question" type="button">5. ${escapeHtml(stripFaqLeadingNumber(t("faq_q5")))}</button>
       <div class="faq-answer">${t("faq_a5")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q6")}</button>
+      <button class="faq-question" type="button">6. ${escapeHtml(stripFaqLeadingNumber(t("faq_q6")))}</button>
       <div class="faq-answer">${t("faq_a6")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q7")}</button>
+      <button class="faq-question" type="button">7. ${escapeHtml(stripFaqLeadingNumber(t("faq_q7")))}</button>
       <div class="faq-answer">${t("faq_a7")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q8")}</button>
+      <button class="faq-question" type="button">8. ${escapeHtml(stripFaqLeadingNumber(t("faq_q8")))}</button>
       <div class="faq-answer">${t("faq_a8")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q9")}</button>
+      <button class="faq-question" type="button">9. ${escapeHtml(stripFaqLeadingNumber(t("faq_q9")))}</button>
       <div class="faq-answer">${t("faq_a9")}</div>
     </div>
     <div class="faq-item">
-      <button class="faq-question" type="button">${t("faq_q10")}</button>
+      <button class="faq-question" type="button">10. ${escapeHtml(stripFaqLeadingNumber(t("faq_q10")))}</button>
       <div class="faq-answer">${t("faq_a10")}</div>
     </div>
   `;
@@ -4425,6 +4460,16 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 // закрытие по клику вне
 document.addEventListener('click', (e) => {
+  if (logoutConfirmPopupEl && logoutConfirmPopupEl.style.display === "block") {
+    const logoutBtn = document.getElementById("logoutBtn");
+    const isInsideMini = logoutMiniBox ? logoutMiniBox.contains(e.target) : false;
+    const isLogoutButton = logoutBtn ? logoutBtn.contains(e.target) : false;
+    if (!isInsideMini && !isLogoutButton) {
+      hidePopup(logoutConfirmPopupEl);
+    }
+    return;
+  }
+
   const popups = [
     { popup: islamPopup, btn: openIslamBtn },
     { popup: authPopup, btn: openIslamBtn },
